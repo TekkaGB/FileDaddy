@@ -1,0 +1,21 @@
+﻿<Window x:Class="FNF_Mod_Manager.ConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FNF_Mod_Manager"
+        mc:Ignorable="d" Background="#202020" ResizeMode="NoResize"
+        Title="Config" Height="100" Width="400">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0.4*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Foreground="#f2f2f2" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center">
+            Game Path
+        </TextBlock>
+        <TextBox Name="ExeTextbox" IsReadOnly="True" VerticalAlignment="Center" Background="#f2f2f2" Grid.Row="0" Grid.Column="1" Height ="20" Width="340"/>
+        <Button Grid.Column="2" Content="Browse" Background="#494949" Foreground="#f2f2f2" Height="20" Width="70" Click="Browse_Click"/>
+    </Grid>
+</Window>

@@ -50,7 +50,9 @@ namespace FNF_Mod_Manager
                         string filePath;
                         try
                         {
-                            filePath = string.Join('\\', file.Split('\\')[3..]);
+                            string[] split = file.Split('\\');
+                            int index = split.ToList().IndexOf("assets") + 1;
+                            filePath = string.Join('\\', split[index..]);
                         }
                         catch (Exception e)
                         {

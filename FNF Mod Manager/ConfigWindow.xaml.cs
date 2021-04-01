@@ -41,7 +41,7 @@ namespace FNF_Mod_Manager
             {
                 _main.logger.WriteLine($"Set {dialog.FileName} as Game Path", LoggerType.Info);
                 _main.config.exe = dialog.FileName;
-                _main.updateConfig();
+                _main.UpdateConfig();
                 ExeTextbox.Text = dialog.FileName;
             }
             else

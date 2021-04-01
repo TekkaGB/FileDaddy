@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Text.Json;
+using Microsoft.Win32;
 
 namespace FNF_Mod_Manager
 {
@@ -25,6 +26,7 @@ namespace FNF_Mod_Manager
     {
         public Config config;
         public Logger logger;
+        public string absolutePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         // Separated from config so that order is updated when datagrid is modified
         public ObservableCollection<Mod> ModList;
 
@@ -34,11 +36,11 @@ namespace FNF_Mod_Manager
             logger = new Logger(ConsoleWindow);
             config = new Config();
             // Get config if it exists
-            if (File.Exists("Config.json"))
+            if (File.Exists($@"{absolutePath}\Config.json"))
             {
                 try
                 {
-                    string configString = File.ReadAllText("Config.json");
+                    string configString = File.ReadAllText($@"{absolutePath}\Config.json");
                     config = JsonSerializer.Deserialize<Config>(configString);
                 }
                 catch (Exception e)
@@ -53,14 +55,14 @@ namespace FNF_Mod_Manager
             ModList = config.ModList;
 
             // Create Mods Directory if it doesn't exist
-            Directory.CreateDirectory("Mods");
+            Directory.CreateDirectory($@"{absolutePath}\Mods");
             Refresh();
         }
 
         private void Refresh()
         {
             // Add new folders found in Mods to the ModList
-            foreach (var mod in Directory.GetDirectories("Mods"))
+            foreach (var mod in Directory.GetDirectories($@"{absolutePath}\Mods"))
             {
                 if (ModList.ToList().Where(x => x.name == Path.GetFileName(mod)).Count() == 0)
                 {
@@ -73,12 +75,14 @@ namespace FNF_Mod_Manager
             // Remove deleted folders that are still in the ModList
             foreach (var mod in ModList.ToList())
             {
-                if (!Directory.GetDirectories("Mods").ToList().Contains($@"Mods\{mod.name}"))
+                if (!Directory.GetDirectories($@"{absolutePath}\Mods").ToList().Contains($@"{absolutePath}\Mods\{mod.name}"))
                 {
                     ModList.Remove(mod);
                     logger.WriteLine($"Deleted {mod.name}", LoggerType.Warning);
                 }
             }
+            // Move all enabled mods to top
+            ModList = new ObservableCollection<Mod>(ModList.ToList().OrderByDescending(x => x.enabled).ToList());
 
             ModGrid.ItemsSource = ModList;
             config.ModList = ModList;
@@ -102,7 +106,7 @@ namespace FNF_Mod_Manager
                         m.enabled = true;
                 }
                 config.ModList = new ObservableCollection<Mod>(temp);
-                updateConfig();
+                UpdateConfig();
             }
         }
         private void OnUnchecked(object sender, RoutedEventArgs e)
@@ -121,13 +125,13 @@ namespace FNF_Mod_Manager
                         m.enabled = false;
                 }
                 config.ModList = new ObservableCollection<Mod>(temp);
-                updateConfig();
+                UpdateConfig();
             }
         }
         // Triggered when priority is switched on drag and dropped
         private void ModGrid_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            updateConfig();
+            UpdateConfig();
         }
 
         private void Config_Click(object sender, RoutedEventArgs e)
@@ -139,24 +143,24 @@ namespace FNF_Mod_Manager
         private void Refresh_Click(object sender, RoutedEventArgs e)
         {
             Refresh();
-            updateConfig();
+            UpdateConfig();
         }
         private void ScrollToBottom(object sender, TextChangedEventArgs args)
         {
             ConsoleWindow.ScrollToEnd();
         }
 
-        public void updateConfig()
+        public void UpdateConfig()
         {
             config.ModList = ModList;
             string configString = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
             try
             {
-                File.WriteAllText("Config.json", configString);
+                File.WriteAllText($@"{absolutePath}\Config.json", configString);
             }
             catch (Exception e)
             {
-                logger.WriteLine($"Couldn't write Config.json", LoggerType.Error);
+                logger.WriteLine($"Couldn't write Config.json ({e.Message})", LoggerType.Error);
             }
         }
 
@@ -176,11 +180,16 @@ namespace FNF_Mod_Manager
             await Task.Run(() =>
             { 
                 ModLoader.Restart(path, logger);
-                List<string> mods = config.ModList.Where(x => x.enabled).Select(y => $@"Mods\{y.name}").ToList();
+                List<string> mods = config.ModList.Where(x => x.enabled).Select(y => $@"{absolutePath}\Mods\{y.name}").ToList();
                 mods.Reverse();
                 ModLoader.Build(path, mods, logger);
             });
             logger.WriteLine("Finished Building!", LoggerType.Info);
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }

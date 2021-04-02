@@ -29,6 +29,7 @@ namespace FNF_Mod_Manager
         public string absolutePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         // Separated from config so that order is updated when datagrid is modified
         public ObservableCollection<Mod> ModList;
+        private FileSystemWatcher ModsWatcher;
 
         public MainWindow()
         {
@@ -57,6 +58,17 @@ namespace FNF_Mod_Manager
             // Create Mods Directory if it doesn't exist
             Directory.CreateDirectory($@"{absolutePath}\Mods");
             Refresh();
+
+            ModsWatcher = new FileSystemWatcher($@"{absolutePath}\Mods");
+            ModsWatcher.Created += OnCreated;
+            ModsWatcher.Deleted += OnCreated;
+            ModsWatcher.Renamed += OnCreated;
+
+            ModsWatcher.EnableRaisingEvents = true;
+        }
+        private void OnCreated(object sender, FileSystemEventArgs e)
+        {
+            Refresh();
         }
 
         private void Refresh()
@@ -69,7 +81,10 @@ namespace FNF_Mod_Manager
                     logger.WriteLine($"Adding {Path.GetFileName(mod)}", LoggerType.Info);
                     Mod m = new Mod();
                     m.name = Path.GetFileName(mod);
-                    ModList.Add(m);
+                    App.Current.Dispatcher.Invoke((Action)delegate
+                    {
+                        ModList.Add(m);
+                    });
                 }
             }
             // Remove deleted folders that are still in the ModList
@@ -77,14 +92,20 @@ namespace FNF_Mod_Manager
             {
                 if (!Directory.GetDirectories($@"{absolutePath}\Mods").ToList().Contains($@"{absolutePath}\Mods\{mod.name}"))
                 {
-                    ModList.Remove(mod);
+                    App.Current.Dispatcher.Invoke((Action)delegate
+                    {
+                        ModList.Remove(mod);
+                    });
                     logger.WriteLine($"Deleted {mod.name}", LoggerType.Warning);
                 }
             }
             // Move all enabled mods to top
             ModList = new ObservableCollection<Mod>(ModList.ToList().OrderByDescending(x => x.enabled).ToList());
 
-            ModGrid.ItemsSource = ModList;
+            App.Current.Dispatcher.Invoke((Action)delegate
+            {
+                ModGrid.ItemsSource = ModList;
+            });
             config.ModList = ModList;
             logger.WriteLine("Refreshed!", LoggerType.Info);
         }

@@ -20,7 +20,7 @@ namespace FNF_Mod_Manager
      * Maybe change to static class by passing data through ref 
      * Organize code
      * Separate extraction code in another class
-     * Add progress bar for extraction
+     * Add progress bar for extraction (maybe not since its fast)
      * Figure out why progress bar doesn't show up when already opened
      */
     public class ModDownloader
@@ -82,7 +82,7 @@ namespace FNF_Mod_Manager
         {
             string _ArchiveSource = $@"{assemblyLocation}\Downloads\{fileName}";
             string _ArchiveType = Path.GetExtension(fileName);
-            string ArchiveDestination = $@"{assemblyLocation}\Mods\{Path.ChangeExtension(fileName, null)}";
+            string ArchiveDestination = $@"{assemblyLocation}\Mods\{response.Name}";
             if (File.Exists(_ArchiveSource))
             {
                 switch (_ArchiveType)
@@ -92,11 +92,18 @@ namespace FNF_Mod_Manager
                         {
                             foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                             {
-                                entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                string[] split = entry.ToString().Split('/');
+                                int index = split.ToList().IndexOf("assets");
+                                if (index == 1)
+                                    ArchiveDestination = $@"{assemblyLocation}\Mods";
+                                if (index >= 0 && index < 2)
                                 {
-                                    ExtractFullPath = true,
-                                    Overwrite = true
-                                });
+                                    entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                    {
+                                        ExtractFullPath = true,
+                                        Overwrite = true
+                                    });
+                                }
                             }
                         }
                         break;
@@ -105,11 +112,18 @@ namespace FNF_Mod_Manager
                         {
                             foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                             {
-                                entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                string[] split = entry.ToString().Split('/');
+                                int index = split.ToList().IndexOf("assets");
+                                if (index == 1)
+                                    ArchiveDestination = $@"{assemblyLocation}\Mods";
+                                if (index >= 0 && index < 2)
                                 {
-                                    ExtractFullPath = true,
-                                    Overwrite = true
-                                });
+                                    entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                    {
+                                        ExtractFullPath = true,
+                                        Overwrite = true
+                                    });
+                                }
                             }
                         }
                         break;
@@ -118,11 +132,18 @@ namespace FNF_Mod_Manager
                         {
                             foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                             {
-                                entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                string[] split = entry.ToString().Split('/');
+                                int index = split.ToList().IndexOf("assets");
+                                if (index == 1 && index < 2)
+                                    ArchiveDestination = $@"{assemblyLocation}\Mods";
+                                if (index >= 0)
                                 {
-                                    ExtractFullPath = true,
-                                    Overwrite = true
-                                });
+                                    entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                    {
+                                        ExtractFullPath = true,
+                                        Overwrite = true
+                                    });
+                                }
                             }
                         }
                         break;
@@ -131,6 +152,12 @@ namespace FNF_Mod_Manager
                         break;
                 }
                 File.Delete(_ArchiveSource);
+                if (!Directory.Exists(ArchiveDestination))
+                    MessageBox.Show($"Didn't extract {fileName} due to improper format", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                else
+                {
+
+                }
             }
             
         }

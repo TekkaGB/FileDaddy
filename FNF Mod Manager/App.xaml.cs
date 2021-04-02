@@ -42,17 +42,14 @@ namespace FNF_Mod_Manager
         protected override void OnStartup(StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
+            RegistryConfig.InstallGBHandler();
+            MainWindow mw = new MainWindow();
             if (!AlreadyRunning())
-            {
-                RegistryConfig.InstallGBHandler();
-                DispatcherUnhandledException += App_DispatcherUnhandledException;
-                MainWindow mw = new MainWindow();
                 mw.Show();
-            }
             if (e.Args.Length > 1 && e.Args[0] == "-download")
-            {
                 new ModDownloader().Download(e.Args[1]);
-            }
         }
         private static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {

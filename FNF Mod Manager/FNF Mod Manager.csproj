@@ -9,8 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="GameBanana.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
     <PackageReference Include="SharpCompress" Version="0.28.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="GameBanana.png" />
   </ItemGroup>
 
 </Project>

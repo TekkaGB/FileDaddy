@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Text.Json;
-using Microsoft.Win32;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace FNF_Mod_Manager
 {
@@ -26,7 +19,7 @@ namespace FNF_Mod_Manager
     {
         public Config config;
         public Logger logger;
-        public string assemblyLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        public string assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         // Separated from config so that order is updated when datagrid is modified
         public ObservableCollection<Mod> ModList;
         private FileSystemWatcher ModsWatcher;
@@ -36,7 +29,13 @@ namespace FNF_Mod_Manager
             InitializeComponent();
             logger = new Logger(ConsoleWindow);
             config = new Config();
-            logger.WriteLine("Launched Friday Night Funkin Mod Manager!", LoggerType.Info);
+
+            // Get Version Number
+            var FNFMMVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+            var version = FNFMMVersion.Substring(0, FNFMMVersion.LastIndexOf('.'));
+            Title = $"Friday Night Funkin Mod Manager v{version}";
+
+            logger.WriteLine($"Launched Friday Night Funkin Mod Manager v{version}!", LoggerType.Info);
             // Get config if it exists
             if (File.Exists($@"{assemblyLocation}/Config.json"))
             {
@@ -107,7 +106,7 @@ namespace FNF_Mod_Manager
                     {
                         ModList.Remove(mod);
                     });
-                    logger.WriteLine($"{mod.name} was deleted.", LoggerType.Warning);
+                    logger.WriteLine($"{mod.name} was deleted.", LoggerType.Info);
                 }
             }
             // Move all enabled mods to top
@@ -171,11 +170,62 @@ namespace FNF_Mod_Manager
             ConfigWindow configWindow = new ConfigWindow(this);
             configWindow.ShowDialog();
         }
+        private void GameBanana_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var ps = new ProcessStartInfo("https://gamebanana.com/games/8694")
+                {
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                Process.Start(ps);
+            }
+            catch (Exception ex)
+            {
+                logger.WriteLine($"Couldn't open up Gamebanana ({ex.Message})", LoggerType.Error);
+            }
+        }
         private void ScrollToBottom(object sender, TextChangedEventArgs args)
         {
             ConsoleWindow.ScrollToEnd();
         }
 
+        private void ModGrid_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            FrameworkElement element = sender as FrameworkElement;
+            if (element == null)
+            {
+                return;
+            }
+
+            ContextMenu contextMenu = element.ContextMenu;
+            if (ModGrid.SelectedItem == null)
+                element.ContextMenu.Visibility = Visibility.Collapsed;
+            else
+                element.ContextMenu.Visibility = Visibility.Visible;
+        }
+
+        private void DeleteItem_Click(object sender, RoutedEventArgs e)
+        {
+            Mod row = (Mod)ModGrid.SelectedItem;
+            if (row != null)
+            {
+                var dialogResult = MessageBox.Show($@"Are you sure you want to delete {row.name}?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (dialogResult == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        Directory.Delete($@"{assemblyLocation}/Mods/{row.name}", true);
+                        logger.WriteLine($@"[INFO] Deleting {row.name}.", LoggerType.Info);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.WriteLine($@"Couldn't delete {row.name} ({ex.Message})", LoggerType.Error);
+                    }
+                }
+            }
+        }
         public void UpdateConfig()
         {
             config.ModList = ModList;
@@ -194,8 +244,14 @@ namespace FNF_Mod_Manager
         {
             if (config.exe != null && Directory.Exists($@"{Path.GetDirectoryName(config.exe)}/Assets"))
             {
+                ModGrid.IsHitTestVisible = false;
+                ConfigButton.IsHitTestVisible = false;
+                BuildButton.IsHitTestVisible = false;
                 Refresh();
                 await Build($@"{Path.GetDirectoryName(config.exe)}/Assets");
+                ModGrid.IsHitTestVisible = true;
+                ConfigButton.IsHitTestVisible = true;
+                BuildButton.IsHitTestVisible = true;
             }
             else
                 logger.WriteLine("Please set up correct Game Path in Config", LoggerType.Error);

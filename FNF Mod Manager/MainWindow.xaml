@@ -6,7 +6,7 @@
         xmlns:dd="urn:gong-wpf-dragdrop"
         Background="#202020"
         mc:Ignorable="d" Closing="Window_Closing" WindowStartupLocation="CenterScreen"
-        Title="Friday Night Funkin Mod Manager" Height="600" Width="500" MinHeight="600" MinWidth="500">
+        Height="600" Width="500" MinHeight="600" MinWidth="500">
     <Window.Resources>
         <SolidColorBrush x:Key="StandardBorderBrush" Color="#888" />
         <SolidColorBrush x:Key="StandardBackgroundBrush" Color="Black" />
@@ -193,16 +193,19 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
+            <ColumnDefinition Width="0.3*"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button Margin="50,10,50,5" Content="Config" Background="#494949" Foreground="#f2f2f2" Click="Config_Click"/>
-        <Button Margin="50,10,50,5" Grid.Column="1" Content="Build" Background="#494949" Foreground="#f2f2f2" Click="Build_Click"/>
+        <Button Name="ConfigButton" Margin="50,10,50,5" Content="Config" Background="#494949" Foreground="#f2f2f2" Click="Config_Click"/>
+        <Button Name="BuildButton" Margin="50,10,50,5" Grid.Column="2" Content="Build" Background="#494949" Foreground="#f2f2f2" Click="Build_Click"/>
+        <Image Grid.Column="1" Source="GameBanana.png" Cursor="Hand" ToolTip="Check Out More Mods at GameBanana!" MouseLeftButtonDown="GameBanana_Click"/>
         <DataGrid Margin="10,5,10,5" Name="ModGrid" AutoGenerateColumns="False" GridLinesVisibility="None" VerticalScrollBarVisibility="Auto"  BorderBrush="#424242"
                           EnableColumnVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" 
                           CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" AlternatingRowBackground="#2A2A2A"
-                          dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" HeadersVisibility="Column" Grid.ColumnSpan="2"
+                          dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" HeadersVisibility="Column" Grid.ColumnSpan="3"
                           SelectionMode="Single" RowBackground="#202020" Foreground="#f2f2f2" LoadingRow="ModGrid_LoadingRow" HorizontalScrollBarVisibility="Hidden"
-                          HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1" Background="#202020">
+                          HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1" Background="#202020"
+                          ContextMenuOpening="ModGrid_ContextMenuOpening">
             <DataGrid.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#535353"/>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#202020"/>
@@ -215,6 +218,11 @@
                     <Setter Property="FontWeight" Value="SemiBold"/>
                 </Style>
             </DataGrid.Resources>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Delete Mod" IsCheckable="False" Click="DeleteItem_Click"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding enabled, Mode=TwoWay}" IsReadOnly="False" Width="52">
                     <DataGridCheckBoxColumn.CellStyle>
@@ -234,7 +242,7 @@
 
         </DataGrid>
         <RichTextBox Margin="10,5,10,10" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="2" Grid.Column="0" 
-                     VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="2" TextChanged="ScrollToBottom">
+                     VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="3" TextChanged="ScrollToBottom">
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0" />

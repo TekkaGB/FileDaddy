@@ -46,10 +46,11 @@ namespace FNF_Mod_Manager
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             RegistryConfig.InstallGBHandler();
             MainWindow mw = new MainWindow();
-            if (!AlreadyRunning())
+            bool running = AlreadyRunning();
+            if (!running)
                 mw.Show();
             if (e.Args.Length > 1 && e.Args[0] == "-download")
-                new ModDownloader().Download(e.Args[1]);
+                new ModDownloader().Download(e.Args[1], running);
         }
         private static void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {

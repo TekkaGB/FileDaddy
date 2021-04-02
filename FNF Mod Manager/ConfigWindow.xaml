@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FNF_Mod_Manager"
-        mc:Ignorable="d" Background="#202020" ResizeMode="NoResize"
-        Title="Config" Height="100" Width="400">
+        mc:Ignorable="d" Background="#202020" 
+        Title="Config" Height="100" Width="400" MinHeight="100" MinWidth="400">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.3*"/>

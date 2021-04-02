@@ -55,6 +55,9 @@ namespace FNF_Mod_Manager
 
             ModList = config.ModList;
 
+            if (config.exe == null || !File.Exists(config.exe))
+                logger.WriteLine("Please select your Funkin.exe in config.", LoggerType.Warning);
+
             // Create Mods Directory if it doesn't exist
             Directory.CreateDirectory($@"{absolutePath}\Mods");
             Refresh();

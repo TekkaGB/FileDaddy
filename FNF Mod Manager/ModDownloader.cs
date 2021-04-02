@@ -34,7 +34,7 @@ namespace FNF_Mod_Manager
         private CancellationTokenSource cancellationToken = new CancellationTokenSource();
         private GameBananaItem response = new GameBananaItem();
         private ProgressBox progressBox;
-        public async void Download(string line)
+        public async void Download(string line, bool running)
         {
             ParseProtocol(line);
             await GetData();
@@ -46,6 +46,8 @@ namespace FNF_Mod_Manager
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken.Token));
                 await ExtractFile(fileName);
             }
+            if (running)
+                Environment.Exit(0);
         }
 
         private async Task GetData()

@@ -211,7 +211,7 @@ namespace FNF_Mod_Manager
             Mod row = (Mod)ModGrid.SelectedItem;
             if (row != null)
             {
-                var dialogResult = MessageBox.Show($@"Are you sure you want to delete {row.name}?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var dialogResult = MessageBox.Show($@"Are you sure you want to delete {row.name}?" + System.Environment.NewLine + "This cannot be undone.", $@"Deleting {row.name}: Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (dialogResult == MessageBoxResult.Yes)
                 {
                     try

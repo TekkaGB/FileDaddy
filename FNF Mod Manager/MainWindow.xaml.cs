@@ -266,7 +266,6 @@ namespace FNF_Mod_Manager
                 mods.Reverse();
                 ModLoader.Build(path, mods, logger);
             });
-            logger.WriteLine("Finished Building!", LoggerType.Info);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

@@ -39,6 +39,8 @@ namespace FNF_Mod_Manager
         // Copy over mod files in order of ModList
         public static void Build(string path, List<string> mods, Logger logger)
         {
+            var buildWarnings = 0;
+            var buildErrors = 0;
             foreach (var mod in mods)
             {
                 foreach (var file in Directory.GetFiles(mod, "*", SearchOption.AllDirectories))
@@ -48,6 +50,7 @@ namespace FNF_Mod_Manager
                         string filePath;
                         try
                         {
+                            //Create list of modified assets
                             string[] split = file.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
                             int index = split.ToList().IndexOf("assets") + 1;
                             filePath = string.Join('/', split[index..]);
@@ -55,6 +58,7 @@ namespace FNF_Mod_Manager
                         catch (Exception e)
                         {
                             logger.WriteLine($"Couldn't parse path after assets ({e.Message})", LoggerType.Error);
+                            ++buildErrors;
                             continue;
                         }
                         if (!File.Exists($@"{path}/{filePath}.backup") && File.Exists($@"{path}/{filePath}"))
@@ -62,17 +66,20 @@ namespace FNF_Mod_Manager
                             logger.WriteLine($@"Backing up {path}/{filePath}...", LoggerType.Info);
                             try
                             {
+                                //Create backup of unmodded file
                                 File.Copy($@"{path}/{filePath}", $@"{path}/{filePath}.backup");
                             }
                             catch (Exception e)
                             {
                                 logger.WriteLine($"Couldn't create backup ({e.Message})", LoggerType.Error);
+                                ++buildErrors;
                                 continue;
                             }
                         }
                         else if (!File.Exists($@"{path}/{filePath}.backup") && !File.Exists($@"{path}/{filePath}"))
                         {
-                            logger.WriteLine($@"Skipping {path}/{filePath}, couldn't find the original asset (Check if its misnamed or has the wrong path)", LoggerType.Warning);
+                            logger.WriteLine($@"Skipping {path}/{filePath}, couldn't find the original asset (Check if it's misnamed or has the wrong path)", LoggerType.Warning);
+                            ++buildWarnings;
                             continue;
                         }
                         try
@@ -83,10 +90,15 @@ namespace FNF_Mod_Manager
                         catch (Exception e)
                         {
                             logger.WriteLine($"Couldn't copy over modded file ({e.Message})", LoggerType.Error);
+                            ++buildErrors;
                         }
                     }
                 }
             }
+
+            logger.WriteLine("Finished building!", LoggerType.Info);
+            if (buildErrors > 0 || buildWarnings > 0)
+                logger.WriteLine(buildErrors + " errors and " + buildWarnings + " warnings occurred during building. Please double-check before launching the game.", LoggerType.Warning);
         }
     }
 }

@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dd="urn:gong-wpf-dragdrop"
         Background="#202020"
-        mc:Ignorable="d" Closing="Window_Closing"
-        Title="FNF Mod Manager" Height="600" Width="500" MinHeight="600" MinWidth="500">
+        mc:Ignorable="d" Closing="Window_Closing" WindowStartupLocation="CenterScreen"
+        Title="Friday Night Funkin Mod Manager" Height="600" Width="500" MinHeight="600" MinWidth="500">
     <Window.Resources>
         <SolidColorBrush x:Key="StandardBorderBrush" Color="#888" />
         <SolidColorBrush x:Key="StandardBackgroundBrush" Color="Black" />
@@ -194,15 +194,13 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
-            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button Margin="50,10,50,10" Content="Config" Background="#494949" Foreground="#f2f2f2" Click="Config_Click"/>
-        <Button Margin="50,10,50,10" Grid.Column="1" Content="Refresh" Background="#494949" Foreground="#f2f2f2" Click="Refresh_Click"/>
-        <Button Margin="50,10,50,10" Grid.Column="2" Content="Build" Background="#494949" Foreground="#f2f2f2" Click="Build_Click"/>
-        <DataGrid Margin="10" Name="ModGrid" AutoGenerateColumns="False" GridLinesVisibility="None" VerticalScrollBarVisibility="Auto"  BorderBrush="#424242"
+        <Button Margin="50,10,50,5" Content="Config" Background="#494949" Foreground="#f2f2f2" Click="Config_Click"/>
+        <Button Margin="50,10,50,5" Grid.Column="1" Content="Build" Background="#494949" Foreground="#f2f2f2" Click="Build_Click"/>
+        <DataGrid Margin="10,5,10,5" Name="ModGrid" AutoGenerateColumns="False" GridLinesVisibility="None" VerticalScrollBarVisibility="Auto"  BorderBrush="#424242"
                           EnableColumnVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" 
                           CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" AlternatingRowBackground="#2A2A2A"
-                          dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" HeadersVisibility="Column" Grid.ColumnSpan="3"
+                          dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" HeadersVisibility="Column" Grid.ColumnSpan="2"
                           SelectionMode="Single" RowBackground="#202020" Foreground="#f2f2f2" LoadingRow="ModGrid_LoadingRow" HorizontalScrollBarVisibility="Hidden"
                           HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1" Background="#202020">
             <DataGrid.Resources>
@@ -235,8 +233,8 @@
             </DataGrid.Columns>
 
         </DataGrid>
-        <RichTextBox Margin="10" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="2" Grid.Column="0" 
-                     VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="3" TextChanged="ScrollToBottom">
+        <RichTextBox Margin="10,5,10,10" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="2" Grid.Column="0" 
+                     VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="2" TextChanged="ScrollToBottom">
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0" />

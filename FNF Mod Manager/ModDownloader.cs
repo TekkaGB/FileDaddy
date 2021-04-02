@@ -15,14 +15,6 @@ using System.Linq;
 
 namespace FNF_Mod_Manager
 {
-    /*
-     * TODO:
-     * Maybe change to static class by passing data through ref 
-     * Organize code
-     * Separate extraction code in another class
-     * Add progress bar for extraction (maybe not since its fast)
-     * Figure out why progress bar doesn't show up when already opened
-     */
     public class ModDownloader
     {
         private string URL_TO_ARCHIVE;
@@ -36,25 +28,38 @@ namespace FNF_Mod_Manager
         private ProgressBox progressBox;
         public async void Download(string line, bool running)
         {
-            ParseProtocol(line);
-            await GetData();
-            DownloadWindow downloadWindow = new DownloadWindow(response.Name);
-            downloadWindow.ShowDialog();
-            if (downloadWindow.YesNo)
+            if (ParseProtocol(line))
             {
-                await DownloadFile(URL_TO_ARCHIVE, fileName, new Progress<DownloadProgress>(ReportUpdateProgress), 
-                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken.Token));
-                await ExtractFile(fileName);
+                if (await GetData())
+                {
+                    DownloadWindow downloadWindow = new DownloadWindow(response.Name);
+                    downloadWindow.ShowDialog();
+                    if (downloadWindow.YesNo)
+                    {
+                        await DownloadFile(URL_TO_ARCHIVE, fileName, new Progress<DownloadProgress>(ReportUpdateProgress),
+                            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken.Token));
+                        await ExtractFile(fileName);
+                    }
+                }
             }
             if (running)
                 Environment.Exit(0);
         }
 
-        private async Task GetData()
+        private async Task<bool> GetData()
         {
-            string responseString = await client.GetStringAsync(URL);
-            response = JsonSerializer.Deserialize<GameBananaItem>(responseString);
-            fileName = response.Files[DL_ID].FileName;
+            try
+            {
+                string responseString = await client.GetStringAsync(URL);
+                response = JsonSerializer.Deserialize<GameBananaItem>(responseString);
+                fileName = response.Files[DL_ID].FileName;
+                return true;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Error while fetching data: {e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
         }
         private void ReportUpdateProgress(DownloadProgress progress)
         {
@@ -65,102 +70,136 @@ namespace FNF_Mod_Manager
             progressBox.progressBar.Value = progress.Percentage * 100;
             progressBox.taskBarItem.ProgressValue = progress.Percentage;
             progressBox.progressTitle.Text = $"Downloading {progress.FileName}...";
-            progressBox.progressText.Text = $"{Math.Round(progress.Percentage * 100, 2)}% ({StringConverters.FormatSize(progress.DownloadedBytes)} of {StringConverters.FormatSize(progress.TotalBytes)})";
+            progressBox.progressText.Text = $"{Math.Round(progress.Percentage * 100, 2)}% " +
+                $"({StringConverters.FormatSize(progress.DownloadedBytes)} of {StringConverters.FormatSize(progress.TotalBytes)})";
         }
 
-        private void ParseProtocol(string line)
+        private bool ParseProtocol(string line)
         {
-            line = line.Replace("fnfmm:", "");
-            string[] data = line.Split(',');
-            URL_TO_ARCHIVE = data[0];
-            DL_ID = URL_TO_ARCHIVE.Replace("https://gamebanana.com/mmdl/", "");
-            // Do something with these later
-            string MOD_TYPE = data[1];
-            string MOD_ID = data[2];
-            URL = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=name,Files().aFiles()&return_keys=1";
+            try
+            {
+                line = line.Replace("fnfmm:", "");
+                string[] data = line.Split(',');
+                URL_TO_ARCHIVE = data[0];
+                // Used to grab file info from dictionary
+                DL_ID = URL_TO_ARCHIVE.Replace("https://gamebanana.com/mmdl/", "");
+                string MOD_TYPE = data[1];
+                string MOD_ID = data[2];
+                URL = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=name,Files().aFiles()&return_keys=1";
+                return true;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Error while parsing {line}: {e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
         }
 
+        // Extract download to Mods directory
         private async Task ExtractFile(string fileName)
         {
-            string _ArchiveSource = $@"{assemblyLocation}\Downloads\{fileName}";
-            string _ArchiveType = Path.GetExtension(fileName);
-            string ArchiveDestination = $@"{assemblyLocation}\Mods\{response.Name}";
-            if (File.Exists(_ArchiveSource))
+            await Task.Run(() =>
             {
-                switch (_ArchiveType)
+                string _ArchiveSource = $@"{assemblyLocation}/Downloads/{fileName}";
+                string _ArchiveType = Path.GetExtension(fileName);
+                string ArchiveDestination = $@"{assemblyLocation}/Mods/{response.Name}";
+                if (File.Exists(_ArchiveSource))
                 {
-                    case ".rar":
-                        using (var archive = RarArchive.Open(_ArchiveSource))
-                        {
-                            foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
+                    switch (_ArchiveType)
+                    {
+                        case ".rar":
+                            try
                             {
-                                string[] split = entry.ToString().Split('/');
-                                int index = split.ToList().IndexOf("assets");
-                                if (index == 1)
-                                    ArchiveDestination = $@"{assemblyLocation}\Mods";
-                                if (index >= 0 && index < 2)
+                                using (var archive = RarArchive.Open(_ArchiveSource))
                                 {
-                                    entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        ExtractFullPath = true,
-                                        Overwrite = true
-                                    });
+                                        string[] split = entry.ToString().Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+                                        int index = split.ToList().IndexOf("assets");
+                                        if (index == 1)
+                                            ArchiveDestination = $@"{assemblyLocation}/Mods";
+                                        if (index >= 0 && index < 2)
+                                        {
+                                            entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                            {
+                                                ExtractFullPath = true,
+                                                Overwrite = true
+                                            });
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        break;
-                    case ".zip":
-                        using (var archive = ZipArchive.Open(_ArchiveSource))
-                        {
-                            foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
+                            catch (Exception e)
                             {
-                                string[] split = entry.ToString().Split('/');
-                                int index = split.ToList().IndexOf("assets");
-                                if (index == 1)
-                                    ArchiveDestination = $@"{assemblyLocation}\Mods";
-                                if (index >= 0 && index < 2)
+                                MessageBox.Show($"Couldn't extract {fileName}: {e.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                            break;
+                        case ".zip":
+                            try
+                            {
+                                using (var archive = ZipArchive.Open(_ArchiveSource))
                                 {
-                                    entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        ExtractFullPath = true,
-                                        Overwrite = true
-                                    });
+                                        string[] split = entry.ToString().Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+                                        int index = split.ToList().IndexOf("assets");
+                                        if (index == 1)
+                                            ArchiveDestination = $@"{assemblyLocation}/Mods";
+                                        if (index >= 0 && index < 2)
+                                        {
+                                            entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                            {
+                                                ExtractFullPath = true,
+                                                Overwrite = true
+                                            });
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        break;
-                    case ".7z":
-                        using (var archive = SevenZipArchive.Open(_ArchiveSource))
-                        {
-                            foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
+                            catch (Exception e)
                             {
-                                string[] split = entry.ToString().Split('/');
-                                int index = split.ToList().IndexOf("assets");
-                                if (index == 1 && index < 2)
-                                    ArchiveDestination = $@"{assemblyLocation}\Mods";
-                                if (index >= 0)
+                                MessageBox.Show($"Couldn't extract {fileName}: {e.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                            break;
+                        case ".7z":
+                            try
+                            {
+                                using (var archive = SevenZipArchive.Open(_ArchiveSource))
                                 {
-                                    entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        ExtractFullPath = true,
-                                        Overwrite = true
-                                    });
+                                        string[] split = entry.ToString().Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+                                        int index = split.ToList().IndexOf("assets");
+                                        if (index == 1 && index < 2)
+                                            ArchiveDestination = $@"{assemblyLocation}/Mods";
+                                        if (index >= 0)
+                                        {
+                                            entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
+                                            {
+                                                ExtractFullPath = true,
+                                                Overwrite = true
+                                            });
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        break;
-                    default:
+                            catch (Exception e)
+                            {
+                                MessageBox.Show($"Couldn't extract {fileName}: {e.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                            break;
+                        default:
 
-                        break;
+                            break;
+                    }
+                    File.Delete(_ArchiveSource);
+                    // Check if folder output folder exists, if not nothing had an assets folder
+                    if (!Directory.Exists(ArchiveDestination))
+                    {
+                        MessageBox.Show($"Didn't extract {fileName} due to improper format", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
-                File.Delete(_ArchiveSource);
-                if (!Directory.Exists(ArchiveDestination))
-                    MessageBox.Show($"Didn't extract {fileName} due to improper format", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                else
-                {
-
-                }
-            }
+            });
             
         }
         private async Task DownloadFile(string uri, string fileName, Progress<DownloadProgress> progress, CancellationTokenSource cancellationToken)
@@ -168,35 +207,40 @@ namespace FNF_Mod_Manager
             try
             {
                 // Create the downloads folder if necessary
-                Directory.CreateDirectory($@"{assemblyLocation}\Downloads");
+                Directory.CreateDirectory($@"{assemblyLocation}/Downloads");
                 // Download the file if it doesn't already exist
-                if (!File.Exists($@"{assemblyLocation}\Downloads\{fileName}"))
+                if (File.Exists($@"{assemblyLocation}/Downloads/{fileName}"))
                 {
-                    progressBox = new ProgressBox(cancellationToken);
-                    progressBox.progressBar.Value = 0;
-                    progressBox.progressText.Text = $"Downloading...";
-                    progressBox.finished = false;
-                    progressBox.Title = $"Update Progress";
-                    progressBox.Show();
-                    progressBox.Activate();
-                    // Write and download the file
-                    using (var fs = new FileStream(
-                        $@"{assemblyLocation}\Downloads\{fileName}", FileMode.Create, FileAccess.Write, FileShare.None))
+                    try
                     {
-                        await client.DownloadAsync(uri, fs, fileName, progress, cancellationToken.Token);
+                        File.Delete($@"{assemblyLocation}/Downloads/{fileName}");
                     }
-                    progressBox.Close();
+                    catch (Exception e)
+                    {
+                        MessageBox.Show($"Couldn't delete the already existing {assemblyLocation}/Downloads/{fileName} ({e.Message})", 
+                            "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
                 }
-                else
+                progressBox = new ProgressBox(cancellationToken);
+                progressBox.progressBar.Value = 0;
+                progressBox.progressText.Text = $"Downloading...";
+                progressBox.finished = false;
+                progressBox.Title = $"Update Progress";
+                progressBox.Show();
+                progressBox.Activate();
+                // Write and download the file
+                using (var fs = new FileStream(
+                    $@"{assemblyLocation}/Downloads/{fileName}", FileMode.Create, FileAccess.Write, FileShare.None))
                 {
-                    Console.WriteLine($"[INFO] {fileName} already exists in downloads, using this instead");
+                    await client.DownloadAsync(uri, fs, fileName, progress, cancellationToken.Token);
                 }
-                //ExtractFile(fileName);
+                progressBox.Close();
             }
             catch (OperationCanceledException)
             {
                 // Remove the file is it will be a partially downloaded one and close up
-                File.Delete($@"{assemblyLocation}\Downloads\{fileName}");
+                File.Delete($@"{assemblyLocation}/Downloads/{fileName}");
                 if (progressBox != null)
                 {
                     progressBox.finished = true;
@@ -206,12 +250,12 @@ namespace FNF_Mod_Manager
             }
             catch (Exception e)
             {
-                Console.WriteLine($"[ERROR] Error whilst downloading {fileName}: {e.Message}");
                 if (progressBox != null)
                 {
                     progressBox.finished = true;
                     progressBox.Close();
                 }
+                MessageBox.Show($"Error whilst downloading {fileName}: {e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 

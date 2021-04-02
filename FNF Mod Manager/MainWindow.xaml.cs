@@ -26,7 +26,7 @@ namespace FNF_Mod_Manager
     {
         public Config config;
         public Logger logger;
-        public string absolutePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        public string assemblyLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         // Separated from config so that order is updated when datagrid is modified
         public ObservableCollection<Mod> ModList;
         private FileSystemWatcher ModsWatcher;
@@ -36,12 +36,13 @@ namespace FNF_Mod_Manager
             InitializeComponent();
             logger = new Logger(ConsoleWindow);
             config = new Config();
+            logger.WriteLine("Launched Friday Night Funkin Mod Manager!", LoggerType.Info);
             // Get config if it exists
-            if (File.Exists($@"{absolutePath}\Config.json"))
+            if (File.Exists($@"{assemblyLocation}/Config.json"))
             {
                 try
                 {
-                    string configString = File.ReadAllText($@"{absolutePath}\Config.json");
+                    string configString = File.ReadAllText($@"{assemblyLocation}/Config.json");
                     config = JsonSerializer.Deserialize<Config>(configString);
                 }
                 catch (Exception e)
@@ -59,25 +60,32 @@ namespace FNF_Mod_Manager
                 logger.WriteLine("Please select your Funkin.exe in config.", LoggerType.Warning);
 
             // Create Mods Directory if it doesn't exist
-            Directory.CreateDirectory($@"{absolutePath}\Mods");
+            Directory.CreateDirectory($@"{assemblyLocation}/Mods");
             Refresh();
 
-            ModsWatcher = new FileSystemWatcher($@"{absolutePath}\Mods");
-            ModsWatcher.Created += OnCreated;
-            ModsWatcher.Deleted += OnCreated;
-            ModsWatcher.Renamed += OnCreated;
+            // Watch mods folder to detect
+            ModsWatcher = new FileSystemWatcher($@"{assemblyLocation}/Mods");
+            ModsWatcher.Created += OnModified;
+            ModsWatcher.Deleted += OnModified;
+            ModsWatcher.Renamed += OnModified;
 
             ModsWatcher.EnableRaisingEvents = true;
         }
-        private void OnCreated(object sender, FileSystemEventArgs e)
+        private void OnModified(object sender, FileSystemEventArgs e)
         {
             Refresh();
+            UpdateConfig();
+            // Bring window to front after download is done
+            App.Current.Dispatcher.Invoke((Action)delegate
+            {
+                Activate();
+            });
         }
 
         private void Refresh()
         {
             // Add new folders found in Mods to the ModList
-            foreach (var mod in Directory.GetDirectories($@"{absolutePath}\Mods"))
+            foreach (var mod in Directory.GetDirectories($@"{assemblyLocation}/Mods"))
             {
                 if (ModList.ToList().Where(x => x.name == Path.GetFileName(mod)).Count() == 0)
                 {
@@ -93,13 +101,13 @@ namespace FNF_Mod_Manager
             // Remove deleted folders that are still in the ModList
             foreach (var mod in ModList.ToList())
             {
-                if (!Directory.GetDirectories($@"{absolutePath}\Mods").ToList().Contains($@"{absolutePath}\Mods\{mod.name}"))
+                if (!Directory.GetDirectories($@"{assemblyLocation}/Mods").ToList().Select(x => Path.GetFileName(x)).Contains(mod.name))
                 {
                     App.Current.Dispatcher.Invoke((Action)delegate
                     {
                         ModList.Remove(mod);
                     });
-                    logger.WriteLine($"Deleted {mod.name}", LoggerType.Warning);
+                    logger.WriteLine($"{mod.name} was deleted.", LoggerType.Warning);
                 }
             }
             // Move all enabled mods to top
@@ -163,12 +171,6 @@ namespace FNF_Mod_Manager
             ConfigWindow configWindow = new ConfigWindow(this);
             configWindow.ShowDialog();
         }
-
-        private void Refresh_Click(object sender, RoutedEventArgs e)
-        {
-            Refresh();
-            UpdateConfig();
-        }
         private void ScrollToBottom(object sender, TextChangedEventArgs args)
         {
             ConsoleWindow.ScrollToEnd();
@@ -180,7 +182,7 @@ namespace FNF_Mod_Manager
             string configString = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
             try
             {
-                File.WriteAllText($@"{absolutePath}\Config.json", configString);
+                File.WriteAllText($@"{assemblyLocation}/Config.json", configString);
             }
             catch (Exception e)
             {
@@ -190,10 +192,10 @@ namespace FNF_Mod_Manager
 
         private async void Build_Click(object sender, RoutedEventArgs e)
         {
-            if (config.exe != null && Directory.Exists($@"{Path.GetDirectoryName(config.exe)}\Assets"))
+            if (config.exe != null && Directory.Exists($@"{Path.GetDirectoryName(config.exe)}/Assets"))
             {
                 Refresh();
-                await Build($@"{Path.GetDirectoryName(config.exe)}\Assets");
+                await Build($@"{Path.GetDirectoryName(config.exe)}/Assets");
             }
             else
                 logger.WriteLine("Please set up correct Game Path in Config", LoggerType.Error);
@@ -204,7 +206,7 @@ namespace FNF_Mod_Manager
             await Task.Run(() =>
             { 
                 ModLoader.Restart(path, logger);
-                List<string> mods = config.ModList.Where(x => x.enabled).Select(y => $@"{absolutePath}\Mods\{y.name}").ToList();
+                List<string> mods = config.ModList.Where(x => x.enabled).Select(y => $@"{assemblyLocation}/Mods/{y.name}").ToList();
                 mods.Reverse();
                 ModLoader.Build(path, mods, logger);
             });

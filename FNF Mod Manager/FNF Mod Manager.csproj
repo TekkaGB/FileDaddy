@@ -5,20 +5,12 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <RootNamespace>FNF_Mod_Manager</RootNamespace>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>fnfmm.ico</ApplicationIcon>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="icon.ico" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
     <PackageReference Include="SharpCompress" Version="0.28.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="icon.ico" />
   </ItemGroup>
 
 </Project>

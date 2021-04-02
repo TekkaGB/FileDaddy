@@ -1,16 +1,5 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.IO;
 
 namespace FNF_Mod_Manager
@@ -37,7 +26,7 @@ namespace FNF_Mod_Manager
             dialog.Title = "Funkin.exe";
             dialog.Multiselect = false;
             dialog.ShowDialog();
-            if (dialog.FileName != null && Directory.Exists($@"{Path.GetDirectoryName(dialog.FileName)}\assets"))
+            if (dialog.FileName != null && Directory.Exists($@"{Path.GetDirectoryName(dialog.FileName)}/assets"))
             {
                 _main.logger.WriteLine($"Set {dialog.FileName} as Game Path", LoggerType.Info);
                 _main.config.exe = dialog.FileName;

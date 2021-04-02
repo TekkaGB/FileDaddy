@@ -45,26 +45,26 @@ namespace FNF_Mod_Manager
             {
                 foreach (var file in Directory.GetFiles(mod, "*", SearchOption.AllDirectories))
                 {
-                    if (Directory.Exists($@"{mod}\assets") && file.Contains("assets"))
+                    if (Directory.Exists($@"{mod}/assets") && file.Contains("assets"))
                     {
                         string filePath;
                         try
                         {
-                            string[] split = file.Split('\\');
+                            string[] split = file.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
                             int index = split.ToList().IndexOf("assets") + 1;
-                            filePath = string.Join('\\', split[index..]);
+                            filePath = string.Join('/', split[index..]);
                         }
                         catch (Exception e)
                         {
                             logger.WriteLine($"Couldn't parse path after assets ({e.Message})", LoggerType.Error);
                             continue;
                         }
-                        if (!File.Exists($@"{path}\{filePath}.backup") && File.Exists($@"{path}\{filePath}"))
+                        if (!File.Exists($@"{path}/{filePath}.backup") && File.Exists($@"{path}/{filePath}"))
                         {
-                            logger.WriteLine($@"Backing up {path}\{filePath}...", LoggerType.Info);
+                            logger.WriteLine($@"Backing up {path}/{filePath}...", LoggerType.Info);
                             try
                             {
-                                File.Copy($@"{path}\{filePath}", $@"{path}\{filePath}.backup");
+                                File.Copy($@"{path}/{filePath}", $@"{path}/{filePath}.backup");
                             }
                             catch (Exception e)
                             {
@@ -72,10 +72,15 @@ namespace FNF_Mod_Manager
                                 continue;
                             }
                         }
+                        else if (!File.Exists($@"{path}/{filePath}.backup") && !File.Exists($@"{path}/{filePath}"))
+                        {
+                            logger.WriteLine($@"Skipping {path}/{filePath}, couldn't find the original asset (Check if its misnamed or has the wrong path)", LoggerType.Warning);
+                            continue;
+                        }
                         try
                         {
-                            logger.WriteLine($@"Copying over {file} to {path}\{filePath}...", LoggerType.Info);
-                            File.Copy(file, $@"{path}\{filePath}", true);
+                            logger.WriteLine($@"Copying over {file} to {path}/{filePath}...", LoggerType.Info);
+                            File.Copy(file, $@"{path}/{filePath}", true);
                         }
                         catch (Exception e)
                         {

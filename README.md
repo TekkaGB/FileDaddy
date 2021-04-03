@@ -14,15 +14,15 @@ Make sure its extracted to a location NOT synced with the cloud such as OneDrive
 ### Prerequisites
 In order to get FileDaddy to open up and run, you'll need to install some prerequisites.
 
-When you open FileDaddy.exe without installing the prerequisites this window should appear
+When you open FileDaddy.exe for the first time this window might appear.
 
 ![Error Message](https://media.discordapp.net/attachments/750914797838794813/827798772184121374/one_time_i_saw_my_dad.png)
 
-When clicking yes, it should take you to this page as shown below.
+This means you need to install some prerequisites. When clicking yes, it should take you to this page as shown below.
 
 ![Prerequisite Page](https://media.discordapp.net/attachments/750914797838794813/827646015640436771/unknown.png?width=1147&height=609)
 
-Click the Download x64 that I highlighted in red as shown above. An installer will be downloaded shortly after. Open it then click Install. You should now be able to open up FileDaddy.exe without any errors.
+Click the Download x64 that I highlighted in red as shown above. An installer will be downloaded shortly after. Open it then click Install. After it finished installing, you should now be able to open up FileDaddy.exe without any errors.
 
 Alternatively, you can just download the installer from [here](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-5.0.4-windows-x64-installer) and run it before opening FileDaddy.exe and seeing the error message.
 

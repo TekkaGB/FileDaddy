@@ -12,6 +12,7 @@ using SharpCompress.Archives.SevenZip;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FNF_Mod_Manager
 {
@@ -78,11 +79,12 @@ namespace FNF_Mod_Manager
         {
             try
             {
-                line = line.Replace("fnfmm:", "");
+                line = line.Replace("filedaddy:", "");
                 string[] data = line.Split(',');
                 URL_TO_ARCHIVE = data[0];
                 // Used to grab file info from dictionary
-                DL_ID = URL_TO_ARCHIVE.Replace("https://gamebanana.com/mmdl/", "");
+                var match = Regex.Match(URL_TO_ARCHIVE, @"\d*$");
+                DL_ID = match.Value;
                 string MOD_TYPE = data[1];
                 string MOD_ID = data[2];
                 URL = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=name,Files().aFiles()&return_keys=1";

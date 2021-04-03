@@ -22,7 +22,7 @@ This means you need to install some prerequisites. When clicking yes, it should 
 
 ![Prerequisite Page](https://media.discordapp.net/attachments/750914797838794813/827646015640436771/unknown.png?width=1147&height=609)
 
-Click the Download x64 that I highlighted in red as shown above. An installer will be downloaded shortly after. Open it then click Install. After it finished installing, you should now be able to open up FileDaddy.exe without any errors.
+Click the Download x64 that I highlighted in red as shown above. An installer will be downloaded shortly after. Open it then click Install. After it finished installing, you should now be able to open up FileDaddy.exe without any errors. However, if you still run into errors, your operating system might be 32-bit so download and install x86 as well.
 
 Alternatively, you can just download the installer from [here](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-5.0.4-windows-x64-installer) and run it before opening FileDaddy.exe and seeing the error message.
 
@@ -60,3 +60,4 @@ If you have any issues with FileDaddy please fill out an issue on this GitHub pa
 ## Future Plans
 - Support multiple exes
 - Add metadata (currently only grabs name of mod from folder name)
+- More compatibility with mods that don't have the assets folder

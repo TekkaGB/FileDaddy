@@ -9,10 +9,10 @@ namespace FNF_Mod_Manager
         public static bool InstallGBHandler()
         {
             string AppPath = Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".exe");
-            string protocolName = $"Friday Night Funkin Mod Manager";
+            string protocolName = $"FileDaddy";
             try
             {
-                var reg = Registry.CurrentUser.CreateSubKey(@"Software\Classes\fnfmm");
+                var reg = Registry.CurrentUser.CreateSubKey(@"Software\Classes\filedaddy");
                 reg.SetValue("", $"URL:{protocolName}");
                 reg.SetValue("URL Protocol", "");
                 reg = reg.CreateSubKey(@"shell\open\command");

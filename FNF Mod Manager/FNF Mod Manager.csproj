@@ -6,6 +6,7 @@
     <RootNamespace>FNF_Mod_Manager</RootNamespace>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>fnfmm.ico</ApplicationIcon>
+    <AssemblyName>FileDaddy</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

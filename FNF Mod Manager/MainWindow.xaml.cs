@@ -33,9 +33,9 @@ namespace FNF_Mod_Manager
             // Get Version Number
             var FNFMMVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
             var version = FNFMMVersion.Substring(0, FNFMMVersion.LastIndexOf('.'));
-            Title = $"Friday Night Funkin Mod Manager v{version}";
+            Title = $"FileDaddy v{version}";
 
-            logger.WriteLine($"Launched Friday Night Funkin Mod Manager v{version}!", LoggerType.Info);
+            logger.WriteLine($"Launched FileDaddy v{version}!", LoggerType.Info);
             // Get config if it exists
             if (File.Exists($@"{assemblyLocation}/Config.json"))
             {
@@ -56,7 +56,7 @@ namespace FNF_Mod_Manager
             ModList = config.ModList;
 
             if (config.exe == null || !File.Exists(config.exe))
-                logger.WriteLine("Please select your Funkin.exe in config.", LoggerType.Warning);
+                logger.WriteLine("Please select Funkin.exe as the Game Path in onfig.", LoggerType.Warning);
 
             // Create Mods Directory if it doesn't exist
             Directory.CreateDirectory($@"{assemblyLocation}/Mods");
@@ -170,6 +170,30 @@ namespace FNF_Mod_Manager
             ConfigWindow configWindow = new ConfigWindow(this);
             configWindow.ShowDialog();
         }
+        private void Launch_Click(object sender, RoutedEventArgs e)
+        {
+            if (config.exe != null && File.Exists(config.exe))
+            {
+                logger.WriteLine($"Launching {config.exe}", LoggerType.Info);
+                try
+                {
+                    var ps = new ProcessStartInfo(config.exe)
+                    {
+                        // Game throws error if not launched from same directory
+                        WorkingDirectory = (Path.GetDirectoryName(config.exe)),
+                        UseShellExecute = true,
+                        Verb = "open"
+                    };
+                    Process.Start(ps);
+                }
+                catch (Exception ex)
+                {
+                    logger.WriteLine($"Couldn't launch {config.exe} ({ex.Message})", LoggerType.Error);
+                }
+            }
+            else
+                logger.WriteLine($"Please setup your Game Path in Config!", LoggerType.Warning);
+        }
         private void GameBanana_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -211,7 +235,7 @@ namespace FNF_Mod_Manager
             Mod row = (Mod)ModGrid.SelectedItem;
             if (row != null)
             {
-                var dialogResult = MessageBox.Show($@"Are you sure you want to delete {row.name}?" + System.Environment.NewLine + "This cannot be undone.", $@"Deleting {row.name}: Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                var dialogResult = MessageBox.Show($@"Are you sure you want to delete {row.name}?" + Environment.NewLine + "This cannot be undone.", $@"Deleting {row.name}: Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (dialogResult == MessageBoxResult.Yes)
                 {
                     try
@@ -247,11 +271,14 @@ namespace FNF_Mod_Manager
                 ModGrid.IsHitTestVisible = false;
                 ConfigButton.IsHitTestVisible = false;
                 BuildButton.IsHitTestVisible = false;
+                LaunchButton.IsHitTestVisible = false;
                 Refresh();
                 await Build($@"{Path.GetDirectoryName(config.exe)}/Assets");
                 ModGrid.IsHitTestVisible = true;
                 ConfigButton.IsHitTestVisible = true;
                 BuildButton.IsHitTestVisible = true;
+                LaunchButton.IsHitTestVisible = true;
+                MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
                 logger.WriteLine("Please set up correct Game Path in Config", LoggerType.Error);

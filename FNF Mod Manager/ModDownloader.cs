@@ -114,7 +114,7 @@ namespace FNF_Mod_Manager
                                 {
                                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        string[] split = entry.ToString().Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+                                        string[] split = entry.ToString().Replace("Entry Path: ", "").Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
                                         int index = split.ToList().IndexOf("assets");
                                         if (index == 1)
                                             ArchiveDestination = $@"{assemblyLocation}/Mods";
@@ -141,7 +141,7 @@ namespace FNF_Mod_Manager
                                 {
                                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        string[] split = entry.ToString().Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+                                        string[] split = entry.ToString().Replace("Entry Path: ", "").Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
                                         int index = split.ToList().IndexOf("assets");
                                         if (index == 1)
                                             ArchiveDestination = $@"{assemblyLocation}/Mods";
@@ -168,7 +168,7 @@ namespace FNF_Mod_Manager
                                 {
                                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        string[] split = entry.ToString().Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+                                        string[] split = entry.ToString().Replace("Entry Path: ", "").Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
                                         int index = split.ToList().IndexOf("assets");
                                         if (index == 1 && index < 2)
                                             ArchiveDestination = $@"{assemblyLocation}/Mods";
@@ -192,7 +192,7 @@ namespace FNF_Mod_Manager
 
                             break;
                     }
-                    File.Delete(_ArchiveSource);
+                    //File.Delete(_ArchiveSource);
                     // Check if folder output folder exists, if not nothing had an assets folder
                     if (!Directory.Exists(ArchiveDestination))
                     {
@@ -224,7 +224,6 @@ namespace FNF_Mod_Manager
                 }
                 progressBox = new ProgressBox(cancellationToken);
                 progressBox.progressBar.Value = 0;
-                progressBox.progressText.Text = $"Downloading...";
                 progressBox.finished = false;
                 progressBox.Title = $"Update Progress";
                 progressBox.Show();

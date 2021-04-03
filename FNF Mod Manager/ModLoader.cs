@@ -78,7 +78,7 @@ namespace FNF_Mod_Manager
                         }
                         else if (!File.Exists($@"{path}/{filePath}.backup") && !File.Exists($@"{path}/{filePath}"))
                         {
-                            logger.WriteLine($@"Skipping {path}/{filePath}, couldn't find the original asset (Check if it's misnamed or has the wrong path)", LoggerType.Warning);
+                            logger.WriteLine($@"Skipping {path}/{filePath}, couldn't find the original asset (Check if it's misnamed, has the wrong path, or not meant for the original version of the game)", LoggerType.Warning);
                             ++buildWarnings;
                             continue;
                         }

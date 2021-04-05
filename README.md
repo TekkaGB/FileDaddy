@@ -39,17 +39,21 @@ Once you click it, a confirmation will appear on your browser asking if you want
 
 A window will then open up confirming if you want to download the mod from FileDaddy.exe itself. Hit yes and a progress bar will let you know when the download is complete. Afterwards, the mod should appear on your mod list if it was successful.
 
+If you want to manually install mods, click the Open Mods button on top and drag a mod folder (not zip) into the directory.
+
 ### Building Your Loadout
 After installing the mods you want, you can reorganize the priority of the list by simply dragging and dropping the rows in your desired position. You can also click the checkboxes to the left of the mods to enable/disable them. Mods higher up on the list will have higher priority. This means that if more than one mod modifies the same file, the highest mod's file will be the one used. 
 
 Once you got your loadout setup, simply click the Build button and wait for it to notify you that it is finished building. After that, you can finally press the Launch button to start the game with your newly built loadout!
 
 ## Folder Structure
-Folder structure of the mods are very important as FileDaddy relies on it to work properly. Mod folders must have an assets/ folder along with matching subfolders and files that match the game's folder structure. FileDaddy won't copy over anything if it cannot find the assets folder in the mod.  GameBanana's 1-click install button will also not show up if the directory doesn't have an assets folder.
+As of v1.1.0, folder structure no longer matters! FileDaddy will just look through the entire assets folder until it finds the matching file name instead of relying on the folder path. Do note that if the mod download has multiple variations in the same folder, that it will go by alphanumeric order by folder names. So please keep variations separated. Exectuables, however, are still not supported yet.
 
-If you want to make incompatible mods compatible just change their directories to have the proper folder structure. Also you can manually add mods to the list by creating a folder in the Mods directory located in the same folder as FileDaddy.exe.
-
-Also try to have your zip have a folder with the name of the mod before assets rather than directly go into the assets folder. For example, amogus.zip/Amogus/assets is better than amogus.zip/assets. Names that appear on the mod list are grabbed from the folder names, so if it doesn't exist, I just use GameBanana API to fetch the GameBanana page's title as the folder name. This would mean that multiple variations from the same page that go directly to the assets folder will overwrite each other.
+## Extra Options
+There are some options that you can access by right clicking a mod row in the list:
+- Rename Mod - Allows you to rename how the mod's name. Simply renames folder until I implement metadata. Note that at the current implementation it will remove the mod from the list and readd it under the new name all the way at the bottom disabled.
+- Open Mod Folder - Opens the mod's folder in file explorer
+- Delete Mod - Deletes mod folder after confirmation
 
 ## Mod Loading Process
 1. FileDaddy will first look through all the files in the assets folder with the .backup extension. It will restore all those backups by overwriting the modified files with them.
@@ -61,4 +65,4 @@ If you have any issues with FileDaddy please fill out an issue on this GitHub pa
 ## Future Plans
 - Support multiple exes
 - Add metadata (currently only grabs name of mod from folder name)
-- More compatibility with mods that don't have the assets folder
+- ~~More compatibility with mods that don't have the assets folder~~

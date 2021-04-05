@@ -1,4 +1,5 @@
 # FileDaddy
+![FileDaddy](https://media.discordapp.net/attachments/792245872259235850/827987437317914634/filedaddy.png)
 ## Preface
 This mod loader/manager is meant to simplify downloading and combining many different mods.
 At the moment, FileDaddy has a very simple implementation only aimed to support the original Friday Night Funkin on Windows.

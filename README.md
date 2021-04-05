@@ -37,7 +37,7 @@ Note that this button will only work after you opened up the FileDaddy.exe for t
 
 Once you click it, a confirmation will appear on your browser asking if you want to open the application. Hit yes. If you don't want to continue seeing this confirmation just check off the Don't Ask Me From This Website before hitting yes.
 
-A window will then open up confirming if you want to download the mod from FileDaddy.exe itself. Hit yes and a progress bar will let you know when the download is complete. Afterwards, the mod should appear on your mod list if it was successful.
+A window will then open up confirming if you want to download the mod from FileDaddy.exe itself. Hit yes and a progress bar will let you know when the download is complete. Afterwards, the mod should appear on your mod list if it was successful. The name it appears under at the moment is the title of the GameBanana page. You can rename it if you'd like by right-clicking.
 
 If you want to manually install mods, click the Open Mods button on top and drag a mod folder (not zip) into the directory.
 

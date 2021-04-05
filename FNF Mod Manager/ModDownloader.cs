@@ -105,6 +105,13 @@ namespace FNF_Mod_Manager
                 string _ArchiveSource = $@"{assemblyLocation}/Downloads/{fileName}";
                 string _ArchiveType = Path.GetExtension(fileName);
                 string ArchiveDestination = $@"{assemblyLocation}/Mods/{response.Name}";
+                // Find a unique destination if it already exists
+                var counter = 2;
+                while (Directory.Exists(ArchiveDestination))
+                {
+                    ArchiveDestination = $@"{assemblyLocation}/Mods/{response.Name} ({counter})";
+                    ++counter;
+                }
                 if (File.Exists(_ArchiveSource))
                 {
                     switch (_ArchiveType)
@@ -116,18 +123,11 @@ namespace FNF_Mod_Manager
                                 {
                                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        string[] split = entry.ToString().Replace("Entry Path: ", "").Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
-                                        int index = split.ToList().IndexOf("assets");
-                                        if (index == 1)
-                                            ArchiveDestination = $@"{assemblyLocation}/Mods";
-                                        if (index >= 0 && index < 2)
+                                        entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
                                         {
-                                            entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
-                                            {
-                                                ExtractFullPath = true,
-                                                Overwrite = true
-                                            });
-                                        }
+                                            ExtractFullPath = true,
+                                            Overwrite = true
+                                        });
                                     }
                                 }
                             }
@@ -143,18 +143,11 @@ namespace FNF_Mod_Manager
                                 {
                                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        string[] split = entry.ToString().Replace("Entry Path: ", "").Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
-                                        int index = split.ToList().IndexOf("assets");
-                                        if (index == 1)
-                                            ArchiveDestination = $@"{assemblyLocation}/Mods";
-                                        if (index >= 0 && index < 2)
+                                        entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
                                         {
-                                            entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
-                                            {
-                                                ExtractFullPath = true,
-                                                Overwrite = true
-                                            });
-                                        }
+                                            ExtractFullPath = true,
+                                            Overwrite = true
+                                        });
                                     }
                                 }
                             }
@@ -170,18 +163,11 @@ namespace FNF_Mod_Manager
                                 {
                                     foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                     {
-                                        string[] split = entry.ToString().Replace("Entry Path: ", "").Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
-                                        int index = split.ToList().IndexOf("assets");
-                                        if (index == 1 && index < 2)
-                                            ArchiveDestination = $@"{assemblyLocation}/Mods";
-                                        if (index >= 0)
+                                        entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
                                         {
-                                            entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
-                                            {
-                                                ExtractFullPath = true,
-                                                Overwrite = true
-                                            });
-                                        }
+                                            ExtractFullPath = true,
+                                            Overwrite = true
+                                        });
                                     }
                                 }
                             }
@@ -203,6 +189,12 @@ namespace FNF_Mod_Manager
                 }
             });
             
+        }
+
+        private string GetFileName(string entry)
+        {
+            // Convoluted way to get filename from entry
+            return entry.Substring(0, entry.IndexOf(" Compressed Size:")).Replace("Entry Path: ", "");
         }
         private async Task DownloadFile(string uri, string fileName, Progress<DownloadProgress> progress, CancellationTokenSource cancellationToken)
         {

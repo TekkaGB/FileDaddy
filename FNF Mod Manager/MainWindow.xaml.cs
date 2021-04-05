@@ -56,7 +56,7 @@ namespace FNF_Mod_Manager
             ModList = config.ModList;
 
             if (config.exe == null || !File.Exists(config.exe))
-                logger.WriteLine("Please select Funkin.exe as the Game Path in onfig.", LoggerType.Warning);
+                logger.WriteLine("Please select Funkin.exe as the Game Path in Config.", LoggerType.Warning);
 
             // Create Mods Directory if it doesn't exist
             Directory.CreateDirectory($@"{assemblyLocation}/Mods");
@@ -272,12 +272,14 @@ namespace FNF_Mod_Manager
                 ConfigButton.IsHitTestVisible = false;
                 BuildButton.IsHitTestVisible = false;
                 LaunchButton.IsHitTestVisible = false;
+                OpenModsButton.IsHitTestVisible = false;
                 Refresh();
-                await Build($@"{Path.GetDirectoryName(config.exe)}/Assets");
+                await Build($@"{Path.GetDirectoryName(config.exe)}/assets");
                 ModGrid.IsHitTestVisible = true;
                 ConfigButton.IsHitTestVisible = true;
                 BuildButton.IsHitTestVisible = true;
                 LaunchButton.IsHitTestVisible = true;
+                OpenModsButton.IsHitTestVisible = true;
                 MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
@@ -298,6 +300,52 @@ namespace FNF_Mod_Manager
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Application.Current.Shutdown();
+        }
+
+        private void OpenItem_Click(object sender, RoutedEventArgs e)
+        {
+            Mod row = (Mod)ModGrid.SelectedItem;
+            if (row != null)
+            {
+                var folderName = $@"{assemblyLocation}\Mods\{row.name}";
+                if (Directory.Exists(folderName))
+                {
+                    try
+                    {
+                        Process process = Process.Start("explorer.exe", folderName);
+                        logger.WriteLine($@"Opened {folderName}.", LoggerType.Info);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.WriteLine($@"Couldn't open {folderName}. ({ex.Message})", LoggerType.Error);
+                    }
+                }
+            }
+        }
+        private void EditItem_Click(object sender, RoutedEventArgs e)
+        {
+            Mod row = (Mod)ModGrid.SelectedItem;
+            if (row != null)
+            {
+                EditWindow ew = new EditWindow(row, logger);
+                ew.ShowDialog();
+            }
+        }
+        private void ModsFolder_Click(object sender, RoutedEventArgs e)
+        {
+            var folderName = $@"{assemblyLocation}\Mods";
+            if (Directory.Exists(folderName))
+            {
+                try
+                {
+                    Process process = Process.Start("explorer.exe", folderName);
+                    logger.WriteLine($@"Opened {folderName}.", LoggerType.Info);
+                }
+                catch (Exception ex)
+                {
+                    logger.WriteLine($@"Couldn't open {folderName}. ({ex.Message})", LoggerType.Error);
+                }
+            }
         }
     }
 }

@@ -41,51 +41,21 @@ namespace FNF_Mod_Manager
         {
             var buildWarnings = 0;
             var buildErrors = 0;
+            // Used so that entire iteration through directory isn't needed for redundant files across mod list
+            var fileLookup = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
             foreach (var mod in mods)
             {
+                logger.WriteLine($@"Beginning to inject files from {Path.GetFileName(mod)}...", LoggerType.Info);
                 foreach (var file in Directory.GetFiles(mod, "*", SearchOption.AllDirectories))
                 {
-                    if (Directory.Exists($@"{mod}/assets") && file.Contains("assets"))
+                    if (fileLookup.ContainsKey(Path.GetFileName(file)))
                     {
-                        string filePath;
+                        var asset = fileLookup[Path.GetFileName(file)];
+                        // .backups should already be created if in dictionary
                         try
                         {
-                            //Create list of modified assets
-                            string[] split = file.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
-                            int index = split.ToList().IndexOf("assets") + 1;
-                            filePath = string.Join('/', split[index..]);
-                        }
-                        catch (Exception e)
-                        {
-                            logger.WriteLine($"Couldn't parse path after assets ({e.Message})", LoggerType.Error);
-                            ++buildErrors;
-                            continue;
-                        }
-                        if (!File.Exists($@"{path}/{filePath}.backup") && File.Exists($@"{path}/{filePath}"))
-                        {
-                            logger.WriteLine($@"Backing up {path}/{filePath}...", LoggerType.Info);
-                            try
-                            {
-                                //Create backup of unmodded file
-                                File.Copy($@"{path}/{filePath}", $@"{path}/{filePath}.backup");
-                            }
-                            catch (Exception e)
-                            {
-                                logger.WriteLine($"Couldn't create backup ({e.Message})", LoggerType.Error);
-                                ++buildErrors;
-                                continue;
-                            }
-                        }
-                        else if (!File.Exists($@"{path}/{filePath}.backup") && !File.Exists($@"{path}/{filePath}"))
-                        {
-                            logger.WriteLine($@"Skipping {path}/{filePath}, couldn't find the original asset (Check if it's misnamed, has the wrong path, or not meant for the original version of the game)", LoggerType.Warning);
-                            ++buildWarnings;
-                            continue;
-                        }
-                        try
-                        {
-                            logger.WriteLine($@"Copying over {file} to {path}/{filePath}...", LoggerType.Info);
-                            File.Copy(file, $@"{path}/{filePath}", true);
+                            logger.WriteLine($@"Copying over {file} to {asset}...", LoggerType.Info);
+                            File.Copy(file, asset, true);
                         }
                         catch (Exception e)
                         {
@@ -93,9 +63,50 @@ namespace FNF_Mod_Manager
                             ++buildErrors;
                         }
                     }
+                    else
+                    {
+                        foreach (var asset in Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                            .Where(a => string.Equals(Path.GetFileName(a), Path.GetFileName(file), StringComparison.InvariantCultureIgnoreCase)))
+                        {
+                            // Just in case it somehow already exists and wasn't added to file lookup dictionary
+                            if (!File.Exists($"{asset}.backup"))
+                            {
+                                logger.WriteLine($@"Backing up {asset}...", LoggerType.Info);
+                                try
+                                {
+                                    //Create backup of unmodded file
+                                    File.Copy($@"{asset}", $@"{asset}.backup");
+                                    // Add to file lookup dictionary
+                                    if (!fileLookup.ContainsKey(Path.GetFileName(file)))
+                                        fileLookup.Add(Path.GetFileName(file), asset);
+                                }
+                                catch (Exception e)
+                                {
+                                    logger.WriteLine($"Couldn't create backup ({e.Message})", LoggerType.Error);
+                                    ++buildErrors;
+                                    continue;
+                                }
+                            }
+                            try
+                            {
+                                logger.WriteLine($@"Copying over {file} to {asset}...", LoggerType.Info);
+                                File.Copy(file, asset, true);
+                            }
+                            catch (Exception e)
+                            {
+                                logger.WriteLine($"Couldn't copy over modded file ({e.Message})", LoggerType.Error);
+                                ++buildErrors;
+                            }
+                        }
+                        // Used to check if file was found
+                        if (!fileLookup.ContainsKey(Path.GetFileName(file)))
+                        {
+                            logger.WriteLine($"Couldn't find {Path.GetFileName(file)} in {path}, skipping...)", LoggerType.Warning);
+                            ++buildWarnings;
+                        }
+                    }
                 }
             }
-
             logger.WriteLine("Finished building!", LoggerType.Info);
             if (buildErrors > 0 || buildWarnings > 0)
                 logger.WriteLine(buildErrors + " errors and " + buildWarnings + " warnings occurred during building. Please double-check before launching the game.", LoggerType.Warning);

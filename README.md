@@ -2,8 +2,6 @@
 ![FileDaddy](https://media.discordapp.net/attachments/792245872259235850/827987437317914634/filedaddy.png)
 ## Preface
 This mod loader/manager is meant to simplify downloading and combining many different mods.
-At the moment, FileDaddy has a very simple implementation only aimed to support the original Friday Night Funkin on Windows.
-Yes that means popular exectuable mods such as VS Whitty aren't officially supported yet (although it might work anyhow).
 
 ## Before Starting
 If your game is currently modded, please restore the game back to its original state. You can do this by manually deleting your modded files and replacing them back with the original ones. Or you can just download the game again to start off from scratch. This is important since FileDaddy uses your current assets folder of the game as its base without mods.
@@ -28,7 +26,9 @@ Click the Download x64 that I highlighted in red as shown above. An installer wi
 Alternatively, you can just download the installer from [here](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-5.0.4-windows-x64-installer) and run it before opening FileDaddy.exe and seeing the error message.
 
 ### Config
-When finally opening FileDaddy.exe, first thing you want to do is click the Config button and set your Game Path to wherever your Funkin.exe is located. If you pick an executable that doesn't have an assets folder in the same directory, the console will spit out an error and tell you to try again.
+When finally opening FileDaddy.exe, first thing you want to do is click the Config button and set your Game Path to wherever your Friday Night Funkin executable is located. If you pick an executable that doesn't have an assets folder in the same directory, the console will spit out an error and tell you to try again.
+
+As of v1.2.0, you can add as many paths to different executables as you want by choosing a proper Game Path under the Add New Game Path... selection. You can then swap between whichever Game Path you'd like to choose
 
 ### Installing Mods
 You can get started with installing compatible mods by looking for this button ![button](https://media.discordapp.net/attachments/792245872259235850/827791904254066688/unknown.png) when exploring [Friday Night Funkin's GameBanana page](https://gamebanana.com/games/8694).
@@ -45,6 +45,11 @@ If you want to manually install mods, click the Open Mods button on top and drag
 After installing the mods you want, you can reorganize the priority of the list by simply dragging and dropping the rows in your desired position. You can also click the checkboxes to the left of the mods to enable/disable them. Mods higher up on the list will have higher priority. This means that if more than one mod modifies the same file, the highest mod's file will be the one used. 
 
 Once you got your loadout setup, simply click the Build button and wait for it to notify you that it is finished building. After that, you can finally press the Launch button to start the game with your newly built loadout!
+
+### Updating FileDaddy
+As of v1.2.0, FileDaddy will check for updates for itself from GameBanana and prompt you to install it if it exists. This check will only happen if FileDaddy isn't launched by clicking 1-click Install from a mod page. It will then download, extract, replace, and restart after confirmation.
+
+If any error with the auto updates were to occur please report it to me. You can then update manually by downloading the latest release and drag, drop, and overwrite its extracted contents over your current installation.
 
 ## Folder Structure
 As of v1.1.0, folder structure no longer matters! FileDaddy will just look through the entire assets folder until it finds the matching file name instead of relying on the folder path. Do note that if the mod download has multiple variations in the same folder, that it will go by alphanumeric order by folder names. So please keep variations separated. Exectuables, however, are still not supported yet.
@@ -63,6 +68,6 @@ There are some options that you can access by right clicking a mod row in the li
 If you have any issues with FileDaddy please fill out an issue on this GitHub page. Suggestions are welcomed as well. There's probably some things I haven't considered since I personally don't play/mod Friday Night Funkin frequently.
 
 ## Future Plans
-- Support multiple exes
+- ~~Support multiple exes~~
 - Add metadata (currently only grabs name of mod from folder name)
 - ~~More compatibility with mods that don't have the assets folder~~

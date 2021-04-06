@@ -48,7 +48,21 @@ namespace FNF_Mod_Manager
                 logger.WriteLine($@"Beginning to inject files from {Path.GetFileName(mod)}...", LoggerType.Info);
                 foreach (var file in Directory.GetFiles(mod, "*", SearchOption.AllDirectories))
                 {
-                    if (fileLookup.ContainsKey(Path.GetFileName(file)))
+                    var filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                            .Where(a => string.Equals(Path.GetFileName(a), Path.GetFileName(file),
+                            StringComparison.InvariantCultureIgnoreCase));
+                    var fileKey = Path.GetFileName(file);
+                    // Check if the file isn't unique (Week 7 structure)
+                    if (filesFound.Count() > 1)
+                    {
+                        fileKey = $"{Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}";
+                        filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                            .Where(a => string.Equals($"{Path.GetFileName(Path.GetDirectoryName(a))}/{Path.GetFileName(a)}", 
+                            $"{Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}",
+                            StringComparison.InvariantCultureIgnoreCase));
+
+                    }
+                    if (fileLookup.ContainsKey(fileKey))
                     {
                         var asset = fileLookup[Path.GetFileName(file)];
                         // .backups should already be created if in dictionary
@@ -63,10 +77,9 @@ namespace FNF_Mod_Manager
                             ++buildErrors;
                         }
                     }
-                    else
+                    else if (filesFound.Count() == 1)
                     {
-                        foreach (var asset in Directory.GetFiles(path, "*", SearchOption.AllDirectories)
-                            .Where(a => string.Equals(Path.GetFileName(a), Path.GetFileName(file), StringComparison.InvariantCultureIgnoreCase)))
+                        foreach (var asset in filesFound)
                         {
                             // Just in case it somehow already exists and wasn't added to file lookup dictionary
                             if (!File.Exists($"{asset}.backup"))
@@ -77,8 +90,8 @@ namespace FNF_Mod_Manager
                                     //Create backup of unmodded file
                                     File.Copy($@"{asset}", $@"{asset}.backup");
                                     // Add to file lookup dictionary
-                                    if (!fileLookup.ContainsKey(Path.GetFileName(file)))
-                                        fileLookup.Add(Path.GetFileName(file), asset);
+                                    if (!fileLookup.ContainsKey(fileKey))
+                                        fileLookup.Add(fileKey, asset);
                                 }
                                 catch (Exception e)
                                 {
@@ -98,12 +111,14 @@ namespace FNF_Mod_Manager
                                 ++buildErrors;
                             }
                         }
-                        // Used to check if file was found
-                        if (!fileLookup.ContainsKey(Path.GetFileName(file)))
-                        {
-                            logger.WriteLine($"Couldn't find {Path.GetFileName(file)} in {path}, skipping...)", LoggerType.Warning);
-                            ++buildWarnings;
-                        }
+                    }
+                    else
+                    {
+                        if (filesFound.Count() == 0)
+                            logger.WriteLine($"Couldn't find {fileKey} in {path}, skipping...", LoggerType.Warning);
+                        else
+                            logger.WriteLine($"Couldn't find unique {fileKey} in {path}, skipping...", LoggerType.Warning);
+                        ++buildWarnings;
                     }
                 }
             }

@@ -22,6 +22,7 @@ namespace FNF_Mod_Manager
         public string assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         // Separated from config so that order is updated when datagrid is modified
         public ObservableCollection<Mod> ModList;
+        public List<string> exes;
         private FileSystemWatcher ModsWatcher;
 
         public MainWindow()
@@ -56,7 +57,9 @@ namespace FNF_Mod_Manager
             ModList = config.ModList;
 
             if (config.exe == null || !File.Exists(config.exe))
-                logger.WriteLine("Please select Funkin.exe as the Game Path in Config.", LoggerType.Warning);
+                logger.WriteLine("Please set up Game Path in Config.", LoggerType.Warning);
+            else if (config.exe != null)
+                logger.WriteLine($"Current Game Path set as {config.exe}", LoggerType.Info);
 
             // Create Mods Directory if it doesn't exist
             Directory.CreateDirectory($@"{assemblyLocation}/Mods");
@@ -192,7 +195,7 @@ namespace FNF_Mod_Manager
                 }
             }
             else
-                logger.WriteLine($"Please setup your Game Path in Config!", LoggerType.Warning);
+                logger.WriteLine($"Please set up your Game Path in Config!", LoggerType.Warning);
         }
         private void GameBanana_Click(object sender, RoutedEventArgs e)
         {
@@ -207,7 +210,7 @@ namespace FNF_Mod_Manager
             }
             catch (Exception ex)
             {
-                logger.WriteLine($"Couldn't open up Gamebanana ({ex.Message})", LoggerType.Error);
+                logger.WriteLine($"Couldn't open up GameBanana ({ex.Message})", LoggerType.Error);
             }
         }
         private void ScrollToBottom(object sender, TextChangedEventArgs args)
@@ -283,7 +286,7 @@ namespace FNF_Mod_Manager
                 MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
-                logger.WriteLine("Please set up correct Game Path in Config", LoggerType.Error);
+                logger.WriteLine("Please set up correct Game Path in Config", LoggerType.Warning);
         }
 
         private async Task Build(string path)

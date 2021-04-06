@@ -5,7 +5,7 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <RootNamespace>FNF_Mod_Manager</RootNamespace>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>filedaddy.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\filedaddy.ico</ApplicationIcon>
     <AssemblyName>FileDaddy</AssemblyName>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
   </PropertyGroup>
@@ -16,11 +16,12 @@
 
   <ItemGroup>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
+    <PackageReference Include="Onova" Version="2.6.2" />
     <PackageReference Include="SharpCompress" Version="0.28.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="GameBanana.png" />
+    <Resource Include="Assets\GameBanana.png" />
   </ItemGroup>
 
 </Project>

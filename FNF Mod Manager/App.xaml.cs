@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Threading;
+using System.Threading;
 
 namespace FNF_Mod_Manager
 {
@@ -33,7 +34,7 @@ namespace FNF_Mod_Manager
             catch { }
             return running;
         }
-        protected override void OnStartup(StartupEventArgs e)
+        protected async override void OnStartup(StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnMainWindowClose;
 
@@ -42,7 +43,13 @@ namespace FNF_Mod_Manager
             MainWindow mw = new MainWindow();
             bool running = AlreadyRunning();
             if (!running)
+            {
                 mw.Show();
+                // Only check for updates if FileDaddy wasn't launched by 1-click install button
+                if (e.Args.Length == 0)
+                    if (await AutoUpdater.CheckForFileDaddyUpdate(new CancellationTokenSource()))
+                        mw.Close();
+            }
             if (e.Args.Length > 1 && e.Args[0] == "-download")
                 new ModDownloader().Download(e.Args[1], running);
         }

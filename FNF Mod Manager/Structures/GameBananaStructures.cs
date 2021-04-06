@@ -8,14 +8,17 @@ namespace FNF_Mod_Manager
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
+        [JsonPropertyName("Updates().bSubmissionHasUpdates()")]
+        public bool HasUpdates { get; set; }
+
+        [JsonPropertyName("Updates().aGetLatestUpdates()")]
+        public GameBananaItemUpdate[] Updates { get; set; }
         [JsonPropertyName("Files().aFiles()")]
         public Dictionary<string, GameBananaItemFile> Files { get; set; }
 
     }
     public class GameBananaItemFile
     {
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1);
-
         [JsonPropertyName("_sFile")]
         public string FileName { get; set; }
 
@@ -30,5 +33,27 @@ namespace FNF_Mod_Manager
 
         [JsonPropertyName("_tsDateAdded")]
         public long DateAddedLong { get; set; }
+    }
+    public class GameBananaItemUpdate
+    {
+        [JsonPropertyName("_sTitle")]
+        public string Title { get; set; }
+
+        [JsonPropertyName("_aChangeLog")]
+        public GameBananaItemUpdateChange[] Changes { get; set; }
+
+        [JsonPropertyName("_sText")]
+        public string Text { get; set; }
+
+        [JsonPropertyName("_tsDateAdded")]
+        public long DateAddedLong { get; set; }
+    }
+    public class GameBananaItemUpdateChange
+    {
+        [JsonPropertyName("cat")]
+        public string Category { get; set; }
+
+        [JsonPropertyName("text")]
+        public string Text { get; set; }
     }
 }

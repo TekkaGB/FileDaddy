@@ -174,7 +174,7 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition Width="80"/>
             <ColumnDefinition/>
             <ColumnDefinition Width="0.4*"/>
             <ColumnDefinition Width="0.4*"/>

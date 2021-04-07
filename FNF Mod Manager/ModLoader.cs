@@ -48,24 +48,47 @@ namespace FNF_Mod_Manager
                 logger.WriteLine($@"Beginning to inject files from {Path.GetFileName(mod)}...", LoggerType.Info);
                 foreach (var file in Directory.GetFiles(mod, "*", SearchOption.AllDirectories))
                 {
-                    var filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
-                            .Where(a => string.Equals(Path.GetFileName(a), Path.GetFileName(file),
-                            StringComparison.InvariantCultureIgnoreCase));
                     var fileKey = Path.GetFileName(file);
+                    var filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                            .Where(a => string.Equals(Path.GetFileName(a), fileKey,
+                            StringComparison.InvariantCultureIgnoreCase));
                     // Check if the file isn't unique (Week 7 structure)
                     if (filesFound.Count() > 1)
                     {
                         fileKey = $"{Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}";
                         filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
                             .Where(a => string.Equals($"{Path.GetFileName(Path.GetDirectoryName(a))}/{Path.GetFileName(a)}", 
-                            $"{Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}",
-                            StringComparison.InvariantCultureIgnoreCase));
-
+                            fileKey, StringComparison.InvariantCultureIgnoreCase));
                     }
+
+                    // Inst and Voice are named and organized differently pre/post week 7 update
+                    if (filesFound.Count() == 0 && (Path.GetFileName(file).Contains("inst", StringComparison.InvariantCultureIgnoreCase)
+                        || Path.GetFileName(file).Contains("voice", StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        // Pre Week 7
+                        if (!Directory.Exists($"{path}/songs"))
+                        {
+                            // Look for pre week 7 <folder>_Inst.ogg instead of post week 7 <folder>/Inst.ogg
+                            fileKey = $"{Path.GetFileName(Path.GetDirectoryName(file))}_{Path.GetFileName(file)}";
+                            filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                                .Where(a => string.Equals(Path.GetFileName(a),
+                                fileKey, StringComparison.InvariantCultureIgnoreCase));
+                        }
+                        // Post Week 7
+                        else
+                        {
+                            // Look for post week 7 <folder>/Inst.ogg instead of pre week 7 <folder>_Inst.ogg
+                            fileKey = fileKey.Replace("_", "/");
+                            filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                                .Where(a => string.Equals($"{Path.GetFileName(Path.GetDirectoryName(a))}/{Path.GetFileName(a)}",
+                                fileKey, StringComparison.InvariantCultureIgnoreCase));
+                        }
+                    }
+
                     if (fileLookup.ContainsKey(fileKey))
                     {
-                        var asset = fileLookup[Path.GetFileName(file)];
-                        // .backups should already be created if in dictionary
+                        var asset = fileLookup[fileKey];
+                        // .backups should already be created if in dictionary so only copy over
                         try
                         {
                             logger.WriteLine($@"Copying over {file} to {asset}...", LoggerType.Info);

@@ -53,7 +53,7 @@ namespace FNF_Mod_Manager
             {
                 string responseString = await client.GetStringAsync(URL);
                 response = JsonSerializer.Deserialize<GameBananaItem>(responseString);
-                fileName = response.Files[DL_ID].FileName;
+                fileName = response.Files.First(x => x.ID == DL_ID).FileName;
                 return true;
             }
             catch (Exception e)

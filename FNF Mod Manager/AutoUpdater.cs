@@ -51,9 +51,9 @@ namespace FNF_Mod_Manager
                         notification.Activate();
                         if (notification.YesNo)
                         {
-                            Dictionary<String, GameBananaItemFile> files = response.Files;
-                            string downloadUrl = files.ElementAt(0).Value.DownloadUrl;
-                            string fileName = files.ElementAt(0).Value.FileName;
+                            List<GameBananaItemFile> files = response.Files;
+                            string downloadUrl = files.ElementAt(0).DownloadUrl;
+                            string fileName = files.ElementAt(0).FileName;
                             // Download the update
                             await DownloadFileDaddy(downloadUrl, fileName, onlineVersion, new Progress<DownloadProgress>(ReportUpdateProgress), cancellationToken);
                             // Notify that the update is about to happen

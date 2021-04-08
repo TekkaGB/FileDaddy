@@ -14,13 +14,11 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("Updates().aGetLatestUpdates()")]
         public GameBananaItemUpdate[] Updates { get; set; }
         [JsonPropertyName("Files().aFiles()")]
-        public List<GameBananaItemFile> Files { get; set; }
+        public Dictionary<string, GameBananaItemFile> Files { get; set; }
 
     }
     public class GameBananaItemFile
     {
-        [JsonPropertyName("_idRow")]
-        public string ID { get; set; }
         [JsonPropertyName("_sFile")]
         public string FileName { get; set; }
 

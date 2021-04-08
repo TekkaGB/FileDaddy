@@ -5,18 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FNF_Mod_Manager" WindowStartupLocation="CenterScreen"
         mc:Ignorable="d" Background="#202020" ResizeMode="NoResize"
-        Title="Download" Height="160" Width="400">
+        Title="Download" SizeToContent="Height" Width="300">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
             <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <TextBlock Name="DownloadText" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#f2f2f2" TextWrapping="Wrap"/>
-        <Button Grid.Row="1" Grid.Column="0" Content="Yes" Foreground="#f2f2f2" Background="#494949" Margin="50,8,50,8" Click="Yes_Click"/>
-        <Button Grid.Row="1" Grid.Column="1" Content="No" Foreground="#f2f2f2" Background="#494949" Margin="50,8,50,8" Click="No_Click"/>
+        <TextBlock Name="DownloadText" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Center" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#f2f2f2" TextWrapping="Wrap"/>
+        <Image Name="Preview" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="1" Grid.ColumnSpan="2"/>
+        <Button Grid.Row="2" Grid.Column="0" Content="Yes" Foreground="#f2f2f2" Background="#494949" Margin="20,5,20,5" Click="Yes_Click"/>
+        <Button Grid.Row="2" Grid.Column="1" Content="No" Foreground="#f2f2f2" Background="#494949" Margin="20,5,20,5" Click="No_Click"/>
     </Grid>
 </Window>

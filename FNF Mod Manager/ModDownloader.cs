@@ -33,7 +33,7 @@ namespace FNF_Mod_Manager
             {
                 if (await GetData())
                 {
-                    DownloadWindow downloadWindow = new DownloadWindow(response.Name);
+                    DownloadWindow downloadWindow = new DownloadWindow(response);
                     downloadWindow.ShowDialog();
                     if (downloadWindow.YesNo)
                     {
@@ -87,7 +87,7 @@ namespace FNF_Mod_Manager
                 DL_ID = match.Value;
                 string MOD_TYPE = data[1];
                 string MOD_ID = data[2];
-                URL = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=name,Files().aFiles()&return_keys=1";
+                URL = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=name,Files().aFiles(),Preview().sStructuredDataFullsizeUrl(),Preview().sSubFeedImageUrl()&return_keys=1";
                 return true;
             }
             catch (Exception e)

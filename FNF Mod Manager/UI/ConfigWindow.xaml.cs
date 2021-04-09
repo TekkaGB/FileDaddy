@@ -5,40 +5,71 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Media;
+using System.Drawing;
+using System.Windows.Media.Imaging;
 
 namespace FNF_Mod_Manager
 {
+    public class Game : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        public string FileName { get; set; }
+        public ImageSource Icon { get; set; }
+    }
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
+    /// 
     public partial class ConfigWindow : Window
     {
-        // Idea: Choose name of game then bring up file dialog
         private MainWindow _main;
-        public ObservableCollection<string> exes;
+        public ObservableCollection<Game> exes;
+
+        public Game ConvertExe(string exe)
+        {
+            var game = new Game();
+            game.FileName = exe;
+            var bitmap = System.Drawing.Icon.ExtractAssociatedIcon(exe).ToBitmap();
+            using (MemoryStream memory = new MemoryStream())
+            {
+                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+                game.Icon = bitmapimage;
+            }
+            return game;
+        }
         public ConfigWindow(MainWindow main)
         {
             _main = main;
             InitializeComponent();
 
+            exes = new ObservableCollection<Game>();
             if (_main.config.exes != null)
             {
-                exes = new ObservableCollection<string>(_main.config.exes);
+                foreach (var exe in _main.config.exes)
+                {
+                    exes.Add(ConvertExe(exe));
+                }
             }
-            else
-            {
-                exes = new ObservableCollection<string>();
-            }
-
 
             if (_main.config.exe != null)
             {
                 ExeTextbox.Text = _main.config.exe;
-                if (!exes.Contains(_main.config.exe))
-                    exes.Add(_main.config.exe);
-                ExeBox.SelectedIndex = exes.IndexOf(_main.config.exe);
+                var selectedGame = ConvertExe(_main.config.exe);
+                if (!exes.Select(x => x.FileName).Contains(_main.config.exe))
+                    exes.Add(selectedGame);
+                ExeBox.SelectedIndex = exes.Select(x => x.FileName).ToList().IndexOf(_main.config.exe);
             }
-            exes.Add("Add New Game Path...");
+            var prompt = new Game();
+            prompt.FileName = "Add New Game Path...";
+            exes.Add(prompt);
             ExeBox.ItemsSource = exes;
             if (ExeBox.SelectedIndex == -1)
             {
@@ -57,8 +88,8 @@ namespace FNF_Mod_Manager
                 ExeBox.SelectedIndex = 0;
                 if (exes.Count != 1)
                 {
-                    ExeTextbox.Text = exes[0];
-                    _main.config.exe = exes[0];
+                    ExeTextbox.Text = exes[0].FileName;
+                    _main.config.exe = exes[0].FileName;
                 }
                 else
                 {
@@ -66,7 +97,7 @@ namespace FNF_Mod_Manager
                     _main.config.exe = null;
                     _main.logger.WriteLine($"No Game Path is set.", LoggerType.Warning);
                 }
-                _main.config.exes = exes.ToArray()[..(exes.Count - 1)].ToList();
+                _main.config.exes = exes.Select(x => x.FileName).ToArray()[..(exes.Count - 1)].ToList();
                 _main.UpdateConfig();
             }
         }
@@ -86,18 +117,20 @@ namespace FNF_Mod_Manager
                 var selectedIndex = ExeBox.SelectedIndex;
                 if (dialog.FileName != selectedGame)
                 {
-                    if (exes.Contains(dialog.FileName))
+                    if (exes.Select(x => x.FileName).Contains(dialog.FileName))
                     {
                         _main.logger.WriteLine($"{dialog.FileName} already set as one of the Game Paths", LoggerType.Error);
                         return;
                     }
                     else
                     {
-                        var oldName = exes[selectedIndex];
-                        exes[selectedIndex] = dialog.FileName;
+                        var oldName = exes[selectedIndex].FileName;
+                        exes[selectedIndex] = ConvertExe(dialog.FileName);
                         if (selectedIndex == exes.Count - 1)
                         {
-                            exes.Add("Add New Game Path...");
+                            var prompt = new Game();
+                            prompt.FileName = "Add New Game Path...";
+                            exes.Add(prompt);
                             _main.logger.WriteLine($"Added {dialog.FileName} to Game Paths", LoggerType.Info);
                         }
                         else
@@ -108,7 +141,7 @@ namespace FNF_Mod_Manager
                         ExeBox.SelectedIndex = selectedIndex;
                     }
                     _main.config.exe = dialog.FileName;
-                    _main.config.exes = exes.ToArray()[..(exes.Count - 1)].ToList();
+                    _main.config.exes = exes.Select(x => x.FileName).ToArray()[..(exes.Count - 1)].ToList();
                 }
                 else
                 {
@@ -133,7 +166,7 @@ namespace FNF_Mod_Manager
                 else
                 {
                     DeleteButton.IsEnabled = true;
-                    var gamePath = exes[ExeBox.SelectedIndex];
+                    var gamePath = exes[ExeBox.SelectedIndex].FileName;
                     ExeTextbox.Text = gamePath;
                     _main.config.exe = gamePath;
                     _main.UpdateConfig();

@@ -190,12 +190,6 @@ namespace FNF_Mod_Manager
             });
             
         }
-
-        private string GetFileName(string entry)
-        {
-            // Convoluted way to get filename from entry
-            return entry.Substring(0, entry.IndexOf(" Compressed Size:")).Replace("Entry Path: ", "");
-        }
         private async Task DownloadFile(string uri, string fileName, Progress<DownloadProgress> progress, CancellationTokenSource cancellationToken)
         {
             try

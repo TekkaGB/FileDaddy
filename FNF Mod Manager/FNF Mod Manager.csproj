@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Assets\filedaddy.ico</ApplicationIcon>
     <AssemblyName>FileDaddy</AssemblyName>
-    <AssemblyVersion>1.2.2.0</AssemblyVersion>
+    <AssemblyVersion>1.2.4.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,9 +15,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <COMReference Include="{d37e2a3e-8545-3a39-9f4f-31827c9124ab}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>4</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>d37e2a3e-8545-3a39-9f4f-31827c9124ab</Guid>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
     <PackageReference Include="Onova" Version="2.6.2" />
     <PackageReference Include="SharpCompress" Version="0.28.1" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>

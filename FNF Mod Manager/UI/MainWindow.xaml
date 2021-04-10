@@ -188,8 +188,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.2*"/>
-            <RowDefinition Height="1.2*"/>
-            <RowDefinition/>
+            <RowDefinition Height="1.2*" MinHeight="100"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition MinHeight="100"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -203,7 +204,7 @@
         <Button Name="LaunchButton" Margin="20,10,20,5" Grid.Column="2" Content="Launch" Background="#494949" Foreground="#f2f2f2" Click="Launch_Click"/>
         <Button Name="OpenModsButton" Margin="20,10,20,5" Grid.Column="3" Content="Open Mods" Background="#494949" Foreground="#f2f2f2" Click="ModsFolder_Click"/>
         <Image Grid.Column="4" Source="../Assets/GameBanana.png" Cursor="Hand" ToolTip="Check Out More Mods at GameBanana!" MouseLeftButtonDown="GameBanana_Click"/>
-        <DataGrid Margin="10,5,10,5" Name="ModGrid" AutoGenerateColumns="False" GridLinesVisibility="None" VerticalScrollBarVisibility="Auto"  BorderBrush="#424242"
+        <DataGrid Margin="10,5,10,3" Name="ModGrid" AutoGenerateColumns="False" GridLinesVisibility="None" VerticalScrollBarVisibility="Auto"  BorderBrush="#424242"
                           EnableColumnVirtualization="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
                           CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" AlternatingRowBackground="#2A2A2A"
                           dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True" HeadersVisibility="Column" Grid.ColumnSpan="5"
@@ -247,7 +248,10 @@
             </DataGrid.Columns>
 
         </DataGrid>
-        <RichTextBox Margin="10,5,10,10" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="2" Grid.Column="0" 
+
+        <GridSplitter Grid.Row="2" Grid.ColumnSpan="5" HorizontalAlignment="Stretch" Height="4" Background="Transparent"/>
+
+        <RichTextBox Margin="10,3,10,10" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="3" Grid.Column="0" 
                      VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="5" TextChanged="ScrollToBottom">
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">

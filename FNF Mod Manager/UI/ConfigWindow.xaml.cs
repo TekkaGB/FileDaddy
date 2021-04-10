@@ -1,14 +1,11 @@
 ﻿using Microsoft.Win32;
 using System.Windows;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media;
-using System.Drawing;
-using System.Windows.Media.Imaging;
 
 namespace FNF_Mod_Manager
 {
@@ -31,18 +28,7 @@ namespace FNF_Mod_Manager
         {
             var game = new Game();
             game.FileName = exe;
-            var bitmap = System.Drawing.Icon.ExtractAssociatedIcon(exe).ToBitmap();
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, System.Drawing.Imaging.ImageFormat.Png);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
-                game.Icon = bitmapimage;
-            }
+            game.Icon = IconExtractor.GetIcon(exe, false, false);
             return game;
         }
         public ConfigWindow(MainWindow main)

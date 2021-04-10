@@ -180,11 +180,15 @@ namespace FNF_Mod_Manager
 
                             break;
                     }
-                    //File.Delete(_ArchiveSource);
                     // Check if folder output folder exists, if not nothing had an assets folder
                     if (!Directory.Exists(ArchiveDestination))
                     {
                         MessageBox.Show($"Didn't extract {fileName} due to improper format", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                    else
+                    {
+                        // Only delete if successfully extracted
+                        File.Delete(_ArchiveSource);
                     }
                 }
             });

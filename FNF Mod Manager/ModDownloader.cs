@@ -13,6 +13,7 @@ using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SharpCompress.Readers;
 
 namespace FNF_Mod_Manager
 {
@@ -114,82 +115,39 @@ namespace FNF_Mod_Manager
                 }
                 if (File.Exists(_ArchiveSource))
                 {
-                    switch (_ArchiveType)
+                    try
                     {
-                        case ".rar":
-                            try
+                        using (Stream stream = File.OpenRead(_ArchiveSource))
+                        using (var reader = ReaderFactory.Open(stream))
+                        {
+                            while (reader.MoveToNextEntry())
                             {
-                                using (var archive = RarArchive.Open(_ArchiveSource))
+                                if (!reader.Entry.IsDirectory)
                                 {
-                                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
+                                    Console.WriteLine(reader.Entry.Key);
+                                    reader.WriteEntryToDirectory(ArchiveDestination, new ExtractionOptions()
                                     {
-                                        entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
-                                        {
-                                            ExtractFullPath = true,
-                                            Overwrite = true
-                                        });
-                                    }
+                                        ExtractFullPath = true,
+                                        Overwrite = true
+                                    });
                                 }
                             }
-                            catch (Exception e)
-                            {
-                                MessageBox.Show($"Couldn't extract {fileName}: {e.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            }
-                            break;
-                        case ".zip":
-                            try
-                            {
-                                using (var archive = ZipArchive.Open(_ArchiveSource))
-                                {
-                                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
-                                    {
-                                        entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
-                                        {
-                                            ExtractFullPath = true,
-                                            Overwrite = true
-                                        });
-                                    }
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                MessageBox.Show($"Couldn't extract {fileName}: {e.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            }
-                            break;
-                        case ".7z":
-                            try
-                            {
-                                using (var archive = SevenZipArchive.Open(_ArchiveSource))
-                                {
-                                    foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
-                                    {
-                                        entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
-                                        {
-                                            ExtractFullPath = true,
-                                            Overwrite = true
-                                        });
-                                    }
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                MessageBox.Show($"Couldn't extract {fileName}: {e.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            }
-                            break;
-                        default:
-
-                            break;
+                        }
                     }
-                    // Check if folder output folder exists, if not nothing had an assets folder
-                    if (!Directory.Exists(ArchiveDestination))
+                    catch (Exception e)
                     {
-                        MessageBox.Show($"Didn't extract {fileName} due to improper format", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show($"Couldn't extract {fileName}: {e.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
-                    else
-                    {
-                        // Only delete if successfully extracted
-                        File.Delete(_ArchiveSource);
-                    }
+                }
+                // Check if folder output folder exists, if not nothing was extracted
+                if (!Directory.Exists(ArchiveDestination))
+                {
+                    MessageBox.Show($"Didn't extract {fileName} due to improper format", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    // Only delete if successfully extracted
+                    File.Delete(_ArchiveSource);
                 }
             });
             

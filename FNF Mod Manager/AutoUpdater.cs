@@ -27,7 +27,8 @@ namespace FNF_Mod_Manager
             var localVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
             try
             {
-                var requestUrl = $"https://api.gamebanana.com/Core/Item/Data?itemtype=Tool&itemid=7015&fields=Updates().bSubmissionHasUpdates(),Updates().aGetLatestUpdates(),Files().aFiles()&return_keys=1";
+                var requestUrl = $"https://api.gamebanana.com/Core/Item/Data?itemtype=Tool&itemid=7015&fields=Updates().bSubmissionHasUpdates()," +
+                    $"Updates().aGetLatestUpdates(),Files().aFiles()&return_keys=1";
                 GameBananaItem response = JsonSerializer.Deserialize<GameBananaItem>(await client.GetStringAsync(requestUrl));
                 if (response == null)
                 {
@@ -192,17 +193,6 @@ namespace FNF_Mod_Manager
                 }
             }
             return false;
-        }
-
-        private static Uri CreateUri(string url)
-        {
-            Uri uri;
-            if ((Uri.TryCreate(url, UriKind.Absolute, out uri) || Uri.TryCreate("http://" + url, UriKind.Absolute, out uri)) &&
-                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            {
-                return uri;
-            }
-            return null;
         }
     }
 }

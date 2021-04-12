@@ -8,6 +8,8 @@ namespace FNF_Mod_Manager
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
+        [JsonPropertyName("Owner().name")]
+        public string Owner { get; set; }
         [JsonPropertyName("Preview().sSubFeedImageUrl()")]
         public Uri SubFeedImage { get; set; }
         [JsonPropertyName("Preview().sStructuredDataFullsizeUrl()")]

@@ -36,6 +36,7 @@ namespace FNF_Mod_Manager
                 }
             }
         }
+
         // Copy over mod files in order of ModList
         public static void Build(string path, List<string> mods, Logger logger)
         {
@@ -46,7 +47,9 @@ namespace FNF_Mod_Manager
             foreach (var mod in mods)
             {
                 logger.WriteLine($@"Beginning to inject files from {Path.GetFileName(mod)}...", LoggerType.Info);
-                foreach (var file in Directory.GetFiles(mod, "*", SearchOption.AllDirectories))
+                foreach (var file in Directory.GetFiles(mod, "*", SearchOption.AllDirectories)
+                    .Where(x => x.IndexOf("readme", 0, StringComparison.CurrentCultureIgnoreCase) == -1 // Ignore readmes
+                    && x.IndexOf("read me", 0, StringComparison.CurrentCultureIgnoreCase) == -1))
                 {
                     var fileKey = Path.GetFileName(file);
                     var filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
@@ -55,6 +58,7 @@ namespace FNF_Mod_Manager
                     // Check if the file isn't unique (Week 7 structure)
                     if (filesFound.Count() > 1)
                     {
+                        logger.WriteLine($"More than one {fileKey} found in {path}, now searching for {Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}...", LoggerType.Info);
                         fileKey = $"{Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}";
                         filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
                             .Where(a => string.Equals($"{Path.GetFileName(Path.GetDirectoryName(a))}/{Path.GetFileName(a)}", 

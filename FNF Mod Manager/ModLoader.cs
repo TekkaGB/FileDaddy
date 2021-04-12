@@ -55,10 +55,13 @@ namespace FNF_Mod_Manager
                     var filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
                             .Where(a => string.Equals(Path.GetFileName(a), fileKey,
                             StringComparison.InvariantCultureIgnoreCase));
+                    var unique = true;
                     // Check if the file isn't unique (Week 7 structure)
                     if (filesFound.Count() > 1)
                     {
-                        logger.WriteLine($"More than one {fileKey} found in {path}, now searching for {Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}...", LoggerType.Info);
+                        unique = false;
+                        logger.WriteLine($"More than one {fileKey} found in {path}, now searching for " +
+                            $"{Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}...", LoggerType.Info);
                         fileKey = $"{Path.GetFileName(Path.GetDirectoryName(file))}/{Path.GetFileName(file)}";
                         filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
                             .Where(a => string.Equals($"{Path.GetFileName(Path.GetDirectoryName(a))}/{Path.GetFileName(a)}", 
@@ -141,7 +144,7 @@ namespace FNF_Mod_Manager
                     }
                     else
                     {
-                        if (filesFound.Count() == 0)
+                        if (filesFound.Count() == 0 && unique)
                             logger.WriteLine($"Couldn't find {fileKey} in {path}, skipping...", LoggerType.Warning);
                         else
                             logger.WriteLine($"Couldn't find unique {fileKey} in {path}, skipping...", LoggerType.Warning);

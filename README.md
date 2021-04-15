@@ -1,5 +1,6 @@
 # FileDaddy
-![FileDaddy](https://media.discordapp.net/attachments/788721552392060990/831331891604095086/File_me_Daddy.png?width=604&height=609)
+<img src="https://media.discordapp.net/attachments/788721552392060990/831331891604095086/File_me_Daddy.png?width=604&height=609" width="250">
+
 ## Preface
 This mod loader/manager is meant to simplify downloading and combining many different mods.
 

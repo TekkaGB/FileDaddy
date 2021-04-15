@@ -10,6 +10,8 @@ namespace FNF_Mod_Manager
         public string Name { get; set; }
         [JsonPropertyName("Owner().name")]
         public string Owner { get; set; }
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
         [JsonPropertyName("Preview().sSubFeedImageUrl()")]
         public Uri SubFeedImage { get; set; }
         [JsonPropertyName("Preview().sStructuredDataFullsizeUrl()")]
@@ -39,6 +41,29 @@ namespace FNF_Mod_Manager
 
         [JsonPropertyName("_tsDateAdded")]
         public long DateAddedLong { get; set; }
+    }
+    public class GameBananaAPIV3
+    {
+        [JsonPropertyName("_aSubmitter")]
+        public GameBananaMember Member { get; set; }
+        [JsonPropertyName("_aCategory")]
+        public GameBananaCategory Category { get; set; }
+    }
+    public class GameBananaCategory
+    {
+        [JsonPropertyName("_sModelName")]
+        public string Model { get; set; }
+        [JsonPropertyName("_sName")]
+        public string Name { get; set; }
+        [JsonPropertyName("_sIconUrl")]
+        public Uri Icon { get; set; }
+    }
+    public class GameBananaMember
+    {
+        [JsonPropertyName("_sAvatarUrl")]
+        public Uri Avatar { get; set; }
+        [JsonPropertyName("_sUpicUrl")]
+        public Uri Upic { get; set; }
     }
     public class GameBananaItemUpdate
     {

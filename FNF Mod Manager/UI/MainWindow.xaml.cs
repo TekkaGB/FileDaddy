@@ -9,6 +9,9 @@ using System.Windows.Controls;
 using System.Text.Json;
 using System.Diagnostics;
 using System.Reflection;
+using System.Windows.Documents;
+using System.Text.RegularExpressions;
+using System.Windows.Media.Imaging;
 
 namespace FNF_Mod_Manager
 {
@@ -24,7 +27,9 @@ namespace FNF_Mod_Manager
         public ObservableCollection<Mod> ModList;
         public List<string> exes;
         private FileSystemWatcher ModsWatcher;
-
+        private FlowDocument defaultFlow = new FlowDocument();
+        private string defaultText = "FileDaddy is here to help out with all your Friday Night Funkin Mods!\n\n" +
+            "(Right Click Row > Fetch Metadata and confirm the GameBanana URL of the mod to fetch metadata to show here.)";
         public MainWindow()
         {
             InitializeComponent();
@@ -72,6 +77,17 @@ namespace FNF_Mod_Manager
             ModsWatcher.Renamed += OnModified;
 
             ModsWatcher.EnableRaisingEvents = true;
+
+            defaultFlow.Blocks.Add(ConvertToFlowDocument(defaultText));
+            DescriptionWindow.Document = defaultFlow;
+            Assembly asm = Assembly.GetExecutingAssembly();
+            Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.StreamSource = iconStream;
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.EndInit();
+            Preview.Source = bitmap;
         }
         private void OnModified(object sender, FileSystemEventArgs e)
         {
@@ -334,6 +350,17 @@ namespace FNF_Mod_Manager
                 ew.ShowDialog();
             }
         }
+        private void FetchItem_Click(object sender, RoutedEventArgs e)
+        {
+            Mod row = (Mod)ModGrid.SelectedItem;
+            if (row != null)
+            {
+                FetchWindow fw = new FetchWindow(row, logger);
+                fw.ShowDialog();
+                if (fw.success)
+                    ShowMetadata(row.name);
+            }
+        }
         private void ModsFolder_Click(object sender, RoutedEventArgs e)
         {
             var folderName = $@"{assemblyLocation}\Mods";
@@ -349,6 +376,127 @@ namespace FNF_Mod_Manager
                     logger.WriteLine($@"Couldn't open {folderName}. ({ex.Message})", LoggerType.Error);
                 }
             }
+        }
+        private Paragraph ConvertToFlowDocument(string text)
+        {
+            var flowDocument = new FlowDocument();
+
+            var regex = new Regex(@"(https?:\/\/[^\s]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            var matches = regex.Matches(text).Cast<Match>().Select(m => m.Value).ToList();
+
+            var paragraph = new Paragraph();
+            flowDocument.Blocks.Add(paragraph);
+
+
+            foreach (var segment in regex.Split(text))
+            {
+                if (matches.Contains(segment))
+                {
+                    var hyperlink = new Hyperlink(new Run(segment))
+                    {
+                        NavigateUri = new Uri(segment),
+                    };
+
+                    hyperlink.RequestNavigate += (sender, args) => {
+                        var ps = new ProcessStartInfo(segment)
+                        {
+                            UseShellExecute = true,
+                            Verb = "open"
+                        };
+                        Process.Start(ps);
+                    };
+
+                    paragraph.Inlines.Add(hyperlink);
+                }
+                else
+                {
+                    paragraph.Inlines.Add(new Run(segment));
+                }
+            }
+
+            return paragraph;
+        }
+
+        private void ShowMetadata(string mod)
+        {
+            if (File.Exists($"{assemblyLocation}/Mods/{mod}/mod.json"))
+            {
+                FlowDocument descFlow = new FlowDocument();
+                var metadataString = File.ReadAllText($"{assemblyLocation}/Mods/{mod}/mod.json");
+                Metadata metadata = JsonSerializer.Deserialize<Metadata>(metadataString);
+
+                var para = new Paragraph();
+                if (metadata.submitter != null)
+                {
+                    para.Inlines.Add($"Submitter: ");
+                    if (metadata.avi != null && metadata.avi.ToString().Length > 0)
+                    {
+                        BitmapImage bm = new BitmapImage(metadata.avi);
+                        Image image = new Image();
+                        image.Source = bm;
+                        image.Width = 20;
+                        para.Inlines.Add(image);
+                        para.Inlines.Add(" ");
+                    }
+                    if (metadata.upic != null && metadata.upic.ToString().Length > 0)
+                    {
+                        BitmapImage bm = new BitmapImage(metadata.upic);
+                        Image image = new Image();
+                        image.Source = bm;
+                        image.Width = 80;
+                        para.Inlines.Add(image);
+                    }
+                    else
+                        para.Inlines.Add(metadata.submitter);
+                    descFlow.Blocks.Add(para);
+                }
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = metadata.preview;
+                bitmap.EndInit();
+                Preview.Source = bitmap;
+                if (metadata.caticon != null)
+                {
+                    BitmapImage bm = new BitmapImage(metadata.caticon);
+                    Image image = new Image();
+                    image.Source = bm;
+                    image.Width = 20;
+                    para = new Paragraph();
+                    para.Inlines.Add("Category: ");
+                    para.Inlines.Add(image);
+                    para.Inlines.Add($" {metadata.cat} {metadata.section}");
+                    descFlow.Blocks.Add(para);
+                }
+                var text = "";
+                if (metadata.description != null && metadata.description.Length > 0)
+                    text += $"Description: {metadata.description}\n\n";
+                if (metadata.homepage != null && metadata.homepage.ToString().Length > 0)
+                    text += $"Home Page: {metadata.homepage}";
+                var init = ConvertToFlowDocument(text);
+                descFlow.Blocks.Add(init);
+                DescriptionWindow.Document = descFlow;
+                var descriptionText = new TextRange(DescriptionWindow.Document.ContentStart, DescriptionWindow.Document.ContentEnd);
+                descriptionText.ApplyPropertyValue(Inline.BaselineAlignmentProperty, BaselineAlignment.Center);
+            }
+            else
+            {
+
+                DescriptionWindow.Document = defaultFlow;
+                Assembly asm = Assembly.GetExecutingAssembly();
+                Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.StreamSource = iconStream;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                Preview.Source = bitmap;
+            }
+        }
+        private void ModGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Mod row = (Mod)ModGrid.SelectedItem;
+            if (row != null)
+                ShowMetadata(row.name);
         }
     }
 }

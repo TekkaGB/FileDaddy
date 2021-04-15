@@ -52,6 +52,8 @@ namespace FNF_Mod_Manager
                     && x.IndexOf("read me", 0, StringComparison.CurrentCultureIgnoreCase) == -1))
                 {
                     var fileKey = Path.GetFileName(file);
+                    if (fileKey == "mod.json")
+                        continue;
                     var filesFound = Directory.GetFiles(path, "*", SearchOption.AllDirectories)
                             .Where(a => string.Equals(Path.GetFileName(a), fileKey,
                             StringComparison.InvariantCultureIgnoreCase));

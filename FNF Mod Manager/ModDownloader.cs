@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Net.Http;
 using System.Threading;
 using System.Text.Json;
+using System.Collections.Generic;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Archives.SevenZip;
@@ -22,11 +23,14 @@ namespace FNF_Mod_Manager
         private string URL_TO_ARCHIVE;
         private string URL;
         private string DL_ID;
+        private string MOD_TYPE;
+        private string MOD_ID;
         private string fileName;
         private string assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
         private HttpClient client = new HttpClient();
         private CancellationTokenSource cancellationToken = new CancellationTokenSource();
         private GameBananaItem response = new GameBananaItem();
+        private GameBananaAPIV3 data = new GameBananaAPIV3();
         private ProgressBox progressBox;
         public async void Download(string line, bool running)
         {
@@ -55,6 +59,8 @@ namespace FNF_Mod_Manager
                 string responseString = await client.GetStringAsync(URL);
                 response = JsonSerializer.Deserialize<GameBananaItem>(responseString);
                 fileName = response.Files[DL_ID].FileName;
+                string dataString = await client.GetStringAsync($"https://gamebanana.com/apiv3/{MOD_TYPE}/{MOD_ID}");
+                data = JsonSerializer.Deserialize<GameBananaAPIV3>(dataString);
                 return true;
             }
             catch (Exception e)
@@ -86,10 +92,10 @@ namespace FNF_Mod_Manager
                 // Used to grab file info from dictionary
                 var match = Regex.Match(URL_TO_ARCHIVE, @"\d*$");
                 DL_ID = match.Value;
-                string MOD_TYPE = data[1];
-                string MOD_ID = data[2];
+                MOD_TYPE = data[1];
+                MOD_ID = data[2];
                 URL = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=name,Files().aFiles(),Preview().sStructuredDataFullsizeUrl()," +
-                    $"Preview().sSubFeedImageUrl(),Owner().name&return_keys=1";
+                    $"Preview().sSubFeedImageUrl(),Owner().name,description&return_keys=1";
                 return true;
             }
             catch (Exception e)
@@ -106,7 +112,7 @@ namespace FNF_Mod_Manager
             {
                 string _ArchiveSource = $@"{assemblyLocation}/Downloads/{fileName}";
                 string _ArchiveType = Path.GetExtension(fileName);
-                string ArchiveDestination = $@"{assemblyLocation}/Mods/{response.Name}";
+                string ArchiveDestination = $@"{assemblyLocation}/Mods/{string.Concat(response.Name.Split(Path.GetInvalidFileNameChars()))}";
                 // Find a unique destination if it already exists
                 var counter = 2;
                 while (Directory.Exists(ArchiveDestination))
@@ -133,6 +139,21 @@ namespace FNF_Mod_Manager
                                     });
                                 }
                             }
+                        }
+                        if (!File.Exists($@"{ArchiveDestination}/mod.json"))
+                        {
+                            Metadata metadata = new Metadata();
+                            metadata.submitter = response.Owner;
+                            metadata.description = response.Description;
+                            metadata.preview = response.EmbedImage;
+                            metadata.homepage = new Uri($"https://gamebanana.com/{MOD_TYPE.ToLower()}s/{MOD_ID}");
+                            metadata.avi = data.Member.Avatar;
+                            metadata.upic = data.Member.Upic;
+                            metadata.cat = data.Category.Name;
+                            metadata.caticon = data.Category.Icon;
+                            metadata.section = data.Category.Model.Replace("Category", "");
+                            string metadataString = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });
+                            File.WriteAllText($@"{ArchiveDestination}/mod.json", metadataString);
                         }
                     }
                     catch (Exception e)
@@ -176,7 +197,7 @@ namespace FNF_Mod_Manager
                 progressBox = new ProgressBox(cancellationToken);
                 progressBox.progressBar.Value = 0;
                 progressBox.finished = false;
-                progressBox.Title = $"Update Progress";
+                progressBox.Title = $"Download Progress";
                 progressBox.Show();
                 progressBox.Activate();
                 // Write and download the file

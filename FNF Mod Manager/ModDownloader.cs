@@ -27,6 +27,7 @@ namespace FNF_Mod_Manager
         private string MOD_ID;
         private string fileName;
         private string assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        private bool cancelled;
         private HttpClient client = new HttpClient();
         private CancellationTokenSource cancellationToken = new CancellationTokenSource();
         private GameBananaItem response = new GameBananaItem();
@@ -44,7 +45,8 @@ namespace FNF_Mod_Manager
                     {
                         await DownloadFile(URL_TO_ARCHIVE, fileName, new Progress<DownloadProgress>(ReportUpdateProgress),
                             CancellationTokenSource.CreateLinkedTokenSource(cancellationToken.Token));
-                        await ExtractFile(fileName);
+                        if (!cancelled)
+                            await ExtractFile(fileName);
                     }
                 }
             }
@@ -216,6 +218,7 @@ namespace FNF_Mod_Manager
                 {
                     progressBox.finished = true;
                     progressBox.Close();
+                    cancelled = true;
                 }
                 return;
             }

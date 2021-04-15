@@ -1,5 +1,6 @@
 # FileDaddy
-![FileDaddy](https://media.discordapp.net/attachments/792245872259235850/827987437317914634/filedaddy.png)
+<img src="https://media.discordapp.net/attachments/788721552392060990/831331891604095086/File_me_Daddy.png?width=604&height=609" width="250">
+
 ## Preface
 This mod loader/manager is meant to simplify downloading and combining many different mods.
 
@@ -53,6 +54,9 @@ If any error with the auto updates were to occur please report it to me. You can
 
 ## Folder Structure
 As of v1.1.0, folder structure no longer matters! FileDaddy will just look through the entire assets folder until it finds the matching file name instead of relying on the folder path. Do note that if the mod download has multiple variations in the same folder, that it will go by alphanumeric order by folder names. So please keep variations separated. Exectuables, however, are still not supported yet.
+
+## Metadata
+As of v1.3.0, 1-click installing will also fetch metadata stored in mod.json to be shown to the right of the grid. To fetch metadata for mods downloaded before the update, just right click the row, click Fetch Metadata, and enter the link to its page on GameBanana.
 
 ## Extra Options
 There are some options that you can access by right clicking a mod row in the list:

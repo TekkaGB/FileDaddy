@@ -26,7 +26,9 @@ namespace FNF_Mod_Manager
             counter = 0;
             _logger = logger;
             if (!Directory.Exists(path))
+            {
                 return;
+            }
             var cancellationToken = new CancellationTokenSource();
             var requestUrl = $"https://api.gamebanana.com/Core/Item/Data?";
             var mods = Directory.GetDirectories(path).Where(x => File.Exists($"{x}/mod.json")).ToList();
@@ -49,7 +51,10 @@ namespace FNF_Mod_Manager
             }
             requestUrl += "return_keys=1";
             if (requestUrl == $"https://api.gamebanana.com/Core/Item/Data?return_keys=1")
+            {
+                _logger.WriteLine("No updates available.", LoggerType.Info);
                 return;
+            }
             var client = new HttpClient();
             var responseString = await client.GetStringAsync(requestUrl);
             var response = JsonSerializer.Deserialize<GameBananaItem[]>(responseString);

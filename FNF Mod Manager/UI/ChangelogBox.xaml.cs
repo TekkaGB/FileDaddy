@@ -48,6 +48,8 @@ namespace FNF_Mod_Manager.UI
             Text.Text = text;
             // Remove html tags
             UpdateText.Text = Regex.Replace(update.Text, "<.*?>", string.Empty).Replace("&nbsp;", " ");
+            if (UpdateText.Text.Length == 0)
+                UpdateText.Visibility = Visibility.Collapsed;
             if (skip)
                 SkipButton.Visibility = Visibility.Visible;
             else

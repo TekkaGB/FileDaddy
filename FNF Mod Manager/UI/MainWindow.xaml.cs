@@ -293,6 +293,7 @@ namespace FNF_Mod_Manager
                 BuildButton.IsHitTestVisible = false;
                 LaunchButton.IsHitTestVisible = false;
                 OpenModsButton.IsHitTestVisible = false;
+                UpdateButton.IsHitTestVisible = false;
                 Refresh();
                 await Build($@"{Path.GetDirectoryName(config.exe)}/assets");
                 ModGrid.IsHitTestVisible = true;
@@ -300,6 +301,7 @@ namespace FNF_Mod_Manager
                 BuildButton.IsHitTestVisible = true;
                 LaunchButton.IsHitTestVisible = true;
                 OpenModsButton.IsHitTestVisible = true;
+                UpdateButton.IsHitTestVisible = true;
                 MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
@@ -381,7 +383,13 @@ namespace FNF_Mod_Manager
         private void Update_Click(object sender, RoutedEventArgs e)
         {
             logger.WriteLine("Checking for updates...", LoggerType.Info);
-            ModUpdater.CheckForUpdates($"{assemblyLocation}/Mods", logger);
+            ModGrid.IsHitTestVisible = false;
+            ConfigButton.IsHitTestVisible = false;
+            BuildButton.IsHitTestVisible = false;
+            LaunchButton.IsHitTestVisible = false;
+            OpenModsButton.IsHitTestVisible = false;
+            UpdateButton.IsHitTestVisible = false;
+            ModUpdater.CheckForUpdates($"{assemblyLocation}/Mods", logger, this);
         }
         private Paragraph ConvertToFlowDocument(string text)
         {

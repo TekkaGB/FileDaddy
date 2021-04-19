@@ -21,7 +21,7 @@ namespace FNF_Mod_Manager
         private static Logger _logger;
         private static string assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
         private static int counter;
-        public async static void CheckForUpdates(string path, Logger logger)
+        public async static void CheckForUpdates(string path, Logger logger, MainWindow main)
         {
             counter = 0;
             _logger = logger;
@@ -65,6 +65,16 @@ namespace FNF_Mod_Manager
             }
             if (counter == 0)
                 _logger.WriteLine("No updates available.", LoggerType.Info);
+            else
+                _logger.WriteLine("Done checking for updates!", LoggerType.Info);
+
+            main.ModGrid.IsHitTestVisible = true;
+            main.ConfigButton.IsHitTestVisible = true;
+            main.BuildButton.IsHitTestVisible = true;
+            main.LaunchButton.IsHitTestVisible = true;
+            main.OpenModsButton.IsHitTestVisible = true;
+            main.UpdateButton.IsHitTestVisible = true;
+            main.Activate();
         }
         private static void ReportUpdateProgress(DownloadProgress progress)
         {

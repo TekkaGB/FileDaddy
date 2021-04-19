@@ -27,6 +27,13 @@ namespace FNF_Mod_Manager
             _logger = logger;
             if (!Directory.Exists(path))
             {
+                main.ModGrid.IsHitTestVisible = true;
+                main.ConfigButton.IsHitTestVisible = true;
+                main.BuildButton.IsHitTestVisible = true;
+                main.LaunchButton.IsHitTestVisible = true;
+                main.OpenModsButton.IsHitTestVisible = true;
+                main.UpdateButton.IsHitTestVisible = true;
+                main.Activate();
                 return;
             }
             var cancellationToken = new CancellationTokenSource();
@@ -53,6 +60,13 @@ namespace FNF_Mod_Manager
             if (requestUrl == $"https://api.gamebanana.com/Core/Item/Data?return_keys=1")
             {
                 _logger.WriteLine("No updates available.", LoggerType.Info);
+                main.ModGrid.IsHitTestVisible = true;
+                main.ConfigButton.IsHitTestVisible = true;
+                main.BuildButton.IsHitTestVisible = true;
+                main.LaunchButton.IsHitTestVisible = true;
+                main.OpenModsButton.IsHitTestVisible = true;
+                main.UpdateButton.IsHitTestVisible = true;
+                main.Activate();
                 return;
             }
             var client = new HttpClient();

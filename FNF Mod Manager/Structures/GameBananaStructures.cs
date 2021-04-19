@@ -27,6 +27,7 @@ namespace FNF_Mod_Manager
     }
     public class GameBananaItemFile
     {
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1);
         [JsonPropertyName("_sFile")]
         public string FileName { get; set; }
 
@@ -41,6 +42,12 @@ namespace FNF_Mod_Manager
 
         [JsonPropertyName("_tsDateAdded")]
         public long DateAddedLong { get; set; }
+
+        [JsonIgnore]
+        public DateTime DateAdded => Epoch.AddSeconds(DateAddedLong);
+
+        [JsonIgnore]
+        public string TimeSinceUpload => StringConverters.FormatTimeSpan(DateTime.UtcNow - DateAdded);
     }
     public class GameBananaAPIV3
     {
@@ -67,6 +74,7 @@ namespace FNF_Mod_Manager
     }
     public class GameBananaItemUpdate
     {
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1);
         [JsonPropertyName("_sTitle")]
         public string Title { get; set; }
 
@@ -78,6 +86,9 @@ namespace FNF_Mod_Manager
 
         [JsonPropertyName("_tsDateAdded")]
         public long DateAddedLong { get; set; }
+
+        [JsonIgnore]
+        public DateTime DateAdded => Epoch.AddSeconds(DateAddedLong);
     }
     public class GameBananaItemUpdateChange
     {

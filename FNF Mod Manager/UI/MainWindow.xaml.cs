@@ -260,7 +260,8 @@ namespace FNF_Mod_Manager
                     try
                     {
                         Directory.Delete($@"{assemblyLocation}/Mods/{row.name}", true);
-                        logger.WriteLine($@"[INFO] Deleting {row.name}.", LoggerType.Info);
+                        logger.WriteLine($@"Deleting {row.name}.", LoggerType.Info);
+                        ShowMetadata(null);
                     }
                     catch (Exception ex)
                     {
@@ -377,6 +378,11 @@ namespace FNF_Mod_Manager
                 }
             }
         }
+        private void Update_Click(object sender, RoutedEventArgs e)
+        {
+            logger.WriteLine("Checking for updates...", LoggerType.Info);
+            ModUpdater.CheckForUpdates($"{assemblyLocation}/Mods", logger);
+        }
         private Paragraph ConvertToFlowDocument(string text)
         {
             var flowDocument = new FlowDocument();
@@ -419,7 +425,19 @@ namespace FNF_Mod_Manager
 
         private void ShowMetadata(string mod)
         {
-            if (File.Exists($"{assemblyLocation}/Mods/{mod}/mod.json"))
+            if (mod == null || !File.Exists($"{assemblyLocation}/Mods/{mod}/mod.json"))
+            {
+                DescriptionWindow.Document = defaultFlow;
+                Assembly asm = Assembly.GetExecutingAssembly();
+                Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.StreamSource = iconStream;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                Preview.Source = bitmap;
+            }
+            else
             {
                 FlowDocument descFlow = new FlowDocument();
                 var metadataString = File.ReadAllText($"{assemblyLocation}/Mods/{mod}/mod.json");
@@ -477,19 +495,6 @@ namespace FNF_Mod_Manager
                 DescriptionWindow.Document = descFlow;
                 var descriptionText = new TextRange(DescriptionWindow.Document.ContentStart, DescriptionWindow.Document.ContentEnd);
                 descriptionText.ApplyPropertyValue(Inline.BaselineAlignmentProperty, BaselineAlignment.Center);
-            }
-            else
-            {
-
-                DescriptionWindow.Document = defaultFlow;
-                Assembly asm = Assembly.GetExecutingAssembly();
-                Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.StreamSource = iconStream;
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
-                Preview.Source = bitmap;
             }
         }
         private void ModGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)

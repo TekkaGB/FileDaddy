@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.IO;
 using FNF_Mod_Manager.UI;
+using System.Windows.Media.Imaging;
 
 namespace FNF_Mod_Manager
 {
@@ -21,6 +22,7 @@ namespace FNF_Mod_Manager
         private static string assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         private static ProgressBox progressBox;
         private static HttpClient client = new HttpClient();
+
         public static async Task<bool> CheckForFileDaddyUpdate(CancellationTokenSource cancellationToken)
         {
             // Get Version Number
@@ -32,7 +34,7 @@ namespace FNF_Mod_Manager
                 GameBananaItem response = JsonSerializer.Deserialize<GameBananaItem>(await client.GetStringAsync(requestUrl));
                 if (response == null)
                 {
-                    Console.WriteLine("[ERROR] Error whilst checking for FileDaddy update: No response from GameBanana API");
+                   MessageBox.Show("Error whilst checking for FileDaddy update: No response from GameBanana API");
                     return false;
                 }
                 if (response.HasUpdates)
@@ -47,7 +49,7 @@ namespace FNF_Mod_Manager
                     }
                     if (UpdateAvailable(onlineVersion, localVersion))
                     {
-                        ChangelogBox notification = new ChangelogBox(updates[0], "FileDaddy", $"A new version of FileDaddy is available (v{onlineVersion}), would you like to update now?");
+                        ChangelogBox notification = new ChangelogBox(updates[0], "FileDaddy", $"A new version of FileDaddy is available (v{onlineVersion})!", null);
                         notification.ShowDialog();
                         notification.Activate();
                         if (notification.YesNo)
@@ -92,7 +94,7 @@ namespace FNF_Mod_Manager
                 // Create the downloads folder if necessary
                 if (!Directory.Exists(@$"{assemblyLocation}/Downloads/FileDaddyUpdate"))
                 {
-                    Directory.CreateDirectory(@$"{assemblyLocation}\Downloads\FileDaddyUpdate");
+                    Directory.CreateDirectory(@$"{assemblyLocation}/Downloads/FileDaddyUpdate");
                 }
                 progressBox = new ProgressBox(cancellationToken);
                 progressBox.progressBar.Value = 0;
@@ -175,12 +177,12 @@ namespace FNF_Mod_Manager
             {
                 if (!int.TryParse(onlineVersionParts[i], out _))
                 {
-                    Console.WriteLine($"[ERROR] Couldn't parse {onlineVersion}");
+                    MessageBox.Show($"Couldn't parse {onlineVersion}");
                     return false;
                 }
                 if (!int.TryParse(localVersionParts[i], out _))
                 {
-                    Console.WriteLine($"[ERROR] Couldn't parse {localVersion}");
+                    MessageBox.Show($"Couldn't parse {localVersion}");
                     return false;
                 }
                 if (int.Parse(onlineVersionParts[i]) > int.Parse(localVersionParts[i]))

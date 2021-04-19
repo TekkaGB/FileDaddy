@@ -20,6 +20,7 @@ namespace FNF_Mod_Manager
         public string section { get; set; }
         public string description { get; set; }
         public Uri homepage { get; set; }
+        public DateTime? lastupdate { get; set; }
     }
     public class Config
     {

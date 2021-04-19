@@ -97,7 +97,8 @@ namespace FNF_Mod_Manager
                 MOD_TYPE = data[1];
                 MOD_ID = data[2];
                 URL = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=name,Files().aFiles(),Preview().sStructuredDataFullsizeUrl()," +
-                    $"Preview().sSubFeedImageUrl(),Owner().name,description&return_keys=1";
+                    $"Preview().sSubFeedImageUrl(),Owner().name,description,Updates().bSubmissionHasUpdates()," +
+                        $"Updates().aGetLatestUpdates()&return_keys=1";
                 return true;
             }
             catch (Exception e)
@@ -154,6 +155,10 @@ namespace FNF_Mod_Manager
                             metadata.cat = data.Category.Name;
                             metadata.caticon = data.Category.Icon;
                             metadata.section = data.Category.Model.Replace("Category", "");
+                            if (response.HasUpdates)
+                                metadata.lastupdate = response.Updates[0].DateAdded;
+                            else
+                                metadata.lastupdate = new DateTime(1970, 1, 1);
                             string metadataString = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });
                             File.WriteAllText($@"{ArchiveDestination}/mod.json", metadataString);
                         }

@@ -12,10 +12,10 @@ namespace FNF_Mod_Manager
         public DownloadWindow(GameBananaItem item)
         {
             InitializeComponent();
-            DownloadText.Text = $"Would you like to download {item.Name} submitted by {item.Owner}?";
+            DownloadText.Text = $"{item.Name}\nSubmitted by {item.Owner}";
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = item.SubFeedImage;
+            bitmap.UriSource = item.EmbedImage;
             bitmap.EndInit();
             Preview.Source = bitmap;
         }

@@ -193,6 +193,11 @@ namespace FNF_Mod_Manager
         {
             if (config.exe != null && File.Exists(config.exe))
             {
+                if (Path.GetExtension(config.exe).Equals(".js", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    logger.WriteLine($"Cannot launch the web version from FileDaddy...", LoggerType.Warning);
+                    return;
+                }
                 logger.WriteLine($"Launching {config.exe}", LoggerType.Info);
                 try
                 {
@@ -305,7 +310,7 @@ namespace FNF_Mod_Manager
                 MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
-                logger.WriteLine("Please set up correct Game Path in Config", LoggerType.Warning);
+                logger.WriteLine("Please set up correct Game Path in Config!", LoggerType.Warning);
         }
 
         private async Task Build(string path)

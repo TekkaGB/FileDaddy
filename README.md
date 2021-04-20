@@ -52,14 +52,24 @@ As of v1.2.0, FileDaddy will check for updates for itself from GameBanana and pr
 
 If any error with the auto updates were to occur please report it to me. You can then update manually by downloading the latest release and drag, drop, and overwrite its extracted contents over your current installation.
 
+### Updating Mods
+As of v1.4.0, you can now check for updates by clicking the Check for Updates button. When clicking the button for the first time on old mods, it'll add a last update time to the metadata no matter if its actually up to date or not. Any mods installed with 1-click post v1.4.0 will already have that part of the metadata. Updates are then found if it finds an update that is dated after the last update time in the metadata.
+
+If an update is available, a window will prompt you with its description and changelog and asks if you'd like to update. Yes will update it and delete everything in the current mod folder and replace it with the update. No will not do anything. Skip Update will stop prompting the update until a new one is available.
+
+If there's more than one file available to download, a prompt will open to select one of them. There'll be a short description, name of the zip, and how long ago it was uploaded.
+
 ## Folder Structure
-As of v1.1.0, folder structure no longer matters! FileDaddy will just look through the entire assets folder until it finds the matching file name instead of relying on the folder path. Do note that if the mod download has multiple variations in the same folder, that it will go by alphanumeric order by folder names. So please keep variations separated. Exectuables, however, are still not supported yet.
+As of v1.1.0, folder structure no longer matters! FileDaddy will just look through the entire assets folder until it finds the matching file name instead of relying on the folder path. Do note that if the mod download has multiple variations in the same folder, that it will go by alphanumeric order by folder names. So please keep variations separated.
+
+Note: If you’re a mod maker and for some reason want to prevent 1-click install buttons from showing up you can just add an empty file inside the zip called .disable_gb1click_filedaddy
 
 ## Metadata
 As of v1.3.0, 1-click installing will also fetch metadata stored in mod.json to be shown to the right of the grid. To fetch metadata for mods downloaded before the update, just right click the row, click Fetch Metadata, and enter the link to its page on GameBanana.
 
 ## Extra Options
 There are some options that you can access by right clicking a mod row in the list:
+- Fetch Metadata - Allows you to enter a link to the GameBanana page of the mod to fetch metadata to display on the right
 - Rename Mod - Allows you to rename how the mod's name. Simply renames folder until I implement metadata. Note that at the current implementation it will remove the mod from the list and readd it under the new name all the way at the bottom disabled.
 - Open Mod Folder - Opens the mod's folder in file explorer
 - Delete Mod - Deletes mod folder after confirmation
@@ -71,7 +81,23 @@ There are some options that you can access by right clicking a mod row in the li
 ## Issues/Suggestions
 If you have any issues with FileDaddy please fill out an issue on this GitHub page. Suggestions are welcomed as well. There's probably some things I haven't considered since I personally don't play/mod Friday Night Funkin frequently.
 
+## FAQ
+### Is this safe? My antivirus is getting set off.
+Yes this application is safe. Antivirus tends to trigger false alarms, especially due to it needing to be connected to the internet in order to be compatible with 1-click installations. You can check out the source code for yourself if your suspicious of anything as well.
+
+### Why does this mod not have a 1-click install button?
+Any mods with executables should not have a 1-click installation button appear. If it somehow does, do note that the executable that comes with it will not be handled by FileDaddy.
+
+Instead, download these executable mods manually and set them in a location not inside FileDaddy's folder. Then add the executable path to the config to use as a base.
+
+### Why won’t FileDaddy open?
+I made it so only one instance is running at a time so if it’s already running, the app won’t open. Check to see if you can end the process in task manager or even restart your pc if you don’t know how to do that. 
+
+### Why doesn't FileDaddy have permissions to copy over files?
+Try running as administrator or checking to see if any antivirus is preventing the application from operating on files.
+
+### Why aren't my mods showing up after checking them?
+Please make sure you pressed build after selecting your loadout.
+
 ## Future Plans
-- ~~Support multiple exes~~
-- Add metadata (currently only grabs name of mod from folder name)
-- ~~More compatibility with mods that don't have the assets folder~~
+None at the moment but I'm open to suggestions and pull requests.

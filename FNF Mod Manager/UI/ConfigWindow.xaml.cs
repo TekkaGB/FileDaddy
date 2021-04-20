@@ -91,8 +91,8 @@ namespace FNF_Mod_Manager
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.DefaultExt = ".exe";
-            dialog.Filter = "Executable Files (*.exe)|*.exe";
-            dialog.Title = "Funkin.exe";
+            dialog.Filter = "Executable Files (*.exe)|*.exe|Javascript Files (*.js)|*.js";
+            dialog.Title = "Funkin'";
             dialog.Multiselect = false;
             if (_main.config.exe != null && File.Exists(_main.config.exe))
                 dialog.InitialDirectory = Path.GetDirectoryName(_main.config.exe);

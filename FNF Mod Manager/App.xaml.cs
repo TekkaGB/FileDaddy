@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using System.Threading;
+using System;
 
 namespace FNF_Mod_Manager
 {
@@ -62,6 +63,15 @@ namespace FNF_Mod_Manager
                              MessageBoxImage.Error);
 
             e.Handled = true;
+            App.Current.Dispatcher.Invoke((Action)delegate
+            {
+                ((MainWindow)Current.MainWindow).ModGrid.IsHitTestVisible = true;
+                ((MainWindow)Current.MainWindow).ConfigButton.IsHitTestVisible = true;
+                ((MainWindow)Current.MainWindow).BuildButton.IsHitTestVisible = true;
+                ((MainWindow)Current.MainWindow).LaunchButton.IsHitTestVisible = true;
+                ((MainWindow)Current.MainWindow).OpenModsButton.IsHitTestVisible = true;
+                ((MainWindow)Current.MainWindow).UpdateButton.IsHitTestVisible = true;
+            });
         }
     }
 }

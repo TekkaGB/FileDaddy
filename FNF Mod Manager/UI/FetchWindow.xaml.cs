@@ -68,7 +68,7 @@ namespace FNF_Mod_Manager
 
                     requestUrl = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=" +
                         $"Preview().sStructuredDataFullsizeUrl(),Owner().name,description,Updates().bSubmissionHasUpdates()," +
-                        $"Updates().aGetLatestUpdates()&return_keys=1";
+                        $"Updates().aGetLatestUpdates(),RootCategory().name&return_keys=1";
                     string responseString = await client.GetStringAsync(requestUrl);
                     var response = JsonSerializer.Deserialize<GameBananaItem>(responseString);
                     var metadata = new Metadata();
@@ -82,6 +82,8 @@ namespace FNF_Mod_Manager
                     metadata.cat = data.Category.Name;
                     metadata.caticon = data.Category.Icon;
                     metadata.section = data.Category.Model.Replace("Category", "");
+                    if (metadata.section.Equals("Mod", StringComparison.InvariantCultureIgnoreCase))
+                        metadata.section = response.RootCat.Substring(0, response.RootCat.Length - 1);
                     if (response.HasUpdates)
                         metadata.lastupdate = response.Updates[0].DateAdded;
                     else

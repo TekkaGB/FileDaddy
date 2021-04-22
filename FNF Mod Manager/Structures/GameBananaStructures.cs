@@ -12,6 +12,8 @@ namespace FNF_Mod_Manager
         public string Owner { get; set; }
         [JsonPropertyName("description")]
         public string Description { get; set; }
+        [JsonPropertyName("RootCategory().name")]
+        public string RootCat { get; set; }
         [JsonPropertyName("Preview().sSubFeedImageUrl()")]
         public Uri SubFeedImage { get; set; }
         [JsonPropertyName("Preview().sStructuredDataFullsizeUrl()")]

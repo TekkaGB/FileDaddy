@@ -98,7 +98,7 @@ namespace FNF_Mod_Manager
                 MOD_ID = data[2];
                 URL = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=name,Files().aFiles(),Preview().sStructuredDataFullsizeUrl()," +
                     $"Preview().sSubFeedImageUrl(),Owner().name,description,Updates().bSubmissionHasUpdates()," +
-                        $"Updates().aGetLatestUpdates()&return_keys=1";
+                        $"Updates().aGetLatestUpdates(),RootCategory().name&return_keys=1";
                 return true;
             }
             catch (Exception e)
@@ -155,6 +155,8 @@ namespace FNF_Mod_Manager
                             metadata.cat = data.Category.Name;
                             metadata.caticon = data.Category.Icon;
                             metadata.section = data.Category.Model.Replace("Category", "");
+                            if (metadata.section.Equals("Mod", StringComparison.InvariantCultureIgnoreCase))
+                                metadata.section = response.RootCat.Substring(0, response.RootCat.Length - 1);
                             if (response.HasUpdates)
                                 metadata.lastupdate = response.Updates[0].DateAdded;
                             else

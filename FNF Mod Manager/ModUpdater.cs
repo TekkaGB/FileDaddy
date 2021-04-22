@@ -43,8 +43,17 @@ namespace FNF_Mod_Manager
             {
                 if (!File.Exists($"{mod}/mod.json"))
                     continue;
-                var metadataString = File.ReadAllText($"{mod}/mod.json");
-                Metadata metadata = JsonSerializer.Deserialize<Metadata>(metadataString);
+                Metadata metadata;
+                try
+                {
+                    var metadataString = File.ReadAllText($"{mod}/mod.json");
+                    metadata = JsonSerializer.Deserialize<Metadata>(metadataString);
+                }
+                catch (Exception e)
+                {
+                    _logger.WriteLine($"Error occurred while getting metadata for {mod} ({e.Message})", LoggerType.Error);
+                    continue;
+                }
                 Uri url = null;
                 if (metadata.homepage != null)
                     url = CreateUri(metadata.homepage.ToString());
@@ -66,15 +75,38 @@ namespace FNF_Mod_Manager
                 main.LaunchButton.IsHitTestVisible = true;
                 main.OpenModsButton.IsHitTestVisible = true;
                 main.UpdateButton.IsHitTestVisible = true;
-                main.Activate();
                 return;
             }
             var client = new HttpClient();
             var responseString = await client.GetStringAsync(requestUrl);
-            var response = JsonSerializer.Deserialize<GameBananaItem[]>(responseString);
+            GameBananaItem[] response;
+            try
+            {
+                response = JsonSerializer.Deserialize<GameBananaItem[]>(responseString);
+            }
+            catch (Exception e)
+            {
+                _logger.WriteLine(e.Message, LoggerType.Error);
+                main.ModGrid.IsHitTestVisible = true;
+                main.ConfigButton.IsHitTestVisible = true;
+                main.BuildButton.IsHitTestVisible = true;
+                main.LaunchButton.IsHitTestVisible = true;
+                main.OpenModsButton.IsHitTestVisible = true;
+                main.UpdateButton.IsHitTestVisible = true;
+                return;
+            }
             for (int i = 0; i < mods.Count; i++)
             {
-                var metadata = JsonSerializer.Deserialize<Metadata>(File.ReadAllText($"{mods[i]}/mod.json"));
+                Metadata metadata;
+                try
+                {
+                    metadata = JsonSerializer.Deserialize<Metadata>(File.ReadAllText($"{mods[i]}/mod.json"));
+                }
+                catch (Exception e)
+                {
+                    _logger.WriteLine($"Error occurred while getting metadata for {mods[i]} ({e.Message})", LoggerType.Error);
+                    continue;
+                }
                 await ModUpdate(response[i], mods[i], metadata, new Progress<DownloadProgress>(ReportUpdateProgress), CancellationTokenSource.CreateLinkedTokenSource(cancellationToken.Token));
             }
             if (counter == 0)
@@ -250,7 +282,6 @@ namespace FNF_Mod_Manager
                 di.Delete();
             }
         }
-
         private static async Task ExtractFile(string fileName, string output, DateTime updateTime)
         {
             await Task.Run(() =>

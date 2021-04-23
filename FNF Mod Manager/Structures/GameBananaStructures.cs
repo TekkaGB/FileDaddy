@@ -8,6 +8,12 @@ namespace FNF_Mod_Manager
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
+        [JsonPropertyName("views")]
+        public int Views { get; set; }
+        [JsonPropertyName("downloads")]
+        public int Downloads { get; set; }
+        [JsonPropertyName("likes")]
+        public int Likes { get; set; }
         [JsonPropertyName("Owner().name")]
         public string Owner { get; set; }
         [JsonPropertyName("description")]
@@ -41,6 +47,8 @@ namespace FNF_Mod_Manager
 
         [JsonPropertyName("_sDescription")]
         public string Description { get; set; }
+        [JsonPropertyName("_bContainsExe")]
+        public bool ContainsExe { get; set; }
 
         [JsonPropertyName("_tsDateAdded")]
         public long DateAddedLong { get; set; }
@@ -57,6 +65,13 @@ namespace FNF_Mod_Manager
         public GameBananaMember Member { get; set; }
         [JsonPropertyName("_aCategory")]
         public GameBananaCategory Category { get; set; }
+        [JsonPropertyName("_aFiles")]
+        public List<GameBananaItemFile> Files { get; set; }
+    }
+    public class GameBananaInstallerIntegration
+    {
+        [JsonPropertyName("_sDownloadUrl")]
+        public string Download { get; set; }
     }
     public class GameBananaCategory
     {
@@ -69,6 +84,8 @@ namespace FNF_Mod_Manager
     }
     public class GameBananaMember
     {
+        [JsonPropertyName("_sName")]
+        public string Name { get; set; }
         [JsonPropertyName("_sAvatarUrl")]
         public Uri Avatar { get; set; }
         [JsonPropertyName("_sUpicUrl")]

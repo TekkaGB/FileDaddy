@@ -12,6 +12,8 @@ using System.Reflection;
 using System.Windows.Documents;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
+using System.Xml.Linq;
+using System.Net.Http;
 
 namespace FNF_Mod_Manager
 {
@@ -88,6 +90,86 @@ namespace FNF_Mod_Manager
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             Preview.Source = bitmap;
+
+            GetFeed();
+
+                /*
+                metadata.submitter = response.Owner;
+                metadata.description = response.Description;
+                metadata.preview = response.EmbedImage;
+                metadata.homepage = url;
+                metadata.avi = data.Member.Avatar;
+                metadata.upic = data.Member.Upic;
+                metadata.cat = data.Category.Name;
+                metadata.caticon = data.Category.Icon;
+                metadata.section = data.Category.Model.Replace("Category", "");
+                if (metadata.section.Equals("Mod", StringComparison.InvariantCultureIgnoreCase))
+                    metadata.section = response.RootCat.Substring(0, response.RootCat.Length - 1);*/
+
+        }
+        public async void GetFeed()
+        {
+            XDocument feedXML = XDocument.Load("https://api.gamebanana.com/Rss/Featured?gameid=8694");
+
+            var feeds = from feed in feedXML.Descendants("item")
+                        select new RssFeed
+                        {
+                            Title = feed.Element("title").Value,
+                            Link = new Uri(feed.Element("link").Value),
+                            Image = new Uri(feed.Element("image").Value)
+                        };
+            var feedList = feeds.ToList();
+
+            GameBananaAPIV3 data = new GameBananaAPIV3();
+            GameBananaItem response = new GameBananaItem();
+            using (var httpClient = new HttpClient())
+            {
+                for (int i = feedList.Count - 1; i >= 0; i--)
+                {
+                    var MOD_TYPE = char.ToUpper(feedList[i].Link.Segments[1][0]) + feedList[i].Link.Segments[1].Substring(1, feedList[i].Link.Segments[1].Length - 3);
+                    var MOD_ID = feedList[i].Link.Segments[2];
+                    var requestUrl = $"https://api.gamebanana.com/Core/Item/Data?itemtype={MOD_TYPE}&itemid={MOD_ID}&fields=" +
+                        $"Owner().name,description," +
+                        $"views,downloads,likes,RootCategory().name&return_keys=1";
+                    var responseString = await httpClient.GetStringAsync(requestUrl);
+                    response = JsonSerializer.Deserialize<GameBananaItem>(responseString);
+                    requestUrl = $"https://gamebanana.com/apiv3/{MOD_TYPE}/{MOD_ID}";
+                    var dataString = await httpClient.GetStringAsync(requestUrl);
+                    try
+                    {
+                        data = JsonSerializer.Deserialize<GameBananaAPIV3>(dataString);
+                    }
+                    catch
+                    {
+                        logger.WriteLine(feedList[i].Title, LoggerType.Info);
+                        continue;
+                    }
+                    if (data.Files.Any(x => x.ContainsExe))
+                    {
+                        feedList.RemoveAt(i);
+                    }
+                    feedList[i].Downloads = $"{response.Downloads} downloads";
+                    feedList[i].Likes = $"{response.Likes} likes";
+                    feedList[i].Views = $"{response.Views} views";
+                    feedList[i].Submitter = $"Submitter: {data.Member.Name}";
+                }
+                var FeedSource = new ObservableCollection<RssFeed>(feedList);
+                App.Current.Dispatcher.Invoke((Action)delegate
+                {
+                    FeedBox.ItemsSource = FeedSource;
+                });
+            }
+        }
+        public class RssFeed
+        {
+            public string Title { get; set; }
+            public Uri Link { get; set; }
+            public Uri Image { get; set; }
+            public string Downloads { get; set; }
+            public string Views { get; set; }
+            public string Likes { get; set; }
+            public string Submitter { get; set; }
+            public Dictionary<string, GameBananaItemFile> Files { get; set; }
         }
         private void OnModified(object sender, FileSystemEventArgs e)
         {

@@ -14,6 +14,8 @@ using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using System.Net.Http;
+using System.Windows.Media;
+using FNF_Mod_Manager.UI;
 
 namespace FNF_Mod_Manager
 {
@@ -22,6 +24,7 @@ namespace FNF_Mod_Manager
     /// </summary>
     public partial class MainWindow : Window
     {
+        public string version;
         public Config config;
         public Logger logger;
         public string assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -40,7 +43,7 @@ namespace FNF_Mod_Manager
 
             // Get Version Number
             var FNFMMVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-            var version = FNFMMVersion.Substring(0, FNFMMVersion.LastIndexOf('.'));
+            version = FNFMMVersion.Substring(0, FNFMMVersion.LastIndexOf('.'));
             Title = $"FileDaddy v{version}";
 
             logger.WriteLine($"Launched FileDaddy v{version}!", LoggerType.Info);
@@ -91,21 +94,87 @@ namespace FNF_Mod_Manager
             bitmap.EndInit();
             Preview.Source = bitmap;
 
-            GetFeed();
+        }
 
-                /*
-                metadata.submitter = response.Owner;
-                metadata.description = response.Description;
-                metadata.preview = response.EmbedImage;
-                metadata.homepage = url;
-                metadata.avi = data.Member.Avatar;
-                metadata.upic = data.Member.Upic;
-                metadata.cat = data.Category.Name;
-                metadata.caticon = data.Category.Icon;
-                metadata.section = data.Category.Model.Replace("Category", "");
-                if (metadata.section.Equals("Mod", StringComparison.InvariantCultureIgnoreCase))
-                    metadata.section = response.RootCat.Substring(0, response.RootCat.Length - 1);*/
+        public async void GetRecentFeed()
+        {
+            /*
+             * Recent
+             * https://api.gamebanana.com/Core/List/New?format=json&gameid=8694&itemtype=Mod,Skin,Sound,Wip&page=1
+             */
+            XDocument feedXML = XDocument.Load("https://api.gamebanana.com/Core/List/New?format=xml&gameid=8694&itemtype=Mod,Skin,Sound,Wip&page=1");
 
+            var modsEnum = from feed in feedXML.Descendants("valueset")
+                        select new GBMod
+                        {
+                            MOD_TYPE = feed.Elements("value").ToList()[0].Value,
+                            MOD_ID = Int32.Parse(feed.Elements("value").ToList()[1].Value)
+                        };
+            var mods = modsEnum.ToList();
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
+                var requestUrl = $"https://api.gamebanana.com/Core/Item/Data?";
+                foreach (var mod in mods)
+                {
+                    requestUrl += $"itemtype[]={mod.MOD_TYPE}&itemid[]={mod.MOD_ID}&fields[]=name,Owner().name,description," +
+                        $"views,downloads,Files().aFiles(),Preview().sStructuredDataFullsizeUrl()&";
+                }
+                requestUrl += "return_keys=1";
+                var responseString = await httpClient.GetStringAsync(requestUrl);
+                var response = JsonSerializer.Deserialize<GameBananaItem[]>(responseString);
+                var feedList = new List<RssFeed>();
+                for (int i = 0; i < mods.Count; i++)
+                {
+                    requestUrl = $"https://gamebanana.com/apiv3/{mods[i].MOD_TYPE}/{mods[i].MOD_ID}";
+                    var dataString = await httpClient.GetStringAsync(requestUrl);
+                    GameBananaAPIV3 data = new GameBananaAPIV3();
+                    try
+                    {
+                        data = JsonSerializer.Deserialize<GameBananaAPIV3>(dataString);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                    // Files are null if trashed/withheld/not a downloadable mod
+                    if (data.Files == null)
+                    {
+                        continue;
+                    }
+                    var feed = new RssFeed();
+                    feed.Title = response[i].Name;
+                    feed.Link = new Uri($"https://gamebanana.com/{mods[i].MOD_TYPE.ToLower()}s/{mods[i].MOD_ID}");
+                    feed.Image = response[i].EmbedImage;
+                    feed.Description = response[i].Description;
+                    feed.Stats = $"{response[i].Downloads} downloads • {response[i].Likes} likes • {response[i].Views} views";
+                    feed.Submitter = response[i].Owner;
+                    feed.Files = data.Files.Where(x => !x.ContainsExe).ToList();
+                    feed.Compatible = !data.Files.All(x => x.ContainsExe);
+                    feedList.Add(feed);
+                }
+                var FeedSource = new ObservableCollection<RssFeed>(feedList);
+                App.Current.Dispatcher.Invoke((Action)delegate
+                {
+                    FeedBox.ItemsSource = FeedSource;
+                });
+            }
+        }
+        public class RssFeed
+        {
+            public string Title { get; set; }
+            public Uri Link { get; set; }
+            public Uri Image { get; set; }
+            public string Description { get; set; }
+            public string Stats { get; set; }
+            public string Submitter { get; set; }
+            public bool Compatible { get; set; }
+            public List<GameBananaItemFile> Files { get; set; }
+        }
+        public class GBMod
+        {
+            public string MOD_TYPE { get; set; }
+            public int MOD_ID { get; set; }
         }
         public async void GetFeed()
         {
@@ -124,6 +193,7 @@ namespace FNF_Mod_Manager
             GameBananaItem response = new GameBananaItem();
             using (var httpClient = new HttpClient())
             {
+                httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
                 for (int i = feedList.Count - 1; i >= 0; i--)
                 {
                     var MOD_TYPE = char.ToUpper(feedList[i].Link.Segments[1][0]) + feedList[i].Link.Segments[1].Substring(1, feedList[i].Link.Segments[1].Length - 3);
@@ -144,32 +214,25 @@ namespace FNF_Mod_Manager
                         logger.WriteLine(feedList[i].Title, LoggerType.Info);
                         continue;
                     }
-                    if (data.Files.Any(x => x.ContainsExe))
+                    // Files are null if trashed/withheld/not a downloadable mod
+                    if (data.Files == null)
                     {
                         feedList.RemoveAt(i);
+                        continue;
                     }
-                    feedList[i].Downloads = $"{response.Downloads} downloads";
-                    feedList[i].Likes = $"{response.Likes} likes";
-                    feedList[i].Views = $"{response.Views} views";
+                    feedList[i].Compatible = !data.Files.All(x => x.ContainsExe);
+                    feedList[i].Stats = $"{response.Downloads} downloads • {response.Likes} likes • {response.Views} views";
                     feedList[i].Submitter = $"Submitter: {data.Member.Name}";
+                    feedList[i].Description = response.Description;
+                    feedList[i].Files = data.Files.Where(x => !x.ContainsExe).ToList();
                 }
-                var FeedSource = new ObservableCollection<RssFeed>(feedList);
+                // Show compatible files first
+                var FeedSource = new ObservableCollection<RssFeed>(feedList.OrderByDescending(x => x.Compatible));
                 App.Current.Dispatcher.Invoke((Action)delegate
                 {
                     FeedBox.ItemsSource = FeedSource;
                 });
             }
-        }
-        public class RssFeed
-        {
-            public string Title { get; set; }
-            public Uri Link { get; set; }
-            public Uri Image { get; set; }
-            public string Downloads { get; set; }
-            public string Views { get; set; }
-            public string Likes { get; set; }
-            public string Submitter { get; set; }
-            public Dictionary<string, GameBananaItemFile> Files { get; set; }
         }
         private void OnModified(object sender, FileSystemEventArgs e)
         {
@@ -398,7 +461,7 @@ namespace FNF_Mod_Manager
         private async Task Build(string path)
         {
             await Task.Run(() =>
-            { 
+            {
                 ModLoader.Restart(path, logger);
                 List<string> mods = config.ModList.Where(x => x.enabled).Select(y => $@"{assemblyLocation}/Mods/{y.name}").ToList();
                 mods.Reverse();
@@ -498,7 +561,8 @@ namespace FNF_Mod_Manager
                         NavigateUri = new Uri(segment),
                     };
 
-                    hyperlink.RequestNavigate += (sender, args) => {
+                    hyperlink.RequestNavigate += (sender, args) =>
+                    {
                         var ps = new ProcessStartInfo(segment)
                         {
                             UseShellExecute = true,
@@ -597,6 +661,59 @@ namespace FNF_Mod_Manager
             Mod row = (Mod)ModGrid.SelectedItem;
             if (row != null)
                 ShowMetadata(row.name);
+        }
+
+        private void Download_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            var item = button.DataContext as RssFeed;
+            if (true)//item.Files.Count == 1)
+            {
+                var url = item.Link;
+                var MOD_TYPE = char.ToUpper(url.Segments[1][0]) + url.Segments[1].Substring(1, url.Segments[1].Length - 3);
+                var MOD_ID = url.Segments[2];
+                new ModDownloader().Download($"filedaddy:{item.Files[0].DownloadUrl},{MOD_TYPE},{MOD_ID}", false);
+            }
+            else if (item.Files.Count > 1)
+            {
+                UpdateFileBox fileBox = new UpdateFileBox(item.Files, item.Title);
+                fileBox.Activate();
+                fileBox.ShowDialog();
+                MessageBox.Show($"{fileBox.chosenFileUrl} {fileBox.chosenFileName}");
+            }
+        }
+        private void Homepage_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            var item = button.DataContext as RssFeed;
+            try
+            {
+                var ps = new ProcessStartInfo(item.Link.ToString())
+                {
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                Process.Start(ps);
+            }
+            catch (Exception ex)
+            {
+                logger.WriteLine($"Couldn't open up {item.Link} ({ex.Message})", LoggerType.Error);
+            }
+        }
+        private void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (FilterBox.SelectedIndex != -1 && IsLoaded)
+            {
+                switch (FilterBox.SelectedIndex)
+                {
+                    case 0: // Featured
+                        GetFeed();
+                        break;
+                    case 1: // Recent
+                        GetRecentFeed();
+                        break;
+                }
+            }
         }
     }
 }

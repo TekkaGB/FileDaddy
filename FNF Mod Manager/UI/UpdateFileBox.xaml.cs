@@ -24,6 +24,7 @@ namespace FNF_Mod_Manager.UI
         public string chosenFileUrl;
         public string chosenFileName;
         private readonly string host;
+        private bool list;
         // GameBanana Files
         public UpdateFileBox(Dictionary<String, GameBananaItemFile> files, string packageName)
         {
@@ -37,12 +38,34 @@ namespace FNF_Mod_Manager.UI
             host = "GameBanana";
             PlayNotificationSound();
         }
+        public UpdateFileBox(List<GameBananaItemFile> files, string packageName)
+        {
+            InitializeComponent();
+            FileGrid.ItemsSource = files;
+            FileGrid.SelectedIndex = 0;
+            NameColumn.Binding = new Binding("FileName");
+            UploadTimeColumn.Binding = new Binding("TimeSinceUpload");
+            DescriptionColumn.Binding = new Binding("Description");
+            Title = $"FileDaddy - {packageName}";
+            host = "GameBanana";
+            list = true;
+            PlayNotificationSound();
+        }
 
         private void SelectButton_Click(object sender, RoutedEventArgs e)
         {
-            KeyValuePair<String, GameBananaItemFile> selectedItem = (KeyValuePair<String, GameBananaItemFile>)FileGrid.SelectedItem;
-            chosenFileUrl = selectedItem.Value.DownloadUrl;
-            chosenFileName = selectedItem.Value.FileName;
+            if (list)
+            {
+                GameBananaItemFile selectedItem = (GameBananaItemFile)FileGrid.SelectedItem;
+                chosenFileUrl = selectedItem.DownloadUrl;
+                chosenFileName = selectedItem.FileName;
+            }
+            else
+            {
+                KeyValuePair<String, GameBananaItemFile> selectedItem = (KeyValuePair<String, GameBananaItemFile>)FileGrid.SelectedItem;
+                chosenFileUrl = selectedItem.Value.DownloadUrl;
+                chosenFileName = selectedItem.Value.FileName;
+            }
             Close();
         }
 

@@ -94,7 +94,6 @@ namespace FNF_Mod_Manager
             {
                 foreach (var requestUrl in requestUrls)
                 {
-                    MessageBox.Show(requestUrl);
                     var responseString = await client.GetStringAsync(requestUrl);
                     try
                     {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text.Json;
@@ -20,10 +19,10 @@ namespace FNF_Mod_Manager
         private static ProgressBox progressBox;
         private static Logger _logger;
         private static string assemblyLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-        private static int counter;
+        private static int updateCounter;
         public async static void CheckForUpdates(string path, Logger logger, MainWindow main)
         {
-            counter = 0;
+            updateCounter = 0;
             _logger = logger;
             if (!Directory.Exists(path))
             {
@@ -37,8 +36,11 @@ namespace FNF_Mod_Manager
                 return;
             }
             var cancellationToken = new CancellationTokenSource();
-            var requestUrl = $"https://api.gamebanana.com/Core/Item/Data?";
+            var requestUrls = new List<string>();
+            requestUrls.Add($"https://api.gamebanana.com/Core/Item/Data?");
             var mods = Directory.GetDirectories(path).Where(x => File.Exists($"{x}/mod.json")).ToList();
+            var urlCount = 0;
+            var modCount = 0;
             foreach (var mod in mods)
             {
                 if (!File.Exists($"{mod}/mod.json"))
@@ -61,12 +63,20 @@ namespace FNF_Mod_Manager
                 {
                     var MOD_TYPE = char.ToUpper(url.Segments[1][0]) + url.Segments[1].Substring(1, url.Segments[1].Length - 3);
                     var MOD_ID = url.Segments[2];
-                    requestUrl += $"itemtype[]={MOD_TYPE}&itemid[]={MOD_ID}&fields[]=Updates().bSubmissionHasUpdates()," +
+                    requestUrls[urlCount] += $"itemtype[]={MOD_TYPE}&itemid[]={MOD_ID}&fields[]=Updates().bSubmissionHasUpdates()," +
                         $"Updates().aGetLatestUpdates(),Files().aFiles(),Preview().sStructuredDataFullsizeUrl()&";
+                    if (++modCount > 30)
+                    {
+                        requestUrls[urlCount] += "return_keys=1";
+                        ++urlCount;
+                        requestUrls.Add($"https://api.gamebanana.com/Core/Item/Data?");
+                        modCount = 0;
+                    }
                 }
             }
-            requestUrl += "return_keys=1";
-            if (requestUrl == $"https://api.gamebanana.com/Core/Item/Data?return_keys=1")
+            if (!requestUrls[urlCount].EndsWith("return_keys=1"))
+                requestUrls[urlCount] += "return_keys=1";
+            if (urlCount == 0 && requestUrls[urlCount] == $"https://api.gamebanana.com/Core/Item/Data?return_keys=1")
             {
                 _logger.WriteLine("No updates available.", LoggerType.Info);
                 main.ModGrid.IsHitTestVisible = true;
@@ -77,23 +87,32 @@ namespace FNF_Mod_Manager
                 main.UpdateButton.IsHitTestVisible = true;
                 return;
             }
-            var client = new HttpClient();
-            var responseString = await client.GetStringAsync(requestUrl);
-            GameBananaItem[] response;
-            try
+            else if (requestUrls[urlCount] == $"https://api.gamebanana.com/Core/Item/Data?return_keys=1")
+                requestUrls.RemoveAt(urlCount);
+            List<GameBananaItem> response = new List<GameBananaItem>();
+            using (var client = new HttpClient())
             {
-                response = JsonSerializer.Deserialize<GameBananaItem[]>(responseString);
-            }
-            catch (Exception e)
-            {
-                _logger.WriteLine(e.Message, LoggerType.Error);
-                main.ModGrid.IsHitTestVisible = true;
-                main.ConfigButton.IsHitTestVisible = true;
-                main.BuildButton.IsHitTestVisible = true;
-                main.LaunchButton.IsHitTestVisible = true;
-                main.OpenModsButton.IsHitTestVisible = true;
-                main.UpdateButton.IsHitTestVisible = true;
-                return;
+                foreach (var requestUrl in requestUrls)
+                {
+                    MessageBox.Show(requestUrl);
+                    var responseString = await client.GetStringAsync(requestUrl);
+                    try
+                    {
+                        var partialResponse = JsonSerializer.Deserialize<List<GameBananaItem>>(responseString);
+                        response = response.Concat(partialResponse).ToList();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.WriteLine($"{requestUrl} {e.Message}", LoggerType.Error);
+                        main.ModGrid.IsHitTestVisible = true;
+                        main.ConfigButton.IsHitTestVisible = true;
+                        main.BuildButton.IsHitTestVisible = true;
+                        main.LaunchButton.IsHitTestVisible = true;
+                        main.OpenModsButton.IsHitTestVisible = true;
+                        main.UpdateButton.IsHitTestVisible = true;
+                        return;
+                    }
+                }
             }
             for (int i = 0; i < mods.Count; i++)
             {
@@ -109,7 +128,7 @@ namespace FNF_Mod_Manager
                 }
                 await ModUpdate(response[i], mods[i], metadata, new Progress<DownloadProgress>(ReportUpdateProgress), CancellationTokenSource.CreateLinkedTokenSource(cancellationToken.Token));
             }
-            if (counter == 0)
+            if (updateCounter == 0)
                 _logger.WriteLine("No updates available.", LoggerType.Info);
             else
                 _logger.WriteLine("Done checking for updates!", LoggerType.Info);
@@ -153,7 +172,7 @@ namespace FNF_Mod_Manager
                 // Compares dates of last update to current
                 if (DateTime.Compare((DateTime)metadata.lastupdate, update.DateAdded) < 0)
                 {
-                    ++counter;
+                    ++updateCounter;
                     // Display the changelog and confirm they want to update
                     _logger.WriteLine($"An update is available for {Path.GetFileName(mod)}!", LoggerType.Info);
                     ChangelogBox changelogBox = new ChangelogBox(update, Path.GetFileName(mod), $"A new update is available for {Path.GetFileName(mod)}", item.EmbedImage, true);

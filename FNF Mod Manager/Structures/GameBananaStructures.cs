@@ -117,4 +117,20 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("text")]
         public string Text { get; set; }
     }
+    public class RssFeed
+    {
+        public string Title { get; set; }
+        public Uri Link { get; set; }
+        public Uri Image { get; set; }
+        public string Description { get; set; }
+        public string Stats { get; set; }
+        public string Submitter { get; set; }
+        public bool Compatible { get; set; }
+        public List<GameBananaItemFile> Files { get; set; }
+    }
+    public class GBMod
+    {
+        public string MOD_TYPE { get; set; }
+        public int MOD_ID { get; set; }
+    }
 }

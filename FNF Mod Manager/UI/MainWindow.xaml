@@ -517,7 +517,7 @@
                     </Grid>
                 </TabItem.Content>
             </TabItem>
-            <TabItem FontSize="18" HorizontalAlignment="Center" Header="Browse Mods">
+            <TabItem Selector.Selected="OnTabSelected" FontSize="18" HorizontalAlignment="Center" Header="Browse Mods">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="75"/>

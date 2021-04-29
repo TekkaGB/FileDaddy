@@ -16,14 +16,21 @@ namespace FNF_Mod_Manager
         {
             if (RecentFeed != null)
                 return RecentFeed;
-            XDocument feedXML = XDocument.Load("https://api.gamebanana.com/Core/List/New?format=xml&gameid=8694&itemtype=Mod,Skin,Sound,Wip&include_updated=1&page=1");
+            IEnumerable<GBMod> modsEnum = Enumerable.Empty<GBMod>();
+            // Grab multiple pages at once
+            // TODO: split up large requestUrls
+            for (int i = 1; i <= 3; i++)
+            {
+                XDocument feedXML = XDocument.Load($"https://api.gamebanana.com/Core/List/New?format=xml&gameid=8694&itemtype=Mod,Skin,Sound,Wip&include_updated=1&page={i}");
 
-            var modsEnum = from feed in feedXML.Descendants("valueset")
-                           select new GBMod
-                           {
-                               MOD_TYPE = feed.Elements("value").ToList()[0].Value,
-                               MOD_ID = Int32.Parse(feed.Elements("value").ToList()[1].Value)
-                           };
+                var modPage = from feed in feedXML.Descendants("valueset")
+                               select new GBMod
+                               {
+                                   MOD_TYPE = feed.Elements("value").ToList()[0].Value,
+                                   MOD_ID = Int32.Parse(feed.Elements("value").ToList()[1].Value)
+                               };
+                modsEnum = modsEnum.Concat(modPage);
+            }
             var mods = modsEnum.ToList();
             using (var httpClient = new HttpClient())
             {
@@ -32,7 +39,7 @@ namespace FNF_Mod_Manager
                 foreach (var mod in mods)
                 {
                     requestUrl += $"itemtype[]={mod.MOD_TYPE}&itemid[]={mod.MOD_ID}&fields[]=name,Owner().name,description," +
-                        $"views,downloads,Preview().sStructuredDataFullsizeUrl()&";
+                        $"views,downloads,likes,Preview().sStructuredDataFullsizeUrl()&";
                 }
                 requestUrl += "return_keys=1";
 
@@ -68,7 +75,7 @@ namespace FNF_Mod_Manager
                     feed.Compatible = !data.Files.All(x => x.ContainsExe);
                     feedList.Add(feed);
                 }
-                RecentFeed = new ObservableCollection<RssFeed>(feedList.OrderByDescending(x => x.Compatible).Take(10));
+                RecentFeed = new ObservableCollection<RssFeed>(feedList.OrderByDescending(x => x.Compatible));
                 return RecentFeed;
             }
         }

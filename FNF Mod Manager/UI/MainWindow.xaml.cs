@@ -567,7 +567,13 @@ namespace FNF_Mod_Manager
         {
             if (!selected)
             {
+                LoadingBar.Visibility = Visibility.Visible;
+                FeedBox.Visibility = Visibility.Collapsed;
                 FeedBox.ItemsSource = await FeedGenerator.GetFeed();
+                LoadingBar.Visibility = Visibility.Collapsed;
+                if (FeedBox.Items.Count > 0)
+                    FeedBox.ScrollIntoView(FeedBox.Items[0]);
+                FeedBox.Visibility = Visibility.Visible;
                 selected = true;
             }
         }
@@ -578,10 +584,22 @@ namespace FNF_Mod_Manager
                 switch (FilterBox.SelectedIndex)
                 {
                     case 0: // Featured
+                        LoadingBar.Visibility = Visibility.Visible;
+                        FeedBox.Visibility = Visibility.Collapsed;
                         FeedBox.ItemsSource = await FeedGenerator.GetFeed();
+                        LoadingBar.Visibility = Visibility.Collapsed;
+                        if (FeedBox.Items.Count > 0)
+                            FeedBox.ScrollIntoView(FeedBox.Items[0]);
+                        FeedBox.Visibility = Visibility.Visible;
                         break;
                     case 1: // Recent
+                        LoadingBar.Visibility = Visibility.Visible;
+                        FeedBox.Visibility = Visibility.Collapsed;
                         FeedBox.ItemsSource = await FeedGenerator.GetRecentFeed();
+                        LoadingBar.Visibility = Visibility.Collapsed;
+                        if (FeedBox.Items.Count > 0)
+                            FeedBox.ScrollIntoView(FeedBox.Items[0]);
+                        FeedBox.Visibility = Visibility.Visible;
                         break;
                 }
             }

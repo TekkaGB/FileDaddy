@@ -527,6 +527,9 @@
                         <ComboBoxItem IsSelected="True">Featured</ComboBoxItem>
                         <ComboBoxItem>Recent</ComboBoxItem>
                     </ComboBox>
+                    <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="1" Grid.Row="1" Background="#303030" Height="40" Width="260">
+                        <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="30" Width="250" Foreground="#4C1C74" IsIndeterminate="True"/>
+                    </Border>
                     <ListView Grid.Row="1" VerticalContentAlignment="Top" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#202020" BorderBrush="Transparent" Name="FeedBox" ItemTemplate="{StaticResource DefaultTemplate}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="{x:Type ListViewItem}">

@@ -6,16 +6,19 @@ using System.Text.Json;
 using System.Net.Http;
 using System.Xml.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FNF_Mod_Manager
 {
     public static class FeedGenerator
     {
         private static ObservableCollection<RssFeed> RecentFeed;
-        public async static Task<ObservableCollection<RssFeed>> GetRecentFeed()
+        public async static Task<ObservableCollection<RssFeed>> GetRecentFeed(int page)
         {
             if (RecentFeed != null)
-                return RecentFeed;
+            {
+                return new ObservableCollection<RssFeed>(RecentFeed.Skip(10 * (page - 1)).Take(10));
+            }
             IEnumerable<GBMod> modsEnum = Enumerable.Empty<GBMod>();
             // Grab multiple pages at once
             // TODO: split up large requestUrls
@@ -98,12 +101,18 @@ namespace FNF_Mod_Manager
                     feed.Compatible = !data.Files.All(x => x.ContainsExe);
                     feedList.Add(feed);
                 }
-                RecentFeed = new ObservableCollection<RssFeed>(feedList.OrderByDescending(x => x.Compatible));
-                return RecentFeed;
+                RecentFeed = new ObservableCollection<RssFeed>(feedList);
+                return new ObservableCollection<RssFeed>(feedList.Take(10));
             }
         }
-        
-        public async static Task<ObservableCollection<RssFeed>> GetFeed()
+        public static int GetRecentSize()
+        {
+            if (RecentFeed != null)
+                return RecentFeed.Count;
+            else
+                return -1;
+        }
+        public async static Task<ObservableCollection<RssFeed>> GetFeed(int page)
         {
             XDocument feedXML = XDocument.Load("https://api.gamebanana.com/Rss/Featured?gameid=8694");
 

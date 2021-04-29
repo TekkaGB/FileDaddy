@@ -364,10 +364,13 @@
                         <ColumnDefinition Width="0.25*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Image x:Name="Parameter" Grid.RowSpan="4" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform" Height="180"/>
+                    <Image x:Name="Parameter" Grid.RowSpan="4" Panel.ZIndex="1" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform" Height="180"/>
                     <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold" Text="{Binding Path=Title}" />
+                    <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="0" Grid.RowSpan="4" Background="#303030" Height="30" Width="150">
+                        <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="20" Width="140" Foreground="#4C1C74" IsIndeterminate="True"/>
+                    </Border>
                     <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="1" Text="{Binding Path=Submitter}" />
-                    <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" MaxHeight="30" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="3" Text="{Binding Path=Description}" />
+                    <TextBox BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" MaxHeight="30" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="3" Text="{Binding Path=Description}" />
                     <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Row="2" Grid.Column="1" Text="{Binding Path=Stats}" />
                     <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="100" Background="#494949" VerticalAlignment="Bottom" Margin="0,0,0,5" Grid.RowSpan="2" Content="Homepage" Click="Homepage_Click"/>
                     <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="100" Background="#494949" VerticalAlignment="Top" Margin="0,5,0,0" Grid.Row="2" Grid.RowSpan="2" Content="Download" IsEnabled="{Binding Path=Compatible}" Click="Download_Click"/>
@@ -524,19 +527,21 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="60"/>
                         <RowDefinition/>
+                        <RowDefinition Height="60"/>
                     </Grid.RowDefinitions>
-                    <Grid>
+                    <ComboBox Name="FilterBox" Height="50" Width="150" FontSize="28" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
+                        <ComboBoxItem IsSelected="True">Featured</ComboBoxItem>
+                        <ComboBoxItem>Recent</ComboBoxItem>
+                    </ComboBox>
+                    <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Column="1" Name="FilterBox" Height="50" Width="150" FontSize="28" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
-                            <ComboBoxItem IsSelected="True">Featured</ComboBoxItem>
-                            <ComboBoxItem>Recent</ComboBoxItem>
-                        </ComboBox>
-                        <Button Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="30" FontWeight="Bold" Grid.Column="0" Height="50" Width="50" Background="#494949" Foreground="#f2f2f2"/>
-                        <Button Content=">" Grid.Column="2" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="30" FontWeight="Bold" Height="50" Width="50" Background="#494949" Foreground="#f2f2f2"/>
+                        <Button Name="Left" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="30" FontWeight="Bold" Grid.Column="0" Height="50" Width="50" Background="#494949" Foreground="#f2f2f2"/>
+                        <TextBlock Name="Page" Text="Page 1" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" FontWeight="Bold" Grid.Column="1"/>
+                        <Button Name="Right" Click="IncrementPage" Content=">" Grid.Column="2" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="30" FontWeight="Bold" Height="50" Width="50" Background="#494949" Foreground="#f2f2f2"/>
                     </Grid>
                     <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="1" Grid.Row="1" Background="#303030" Height="40" Width="260">
                         <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="30" Width="250" Foreground="#4C1C74" IsIndeterminate="True"/>

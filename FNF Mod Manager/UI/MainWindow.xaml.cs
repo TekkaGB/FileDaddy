@@ -569,41 +569,94 @@ namespace FNF_Mod_Manager
         {
             if (!selected)
             {
+                Left.IsEnabled = false;
+                Right.IsEnabled = false;
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed();
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page);
                 LoadingBar.Visibility = Visibility.Collapsed;
                 if (FeedBox.Items.Count > 0)
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
                 FeedBox.Visibility = Visibility.Visible;
+                Page.Text = $"Page {page}";
                 selected = true;
+                Left.IsEnabled = false;
             }
+        }
+        private static int page = 1;
+        private async void DecrementPage(object sender, RoutedEventArgs e)
+        {
+            if (--page == 1)
+                Left.IsEnabled = false;
+            if (page * 10 < FeedGenerator.GetRecentSize())
+                Right.IsEnabled = true;
+            Page.Text = $"Page {page}";
+            LoadingBar.Visibility = Visibility.Visible;
+            FeedBox.Visibility = Visibility.Collapsed;
+            switch (FilterBox.SelectedIndex)
+            {
+                case 0: // Featured
+                    FeedBox.ItemsSource = await FeedGenerator.GetFeed(page);
+                    break;
+                case 1: // Recent
+                    FeedBox.ItemsSource = await FeedGenerator.GetRecentFeed(page);
+                    break;
+            }
+            LoadingBar.Visibility = Visibility.Collapsed;
+            if (FeedBox.Items.Count > 0)
+                FeedBox.ScrollIntoView(FeedBox.Items[0]);
+            FeedBox.Visibility = Visibility.Visible;
+        }
+        private async void IncrementPage(object sender, RoutedEventArgs e)
+        {
+            // TODO: Find stopping point
+            if (++page != 1)
+                Left.IsEnabled = true;
+            if (page * 10 > FeedGenerator.GetRecentSize())
+                Right.IsEnabled = false;
+            Page.Text = $"Page {page}";
+            LoadingBar.Visibility = Visibility.Visible;
+            FeedBox.Visibility = Visibility.Collapsed;
+            switch (FilterBox.SelectedIndex)
+            {
+                case 0: // Featured
+                    FeedBox.ItemsSource = await FeedGenerator.GetFeed(page);
+                    break;
+                case 1: // Recent
+                    FeedBox.ItemsSource = await FeedGenerator.GetRecentFeed(page);
+                    break;
+            }
+            LoadingBar.Visibility = Visibility.Collapsed;
+            if (FeedBox.Items.Count > 0)
+                FeedBox.ScrollIntoView(FeedBox.Items[0]);
+            FeedBox.Visibility = Visibility.Visible;
         }
         private async void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (FilterBox.SelectedIndex != -1 && IsLoaded)
             {
+                page = 1;
+                Page.Text = $"Page {page}";
+                LoadingBar.Visibility = Visibility.Visible;
+                FeedBox.Visibility = Visibility.Collapsed;
                 switch (FilterBox.SelectedIndex)
                 {
                     case 0: // Featured
-                        LoadingBar.Visibility = Visibility.Visible;
-                        FeedBox.Visibility = Visibility.Collapsed;
-                        FeedBox.ItemsSource = await FeedGenerator.GetFeed();
-                        LoadingBar.Visibility = Visibility.Collapsed;
-                        if (FeedBox.Items.Count > 0)
-                            FeedBox.ScrollIntoView(FeedBox.Items[0]);
-                        FeedBox.Visibility = Visibility.Visible;
+                        Left.IsEnabled = false;
+                        Right.IsEnabled = false;
+                        FeedBox.ItemsSource = await FeedGenerator.GetFeed(page);
                         break;
                     case 1: // Recent
-                        LoadingBar.Visibility = Visibility.Visible;
-                        FeedBox.Visibility = Visibility.Collapsed;
-                        FeedBox.ItemsSource = await FeedGenerator.GetRecentFeed();
-                        LoadingBar.Visibility = Visibility.Collapsed;
-                        if (FeedBox.Items.Count > 0)
-                            FeedBox.ScrollIntoView(FeedBox.Items[0]);
-                        FeedBox.Visibility = Visibility.Visible;
+                        Left.IsEnabled = false;
+                        Right.IsEnabled = false;
+                        FeedBox.ItemsSource = await FeedGenerator.GetRecentFeed(page);
+                        Right.IsEnabled = true;
                         break;
                 }
+                LoadingBar.Visibility = Visibility.Collapsed;
+                if (FeedBox.Items.Count > 0)
+                    FeedBox.ScrollIntoView(FeedBox.Items[0]);
+                FeedBox.Visibility = Visibility.Visible;
             }
         }
     }

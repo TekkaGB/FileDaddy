@@ -350,28 +350,28 @@
         </Style>
 
         <DataTemplate x:Key="DefaultTemplate">
-            <Border Height="250" BorderBrush="#535353" Background="#535353" CornerRadius="5" Margin="10">
-            <Grid x:Name="GridItem" Margin="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="0.25*"/>
-                </Grid.ColumnDefinitions>
+            <Border Height="220" BorderBrush="#535353" Background="#535353" CornerRadius="5" Margin="5">
+                <Grid x:Name="GridItem" Margin="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="0.25*"/>
+                    </Grid.ColumnDefinitions>
 
                     <Image x:Name="Parameter" Grid.RowSpan="4" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform" Height="180"/>
                     <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold" Text="{Binding Path=Title}" />
                     <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="1" Text="{Binding Path=Submitter}" />
-                    <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" MaxHeight="50" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="3" Text="{Binding Path=Description}" />
-                <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Row="2" Grid.Column="1" Text="{Binding Path=Stats}" />
-                        <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="100" Background="#494949" VerticalAlignment="Bottom" Margin="0,0,0,5" Grid.RowSpan="2" Content="Homepage" Click="Homepage_Click"/>
+                    <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" MaxHeight="30" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="3" Text="{Binding Path=Description}" />
+                    <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Row="2" Grid.Column="1" Text="{Binding Path=Stats}" />
+                    <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="100" Background="#494949" VerticalAlignment="Bottom" Margin="0,0,0,5" Grid.RowSpan="2" Content="Homepage" Click="Homepage_Click"/>
                     <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="100" Background="#494949" VerticalAlignment="Top" Margin="0,5,0,0" Grid.Row="2" Grid.RowSpan="2" Content="Download" IsEnabled="{Binding Path=Compatible}" Click="Download_Click"/>
-            </Grid>
+                </Grid>
             </Border>
         </DataTemplate>
 
@@ -425,6 +425,7 @@
                             <RowDefinition Height="1.6*" MinHeight="100"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition MinHeight="100"/>
+                            <RowDefinition Height="25"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
@@ -506,7 +507,7 @@
                         </Grid>
                         <GridSplitter Grid.Row="2" Grid.ColumnSpan="6" HorizontalAlignment="Stretch" Height="4" Background="Transparent"/>
 
-                        <RichTextBox FontSize="12" Margin="10,3,10,10" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="3" Grid.Column="0" 
+                        <RichTextBox  FontSize="12" Margin="10,3,10,0" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="3" Grid.Column="0" 
                      VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="6" TextChanged="ScrollToBottom">
                             <RichTextBox.Resources>
                                 <Style TargetType="{x:Type Paragraph}">
@@ -514,19 +515,29 @@
                                 </Style>
                             </RichTextBox.Resources>
                         </RichTextBox>
+                        <TextBox BorderThickness="0" Grid.Row="4" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" Grid.ColumnSpan="6" Foreground="#f2f2f2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Name="Stats"/>
                     </Grid>
                 </TabItem.Content>
             </TabItem>
             <TabItem Selector.Selected="OnTabSelected" FontSize="18" HorizontalAlignment="Center" Header="Browse Mods">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="75"/>
+                        <RowDefinition Height="60"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <ComboBox Name="FilterBox" Height="60" Width="150" FontSize="30" FontWeight="Bold" HorizontalContentAlignment="Center" SelectionChanged="FilterSelectionChanged">
-                        <ComboBoxItem IsSelected="True">Featured</ComboBoxItem>
-                        <ComboBoxItem>Recent</ComboBoxItem>
-                    </ComboBox>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="1" Name="FilterBox" Height="50" Width="150" FontSize="28" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
+                            <ComboBoxItem IsSelected="True">Featured</ComboBoxItem>
+                            <ComboBoxItem>Recent</ComboBoxItem>
+                        </ComboBox>
+                        <Button Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="30" FontWeight="Bold" Grid.Column="0" Height="50" Width="50" Background="#494949" Foreground="#f2f2f2"/>
+                        <Button Content=">" Grid.Column="2" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="30" FontWeight="Bold" Height="50" Width="50" Background="#494949" Foreground="#f2f2f2"/>
+                    </Grid>
                     <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="1" Grid.Row="1" Background="#303030" Height="40" Width="260">
                         <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="30" Width="250" Foreground="#4C1C74" IsIndeterminate="True"/>
                     </Border>
@@ -549,5 +560,5 @@
             </TabItem>
         </TabControl>
     </Grid>
-    
+
 </Window>

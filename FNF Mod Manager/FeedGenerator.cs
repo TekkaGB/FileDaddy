@@ -19,7 +19,7 @@ namespace FNF_Mod_Manager
             IEnumerable<GBMod> modsEnum = Enumerable.Empty<GBMod>();
             // Grab multiple pages at once
             // TODO: split up large requestUrls
-            for (int i = 1; i <= 3; i++)
+            for (int i = 1; i <= 5; i++)
             {
                 XDocument feedXML = XDocument.Load($"https://api.gamebanana.com/Core/List/New?format=xml&gameid=8694&itemtype=Mod,Skin,Sound,Wip&include_updated=1&page={i}");
 
@@ -35,20 +35,43 @@ namespace FNF_Mod_Manager
             using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
-                var requestUrl = $"https://api.gamebanana.com/Core/Item/Data?";
+                var requestUrls = new List<string>();
+                requestUrls.Add($"https://api.gamebanana.com/Core/Item/Data?");
+                var urlCount = 0;
+                var modCount = 0;
                 foreach (var mod in mods)
                 {
-                    requestUrl += $"itemtype[]={mod.MOD_TYPE}&itemid[]={mod.MOD_ID}&fields[]=name,Owner().name,description," +
-                        $"views,downloads,likes,Preview().sStructuredDataFullsizeUrl()&";
+                    requestUrls[urlCount] += $"itemtype[]={mod.MOD_TYPE}&itemid[]={mod.MOD_ID}&fields[]=Owner().name,description," +
+                        $"views,downloads,likes,Preview().sStructuredDataFullsizeUrl(),name&";
+                    if (++modCount > 30)
+                    {
+                        requestUrls[urlCount] += "return_keys=1";
+                        ++urlCount;
+                        requestUrls.Add($"https://api.gamebanana.com/Core/Item/Data?");
+                        modCount = 0;
+                    }
                 }
-                requestUrl += "return_keys=1";
+                if (!requestUrls[urlCount].EndsWith("return_keys=1"))
+                    requestUrls[urlCount] += "return_keys=1";
 
-                var responseString = await httpClient.GetStringAsync(requestUrl);
-                var response = JsonSerializer.Deserialize<GameBananaItem[]>(responseString);
+                List<GameBananaItem> response = new List<GameBananaItem>();
+                foreach (var requestUrl in requestUrls)
+                {
+                    var responseString = await httpClient.GetStringAsync(requestUrl);
+                    try
+                    {
+                        var partialResponse = JsonSerializer.Deserialize<List<GameBananaItem>>(responseString);
+                        response = response.Concat(partialResponse).ToList();
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                }
+
                 var feedList = new List<RssFeed>();
                 for (int i = 0; i < mods.Count; i++)
                 {
-                    requestUrl = $"https://gamebanana.com/apiv3/{mods[i].MOD_TYPE}/{mods[i].MOD_ID}";
+                    var requestUrl = $"https://gamebanana.com/apiv3/{mods[i].MOD_TYPE}/{mods[i].MOD_ID}";
                     var dataString = await httpClient.GetStringAsync(requestUrl);
                     GameBananaAPIV3 data = new GameBananaAPIV3();
                     try
@@ -70,7 +93,7 @@ namespace FNF_Mod_Manager
                     feed.Image = response[i].EmbedImage;
                     feed.Description = response[i].Description;
                     feed.Stats = $"{response[i].Downloads} downloads • {response[i].Likes} likes • {response[i].Views} views";
-                    feed.Submitter = response[i].Owner;
+                    feed.Submitter = $"Submitter: {response[i].Owner}";
                     feed.Files = data.Files.Where(x => !x.ContainsExe).ToList();
                     feed.Compatible = !data.Files.All(x => x.ContainsExe);
                     feedList.Add(feed);

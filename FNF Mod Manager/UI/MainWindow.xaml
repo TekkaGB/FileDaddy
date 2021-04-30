@@ -350,7 +350,7 @@
         </Style>
 
         <DataTemplate x:Key="DefaultTemplate">
-            <Border Height="220" BorderBrush="#535353" Background="#535353" CornerRadius="5" Margin="5">
+            <Border Height="220" BorderBrush="#303030" Background="#303030" CornerRadius="5" Margin="5">
                 <Grid x:Name="GridItem" Margin="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -364,7 +364,7 @@
                         <ColumnDefinition Width="0.25*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Image x:Name="Parameter" Grid.RowSpan="4" Panel.ZIndex="1" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform" Height="180"/>
+                    <Image x:Name="Parameter" Margin="7,0,0,0" Grid.RowSpan="4" Panel.ZIndex="1" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform" Height="180"/>
                     <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold" Text="{Binding Path=Title}" />
                     <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="0" Grid.RowSpan="4" Background="#303030" Height="30" Width="150">
                         <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="20" Width="140" Foreground="#4C1C74" IsIndeterminate="True"/>
@@ -372,8 +372,8 @@
                     <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="1" Text="{Binding Path=Submitter}" />
                     <TextBox BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" MaxHeight="30" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="3" Text="{Binding Path=Description}" />
                     <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Row="2" Grid.Column="1" Text="{Binding Path=Stats}" />
-                    <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="100" Background="#494949" VerticalAlignment="Bottom" Margin="0,0,0,5" Grid.RowSpan="2" Content="Homepage" Click="Homepage_Click"/>
-                    <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="100" Background="#494949" VerticalAlignment="Top" Margin="0,5,0,0" Grid.Row="2" Grid.RowSpan="2" Content="Download" IsEnabled="{Binding Path=Compatible}" Click="Download_Click"/>
+                    <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="95" Background="#494949" VerticalAlignment="Bottom" Margin="0,0,10,8" Grid.RowSpan="2" Content="Homepage" Click="Homepage_Click"/>
+                    <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="95" Background="#494949" VerticalAlignment="Top" Margin="0,8,10,0" Grid.Row="2" Grid.RowSpan="2" Content="Download" IsEnabled="{Binding Path=Compatible}" Click="Download_Click"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -502,7 +502,10 @@
                                     <RowDefinition Height="1.5*"/>
                                     <RowDefinition/>
                                 </Grid.RowDefinitions>
-                                <Image Margin="3,3,10,5" Name="Preview" Grid.Row="0"/>
+                                <Image Margin="3,3,10,5" Name="Preview" Grid.Row="0" Panel.ZIndex="1"/>
+                                <Border CornerRadius="5" Panel.ZIndex="0" Grid.Row="0" Background="#303030" Height="30" Width="150">
+                                    <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="20" Width="140" Foreground="#4C1C74" IsIndeterminate="True"/>
+                                </Border>
                                 <RichTextBox FontSize="12" Padding="10" Grid.Row="1" Margin="3,5,10,3" Name="DescriptionWindow" Foreground="#F2F2F2" Background="#202020" BorderBrush="#424242" ClipToBounds="False"
                      VerticalContentAlignment="Center" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="5" IsDocumentEnabled="True"
                              FontWeight="Bold"/>
@@ -525,11 +528,11 @@
             <TabItem Selector.Selected="OnTabSelected" FontSize="18" HorizontalAlignment="Center" Header="Browse Mods">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="40"/>
                         <RowDefinition/>
-                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
-                    <ComboBox Name="FilterBox" Height="50" Width="150" FontSize="28" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
+                    <ComboBox Name="FilterBox" Height="35" Width="50" FontSize="18" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
                         <ComboBoxItem IsSelected="True">Featured</ComboBoxItem>
                         <ComboBoxItem>Recent</ComboBoxItem>
                     </ComboBox>
@@ -539,9 +542,9 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Button Name="Left" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="30" FontWeight="Bold" Grid.Column="0" Height="50" Width="50" Background="#494949" Foreground="#f2f2f2"/>
-                        <TextBlock Name="Page" Text="Page 1" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" FontWeight="Bold" Grid.Column="1"/>
-                        <Button Name="Right" Click="IncrementPage" Content=">" Grid.Column="2" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="30" FontWeight="Bold" Height="50" Width="50" Background="#494949" Foreground="#f2f2f2"/>
+                        <Button Name="Left" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="18" FontWeight="Bold" Grid.Column="0" Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
+                        <TextBlock Name="Page" Text="Page 1" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Grid.Column="1"/>
+                        <Button Name="Right" Click="IncrementPage" Content=">" Grid.Column="2" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="18" FontWeight="Bold" Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
                     </Grid>
                     <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="1" Grid.Row="1" Background="#303030" Height="40" Width="260">
                         <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="30" Width="250" Foreground="#4C1C74" IsIndeterminate="True"/>

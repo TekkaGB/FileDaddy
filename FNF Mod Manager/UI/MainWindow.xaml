@@ -534,7 +534,10 @@
                     </Grid.RowDefinitions>
                     <ComboBox Name="FilterBox" Height="35" Width="50" FontSize="18" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
                         <ComboBoxItem IsSelected="True">Featured</ComboBoxItem>
-                        <ComboBoxItem>Recent</ComboBoxItem>
+                        <ComboBoxItem >Recent</ComboBoxItem>
+                        <ComboBoxItem >Downloads</ComboBoxItem>
+                        <ComboBoxItem >Likes</ComboBoxItem>
+                        <ComboBoxItem >Views</ComboBoxItem>
                     </ComboBox>
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>

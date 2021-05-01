@@ -119,18 +119,38 @@ namespace FNF_Mod_Manager
     }
     public class RssFeed
     {
+        [JsonPropertyName("_sName")]
         public string Title { get; set; }
+        [JsonPropertyName("_sProfileUrl")]
         public Uri Link { get; set; }
+        [JsonIgnore]
         public Uri Image { get; set; }
+        [JsonPropertyName("_aPreviewMedia")]
+        public List<GameBananaImage> Media { get; set; }
+        [JsonPropertyName("_sDescription")]
         public string Description { get; set; }
+        [JsonPropertyName("_nViewCount")]
+        public int Views { get; set; }
+        [JsonPropertyName("_nLikeCount")]
+        public int Likes { get; set; }
+        [JsonPropertyName("_nDownloadCount")]
+        public int Downloads { get; set; }
+        [JsonIgnore]
         public string Stats { get; set; }
+        [JsonPropertyName("_aSubmitter")]
+        public GameBananaMember Owner { get; set; }
+        [JsonIgnore]
         public string Submitter { get; set; }
-        public bool Compatible { get; set; }
+        [JsonPropertyName("_aFiles")]
         public List<GameBananaItemFile> Files { get; set; }
+        [JsonIgnore]
+        public bool Compatible { get; set; }
     }
-    public class GBMod
+    public class GameBananaImage
     {
-        public string MOD_TYPE { get; set; }
-        public int MOD_ID { get; set; }
+        [JsonPropertyName("_sBaseUrl")]
+        public Uri Base { get; set; }
+        [JsonPropertyName("_sFile")]
+        public Uri File { get; set; }
     }
 }

@@ -31,7 +31,7 @@ namespace FNF_Mod_Manager
         public class FeedObject
         {
             public GameBananaMetadata Metadata { get; set; }
-            public ObservableCollection<GameBananaRecord> Feed { get; set; }
+            public Dictionary<int, ObservableCollection<GameBananaRecord>> Feed { get; set; }
         }
         private static Feeds feeds;
         public static async Task<ObservableCollection<GameBananaRecord>> GetFeed(int page, FeedFilter filter)
@@ -41,24 +41,24 @@ namespace FNF_Mod_Manager
                 switch (filter)
                 {
                     case FeedFilter.Recent:
-                        if (feeds.RecentFeed != null && feeds.RecentFeed.Feed.Count > 20 * (page - 1))
-                            return new ObservableCollection<GameBananaRecord>(feeds.RecentFeed.Feed.Skip(20 * (page - 1)).Take(20));
+                        if (feeds.RecentFeed.Feed.ContainsKey(page))
+                            return feeds.RecentFeed.Feed[page];
                         break;
                     case FeedFilter.Featured:
-                        if (feeds.FeaturedFeed != null && feeds.FeaturedFeed.Feed.Count > 20 * (page - 1))
-                            return new ObservableCollection<GameBananaRecord>(feeds.FeaturedFeed.Feed.Skip(20 * (page - 1)).Take(20));
+                        if (feeds.FeaturedFeed.Feed.ContainsKey(page))
+                            return feeds.FeaturedFeed.Feed[page];
                         break;
                     case FeedFilter.Downloads:
-                        if (feeds.DownloadFeed != null && feeds.DownloadFeed.Feed.Count > 20 * (page - 1))
-                            return new ObservableCollection<GameBananaRecord>(feeds.DownloadFeed.Feed.Skip(20 * (page - 1)).Take(20));
+                        if (feeds.DownloadFeed.Feed.ContainsKey(page))
+                            return feeds.DownloadFeed.Feed[page];
                         break;
                     case FeedFilter.Likes:
-                        if (feeds.LikeFeed != null && feeds.LikeFeed.Feed.Count > 20 * (page - 1))
-                            return new ObservableCollection<GameBananaRecord>(feeds.LikeFeed.Feed.Skip(20 * (page - 1)).Take(20));
+                        if (feeds.LikeFeed.Feed.ContainsKey(page))
+                            return feeds.LikeFeed.Feed[page];
                         break;
                     case FeedFilter.Views:
-                        if (feeds.ViewFeed != null && feeds.ViewFeed.Feed.Count > 20 * (page - 1))
-                            return new ObservableCollection<GameBananaRecord>(feeds.ViewFeed.Feed.Skip(20 * (page - 1)).Take(20));
+                        if (feeds.ViewFeed.Feed.ContainsKey(page))
+                            return feeds.ViewFeed.Feed[page];
                         break;
                 }
             }
@@ -70,11 +70,11 @@ namespace FNF_Mod_Manager
                 feeds.DownloadFeed = new FeedObject();
                 feeds.LikeFeed = new FeedObject();
                 feeds.ViewFeed = new FeedObject();
-                feeds.RecentFeed.Feed = new ObservableCollection<GameBananaRecord>();
-                feeds.FeaturedFeed.Feed = new ObservableCollection<GameBananaRecord>();
-                feeds.DownloadFeed.Feed = new ObservableCollection<GameBananaRecord>();
-                feeds.LikeFeed.Feed = new ObservableCollection<GameBananaRecord>();
-                feeds.ViewFeed.Feed = new ObservableCollection<GameBananaRecord>();
+                feeds.RecentFeed.Feed = new Dictionary<int, ObservableCollection<GameBananaRecord>>();
+                feeds.FeaturedFeed.Feed = new Dictionary<int, ObservableCollection<GameBananaRecord>>();
+                feeds.DownloadFeed.Feed = new Dictionary<int, ObservableCollection<GameBananaRecord>>();
+                feeds.LikeFeed.Feed = new Dictionary<int, ObservableCollection<GameBananaRecord>>();
+                feeds.ViewFeed.Feed = new Dictionary<int, ObservableCollection<GameBananaRecord>>();
             }
             /*
              * Featured = _aArgs[]=_sbWasFeatured = true
@@ -82,6 +82,14 @@ namespace FNF_Mod_Manager
              * Most Liked = _sOrderBy=_nLikeCount,DESC
              * Most Viewed = _sOrderBy=_nViewCount,DESC
              * Recent = <none>
+             * Custom Songs = 3819
+             * Custom Songs + Skins = 3821
+             * Executables = 3827
+             * Remixes/Recharts = 3825
+             * Remixes/Recharts + Skins = 3826
+             * Stages = 5064
+             * Translations = 3828
+             * UI = 1931
              */
             using (var httpClient = new HttpClient())
             {
@@ -124,30 +132,31 @@ namespace FNF_Mod_Manager
                     feed.Image = new Uri($"{feed.Media[0].Base}/{feed.Media[0].File}");
                 }
                 // Todo: Compare metadata and refresh cache if totalrecords change
+                var records = new ObservableCollection<GameBananaRecord>(response.Records);
                 switch (filter)
                 {
                     case FeedFilter.Recent:
-                        feeds.RecentFeed.Feed = new ObservableCollection<GameBananaRecord>(feeds.RecentFeed.Feed.Concat(response.Records));
+                        feeds.RecentFeed.Feed.Add(page, records);
                         feeds.RecentFeed.Metadata = response.Metadata;
                         break;
                     case FeedFilter.Featured:
-                        feeds.FeaturedFeed.Feed = new ObservableCollection<GameBananaRecord>(feeds.FeaturedFeed.Feed.Concat(response.Records));
+                        feeds.FeaturedFeed.Feed.Add(page, records);
                         feeds.FeaturedFeed.Metadata = response.Metadata;
                         break;
                     case FeedFilter.Downloads:
-                        feeds.DownloadFeed.Feed = new ObservableCollection<GameBananaRecord>(feeds.DownloadFeed.Feed.Concat(response.Records));
+                        feeds.DownloadFeed.Feed.Add(page, records);
                         feeds.DownloadFeed.Metadata = response.Metadata;
                         break;
                     case FeedFilter.Likes:
-                        feeds.LikeFeed.Feed = new ObservableCollection<GameBananaRecord>(feeds.LikeFeed.Feed.Concat(response.Records));
+                        feeds.LikeFeed.Feed.Add(page, records);
                         feeds.LikeFeed.Metadata = response.Metadata;
                         break;
                     case FeedFilter.Views:
-                        feeds.ViewFeed.Feed = new ObservableCollection<GameBananaRecord>(feeds.ViewFeed.Feed.Concat(response.Records));
+                        feeds.ViewFeed.Feed.Add(page, records);
                         feeds.ViewFeed.Metadata = response.Metadata;
                         break;
                 }
-                return new ObservableCollection<GameBananaRecord>(response.Records);
+                return records;
             }
         }
         public static int GetSize(FeedFilter filter)
@@ -177,6 +186,38 @@ namespace FNF_Mod_Manager
                 case FeedFilter.Views:
                     if (feeds.ViewFeed != null)
                         return feeds.ViewFeed.Metadata.TotalRecords;
+                    else
+                        return -1;
+            }
+            return -1;
+        }
+        public static int GetMaxPage(FeedFilter filter)
+        {
+            switch (filter)
+            {
+                case FeedFilter.Recent:
+                    if (feeds.RecentFeed != null)
+                        return feeds.RecentFeed.Metadata.TotalPages;
+                    else
+                        return -1;
+                case FeedFilter.Featured:
+                    if (feeds.FeaturedFeed != null)
+                        return feeds.FeaturedFeed.Metadata.TotalPages;
+                    else
+                        return -1;
+                case FeedFilter.Downloads:
+                    if (feeds.DownloadFeed != null)
+                        return feeds.DownloadFeed.Metadata.TotalPages;
+                    else
+                        return -1;
+                case FeedFilter.Likes:
+                    if (feeds.LikeFeed != null)
+                        return feeds.LikeFeed.Metadata.TotalPages;
+                    else
+                        return -1;
+                case FeedFilter.Views:
+                    if (feeds.ViewFeed != null)
+                        return feeds.ViewFeed.Metadata.TotalPages;
                     else
                         return -1;
             }

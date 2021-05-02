@@ -267,7 +267,7 @@
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
             <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinWidth" Value="40"/>
             <Setter Property="MinHeight" Value="20"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Template">
@@ -576,23 +576,19 @@
                         <RowDefinition/>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
-                    <ComboBox Name="FilterBox" Height="35" Width="50" FontSize="18" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
+                    <ComboBox Name="FilterBox" Height="35" Width="140" FontSize="18" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
                         <ComboBoxItem xml:space="preserve" IsSelected="True"> Featured</ComboBoxItem>
                         <ComboBoxItem xml:space="preserve"> Recent</ComboBoxItem>
                         <ComboBoxItem xml:space="preserve"> Downloads</ComboBoxItem>
                         <ComboBoxItem xml:space="preserve"> Likes</ComboBoxItem>
                         <ComboBoxItem xml:space="preserve"> Views</ComboBoxItem>
                     </ComboBox>
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Button Name="Left" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="18" FontWeight="Bold" Grid.Column="0" Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
-                        <TextBlock Name="Page" Text="Page 1" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Grid.Column="1"/>
-                        <Button Name="Right" Click="IncrementPage" Content=">" Grid.Column="2" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="18" FontWeight="Bold" Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
-                    </Grid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2">
+                        <Button Name="Left" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="18" FontWeight="Bold"  Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
+                        <TextBlock Name="Page" Text="Page 1" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        <Button Name="Right" Click="IncrementPage" Content=">" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="18" FontWeight="Bold" Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
+                        <ComboBox Margin="15,0,0,0" Name="PageBox" SelectionChanged="PageBox_SelectionChanged"/>
+                    </StackPanel>
                     <Image Panel.ZIndex="-2" Grid.RowSpan="3" x:Name="BrowserBackground" Stretch="UniformToFill" Source="../Assets/background.jpg" >
                             <Image.BitmapEffect>
                                 <BlurBitmapEffect Radius="15" />

@@ -94,7 +94,6 @@ namespace FNF_Mod_Manager
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             Preview.Source = bitmap;
-            //BrowserBackground.Source = bitmap;
         }
 
         private void OnModified(object sender, FileSystemEventArgs e)
@@ -576,6 +575,8 @@ namespace FNF_Mod_Manager
                 FeedBox.Visibility = Visibility.Collapsed;
                 FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
                 Right.IsEnabled = true;
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex));
+                PageBox.SelectedValue = page;
                 LoadingBar.Visibility = Visibility.Collapsed;
                 if (FeedBox.Items.Count > 0)
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
@@ -599,6 +600,8 @@ namespace FNF_Mod_Manager
             if (FeedBox.Items.Count > 0)
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);
             FeedBox.Visibility = Visibility.Visible;
+            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex));
+            PageBox.SelectedValue = page;
         }
         private async void IncrementPage(object sender, RoutedEventArgs e)
         {
@@ -614,6 +617,7 @@ namespace FNF_Mod_Manager
             if (FeedBox.Items.Count > 0)
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);
             FeedBox.Visibility = Visibility.Visible;
+            PageBox.SelectedValue = page;
         }
         private async void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -631,18 +635,43 @@ namespace FNF_Mod_Manager
                 if (FeedBox.Items.Count > 0)
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
                 FeedBox.Visibility = Visibility.Visible;
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex));
+                PageBox.SelectedValue = page;
             }
         }
 
         private void UniformGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             var grid = sender as UniformGrid;
-            if (grid.ActualWidth > 1600) 
+            if (grid.ActualWidth > 2000)
+                grid.Columns = 6;
+            else if (grid.ActualWidth > 1600) 
                 grid.Columns = 5;
             else if (grid.ActualWidth > 1200) 
                 grid.Columns = 4;
             else 
                 grid.Columns = 3;
+        }
+
+        private async void PageBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            page = (int)PageBox.SelectedValue;
+            if (page != 1)
+                Left.IsEnabled = true;
+            else
+                Left.IsEnabled = false;
+            Page.Text = $"Page {page}";
+            LoadingBar.Visibility = Visibility.Visible;
+            FeedBox.Visibility = Visibility.Collapsed;
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
+            if (page * 20 >= FeedGenerator.GetSize((FeedFilter)FilterBox.SelectedIndex))
+                Right.IsEnabled = false;
+            else
+                Right.IsEnabled = true;
+            LoadingBar.Visibility = Visibility.Collapsed;
+            if (FeedBox.Items.Count > 0)
+                FeedBox.ScrollIntoView(FeedBox.Items[0]);
+            FeedBox.Visibility = Visibility.Visible;
         }
     }
 }

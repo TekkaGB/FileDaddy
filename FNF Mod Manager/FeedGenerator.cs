@@ -120,7 +120,7 @@ namespace FNF_Mod_Manager
                     feed.ViewString = StringConverters.FormatNumber(feed.Views);
                     feed.Submitter = feed.Owner.Name;
                     feed.Files = feed.Files.Where(x => !x.ContainsExe).ToList();
-                    feed.Compatible = feed.Files.Count > 0;
+                    feed.Compatible = feed.Files.Count > 0 && feed.Category.ID != 3827;
                     feed.Image = new Uri($"{feed.Media[0].Base}/{feed.Media[0].File}");
                 }
                 // Todo: Compare metadata and refresh cache if totalrecords change

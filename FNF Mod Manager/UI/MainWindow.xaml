@@ -577,11 +577,11 @@
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
                     <ComboBox Name="FilterBox" Height="35" Width="50" FontSize="18" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
-                        <ComboBoxItem IsSelected="True">Featured</ComboBoxItem>
-                        <ComboBoxItem >Recent</ComboBoxItem>
-                        <ComboBoxItem >Downloads</ComboBoxItem>
-                        <ComboBoxItem >Likes</ComboBoxItem>
-                        <ComboBoxItem >Views</ComboBoxItem>
+                        <ComboBoxItem xml:space="preserve" IsSelected="True"> Featured</ComboBoxItem>
+                        <ComboBoxItem xml:space="preserve"> Recent</ComboBoxItem>
+                        <ComboBoxItem xml:space="preserve"> Downloads</ComboBoxItem>
+                        <ComboBoxItem xml:space="preserve"> Likes</ComboBoxItem>
+                        <ComboBoxItem xml:space="preserve"> Views</ComboBoxItem>
                     </ComboBox>
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>

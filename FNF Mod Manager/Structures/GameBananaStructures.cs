@@ -75,6 +75,8 @@ namespace FNF_Mod_Manager
     }
     public class GameBananaCategory
     {
+        [JsonPropertyName("_idRow")]
+        public int ID { get; set; }
         [JsonPropertyName("_sModelName")]
         public string Model { get; set; }
         [JsonPropertyName("_sName")]
@@ -147,6 +149,10 @@ namespace FNF_Mod_Manager
         public string Submitter { get; set; }
         [JsonPropertyName("_aFiles")]
         public List<GameBananaItemFile> Files { get; set; }
+        [JsonPropertyName("_aCategory")]
+        public GameBananaCategory Category { get; set; }
+        [JsonPropertyName("_aRootCategory")]
+        public GameBananaCategory RootCategory { get; set; }
         [JsonIgnore]
         public bool Compatible { get; set; }
     }

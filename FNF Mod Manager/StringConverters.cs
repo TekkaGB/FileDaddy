@@ -22,6 +22,15 @@ namespace FNF_Mod_Manager
             }
             return string.Format("{0:n1}{1}", number, suffixes[counter]);
         }
+        public static string FormatNumber(int number)
+        {
+            if (number > 1000000)
+                return Math.Round((double)number / 1000000, 1).ToString() + "M";
+            else if (number > 1000)
+                return Math.Round((double)number / 1000, 1).ToString() + "K";
+            else
+                return number.ToString();
+        }
 
         public static string FormatTimeSpan(TimeSpan timeSpan)
         {

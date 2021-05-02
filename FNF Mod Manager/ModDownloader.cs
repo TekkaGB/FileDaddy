@@ -6,13 +6,7 @@ using System.Reflection;
 using System.Net.Http;
 using System.Threading;
 using System.Text.Json;
-using System.Collections.Generic;
-using SharpCompress.Archives;
-using SharpCompress.Archives.Rar;
-using SharpCompress.Archives.SevenZip;
-using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
-using System.Linq;
 using System.Text.RegularExpressions;
 using SharpCompress.Readers;
 

@@ -16,6 +16,7 @@ using System.Xml.Linq;
 using System.Net.Http;
 using System.Windows.Media;
 using FNF_Mod_Manager.UI;
+using System.Windows.Controls.Primitives;
 
 namespace FNF_Mod_Manager
 {
@@ -93,7 +94,7 @@ namespace FNF_Mod_Manager
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             Preview.Source = bitmap;
-
+            //BrowserBackground.Source = bitmap;
         }
 
         private void OnModified(object sender, FileSystemEventArgs e)
@@ -530,7 +531,7 @@ namespace FNF_Mod_Manager
         private void Download_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
-            var item = button.DataContext as RssFeed;
+            var item = button.DataContext as GameBananaRecord;
             if (true)//item.Files.Count == 1)
             {
                 var url = item.Link;
@@ -549,7 +550,7 @@ namespace FNF_Mod_Manager
         private void Homepage_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
-            var item = button.DataContext as RssFeed;
+            var item = button.DataContext as GameBananaRecord;
             try
             {
                 var ps = new ProcessStartInfo(item.Link.ToString())
@@ -592,7 +593,7 @@ namespace FNF_Mod_Manager
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
             FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page * 10 < FeedGenerator.GetSize((FeedFilter)FilterBox.SelectedIndex))
+            if (page * 20 < FeedGenerator.GetSize((FeedFilter)FilterBox.SelectedIndex))
                 Right.IsEnabled = true;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
@@ -607,7 +608,7 @@ namespace FNF_Mod_Manager
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
             FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page * 10 >= FeedGenerator.GetSize((FeedFilter)FilterBox.SelectedIndex))
+            if (page * 20 >= FeedGenerator.GetSize((FeedFilter)FilterBox.SelectedIndex))
                 Right.IsEnabled = false;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
@@ -631,6 +632,17 @@ namespace FNF_Mod_Manager
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
                 FeedBox.Visibility = Visibility.Visible;
             }
+        }
+
+        private void UniformGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var grid = sender as UniformGrid;
+            if (grid.ActualWidth > 1600) 
+                grid.Columns = 5;
+            else if (grid.ActualWidth > 1200) 
+                grid.Columns = 4;
+            else 
+                grid.Columns = 3;
         }
     }
 }

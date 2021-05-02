@@ -117,7 +117,7 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("text")]
         public string Text { get; set; }
     }
-    public class RssFeed
+    public class GameBananaRecord
     {
         [JsonPropertyName("_sName")]
         public string Title { get; set; }
@@ -136,7 +136,11 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_nDownloadCount")]
         public int Downloads { get; set; }
         [JsonIgnore]
-        public string Stats { get; set; }
+        public string DownloadString { get; set; }
+        [JsonIgnore]
+        public string ViewString { get; set; }
+        [JsonIgnore]
+        public string LikeString { get; set; }
         [JsonPropertyName("_aSubmitter")]
         public GameBananaMember Owner { get; set; }
         [JsonIgnore]
@@ -145,6 +149,22 @@ namespace FNF_Mod_Manager
         public List<GameBananaItemFile> Files { get; set; }
         [JsonIgnore]
         public bool Compatible { get; set; }
+    }
+    public class GameBananaModList
+    {
+        [JsonPropertyName("_aMetadata")]
+        public GameBananaMetadata Metadata { get; set; }
+        [JsonPropertyName("_aRecords")]
+        public List<GameBananaRecord> Records { get; set; }
+    }
+    public class GameBananaMetadata
+    {
+        [JsonPropertyName("_nRecordCount")]
+        public int Records { get; set; }
+        [JsonPropertyName("_nTotalRecordCount")]
+        public int TotalRecords { get; set; }
+        [JsonPropertyName("_nPageCount")]
+        public int TotalPages { get; set; }
     }
     public class GameBananaImage
     {

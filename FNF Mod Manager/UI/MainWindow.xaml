@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dd="urn:gong-wpf-dragdrop"
+        xmlns:fa5="http://schemas.fontawesome.com/icons/"
         Background="#202020"
         mc:Ignorable="d" Closing="Window_Closing" WindowStartupLocation="CenterScreen"
         Height="800" Width="900" MinHeight="800" MinWidth="900">
@@ -110,13 +111,13 @@
                 <RepeatButton Grid.Row="0" Style="{StaticResource ScrollBarLineButton}" Height="18" Command="ScrollBar.LineUpCommand" Content="M 0 4 L 8 4 L 4 0 Z" />
                 <Track Name="PART_Track" Grid.Row="1" IsDirectionReversed="true">
                     <Track.DecreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageUpCommand" />
+                        <RepeatButton Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageUpCommand" />
                     </Track.DecreaseRepeatButton>
                     <Track.Thumb>
-                        <Thumb Style="{StaticResource ScrollBarThumb}" Width="20" Margin="-10,0,1,0" Background="{StaticResource HorizontalNormalBrush}" BorderBrush="{StaticResource HorizontalNormalBorderBrush}" />
+                        <Thumb Style="{StaticResource ScrollBarThumb}" Width="30" Margin="-16,0,1,0" Background="{StaticResource HorizontalNormalBrush}" BorderBrush="{StaticResource HorizontalNormalBorderBrush}" />
                     </Track.Thumb>
                     <Track.IncreaseRepeatButton>
-                        <RepeatButton Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageDownCommand" />
+                        <RepeatButton Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageDownCommand" />
                     </Track.IncreaseRepeatButton>
                 </Track>
                 <RepeatButton Grid.Row="3" Style="{StaticResource ScrollBarLineButton}" Height="18" Command="ScrollBar.LineDownCommand" Content="M 0 0 L 4 4 L 8 0 Z"/>
@@ -162,27 +163,53 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="FavsScrollViewer" TargetType="{x:Type ScrollViewer}">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Style x:Key="ScrollBarThumbVertical" TargetType="{x:Type Thumb}">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="IsTabStop" Value="false"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <ScrollContentPresenter Grid.Column="1"/>
-                            <ScrollBar Name="PART_VerticalScrollBar" Value="{TemplateBinding VerticalOffset}" Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
-                            <ScrollBar Name="PART_HorizontalScrollBar" Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Value="{TemplateBinding HorizontalOffset}" Maximum="{TemplateBinding ScrollableWidth}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
-                        </Grid>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Rectangle x:Name="rectangle" Fill="#CDCDCD" Height="{TemplateBinding Height}" SnapsToDevicePixels="True" Width="{TemplateBinding Width}"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Fill" TargetName="rectangle" Value="#A6A6A6"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="true">
+                                <Setter Property="Fill" TargetName="rectangle" Value="#606060"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <Style x:Key="ListviewStyle" TargetType="ListBox">
+            <Style.Resources>
+                <Style TargetType="{x:Type ScrollViewer}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <ScrollContentPresenter Grid.ColumnSpan="2" Grid.RowSpan="2" />
+                                    <ScrollBar Grid.Column="1" x:Name="PART_VerticalScrollBar" 
+                            Value="{TemplateBinding VerticalOffset}" Maximum="{
+                            TemplateBinding ScrollableHeight}" ViewportSize="{
+                            TemplateBinding ViewportHeight}" Background="Transparent" />
+
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Style.Resources>
         </Style>
 
         <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
@@ -350,30 +377,47 @@
         </Style>
 
         <DataTemplate x:Key="DefaultTemplate">
-            <Border Height="220" BorderBrush="#303030" Background="#303030" CornerRadius="5" Margin="5">
-                <Grid x:Name="GridItem" Margin="3">
+            <Border CornerRadius="5" Margin="5">
+                <Border.BorderBrush>
+                    <SolidColorBrush Color="#101010" Opacity="0.8"/>
+                </Border.BorderBrush>
+                <Border.Background>
+                    <SolidColorBrush Color="#101010" Opacity="0.8"/>
+                </Border.Background>
+                <Grid VerticalAlignment="Center" x:Name="GridItem" Margin="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="0.25*"/>
-                    </Grid.ColumnDefinitions>
 
-                    <Image x:Name="Parameter" Margin="7,0,0,0" Grid.RowSpan="4" Panel.ZIndex="1" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform" Height="180"/>
-                    <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" FontWeight="Bold" Text="{Binding Path=Title}" />
-                    <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="0" Grid.RowSpan="4" Background="#303030" Height="30" Width="150">
+                    <Image Margin="10" x:Name="Parameter" Height="168" Panel.ZIndex="1" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform"/>
+                    <TextBox Margin="10" Grid.Row="1" FontWeight="Bold" BorderThickness="0" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Text="{Binding Path=Title}" />
+                    <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="0" Background="#303030" Height="30" Width="150">
                         <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="20" Width="140" Foreground="#4C1C74" IsIndeterminate="True"/>
                     </Border>
-                    <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="1" Text="{Binding Path=Submitter}" />
-                    <TextBox BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" MaxHeight="30" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Margin="15" Grid.Column="1" Grid.Row="3" Text="{Binding Path=Description}" />
-                    <TextBlock VerticalAlignment="Center" Foreground="#f2f2f2" Margin="15" Grid.Row="2" Grid.Column="1" Text="{Binding Path=Stats}" />
-                    <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="95" Background="#494949" VerticalAlignment="Bottom" Margin="0,0,10,8" Grid.RowSpan="2" Content="Homepage" Click="Homepage_Click"/>
-                    <Button Grid.Column="3" Foreground="#f2f2f2" Height="30" Width="95" Background="#494949" VerticalAlignment="Top" Margin="0,8,10,0" Grid.Row="2" Grid.RowSpan="2" Content="Download" IsEnabled="{Binding Path=Compatible}" Click="Download_Click"/>
+                    <TextBlock VerticalAlignment="Center" Foreground="#909090" Margin="10,-5,10,5" Grid.Row="2" Text="{Binding Path=Submitter}" />
+                    <TextBox BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Margin="10" Grid.Row="3" Text="{Binding Path=Description}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" Grid.Row="4">
+                        <fa5:ImageAwesome Margin="0,0,5,0" Height="15" Icon="Solid_Download" Foreground="#f2f2f2"/>
+                        <TextBlock Margin="5,0,10,0" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=DownloadString}" />
+                        <fa5:ImageAwesome Margin="5,0,5,0" Height="15" Icon="Solid_Heart" Foreground="#f2f2f2"/>
+                        <TextBlock Margin="5,0,10,0" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=LikeString}" />
+                        <fa5:ImageAwesome Margin="5,0,5,0" Height="15" Icon="Solid_Eye" Foreground="#f2f2f2"/>
+                        <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=ViewString}" />
+                    </StackPanel>
+
+                    <Grid Grid.Row="5" Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Foreground="#f2f2f2" FontWeight="Bold" Height="30" Width="95" Background="#494949" VerticalAlignment="Bottom" Content="Mod Page" Click="Homepage_Click"/>
+                        <Button Grid.Column="1" Foreground="#f2f2f2" FontWeight="Bold" Height="30" Width="95" Background="#494949" VerticalAlignment="Top" Content="Download" IsEnabled="{Binding Path=Compatible}" Click="Download_Click"/>
+                    </Grid>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -549,12 +593,23 @@
                         <TextBlock Name="Page" Text="Page 1" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Grid.Column="1"/>
                         <Button Name="Right" Click="IncrementPage" Content=">" Grid.Column="2" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="18" FontWeight="Bold" Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
                     </Grid>
+                    <Image Panel.ZIndex="-2" Grid.RowSpan="3" x:Name="BrowserBackground" Stretch="UniformToFill" Source="../Assets/background.jpg" >
+                            <Image.BitmapEffect>
+                                <BlurBitmapEffect Radius="15" />
+                            </Image.BitmapEffect>
+                            <Image.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                </TransformGroup>
+                            </Image.RenderTransform>
+                        </Image>
                     <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="1" Grid.Row="1" Background="#303030" Height="40" Width="260">
                         <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="30" Width="250" Foreground="#4C1C74" IsIndeterminate="True"/>
                     </Border>
-                    <ListView Grid.Row="1" VerticalContentAlignment="Top" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="#202020" BorderBrush="Transparent" Name="FeedBox" ItemTemplate="{StaticResource DefaultTemplate}">
+                    <ListView Panel.ZIndex="1" Style="{StaticResource ListviewStyle}" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Top" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="Transparent" BorderBrush="Transparent" Name="FeedBox" ItemTemplate="{StaticResource DefaultTemplate}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="{x:Type ListViewItem}">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                 <Setter Property="Focusable" Value="false"/>
                                 <Setter Property="Background" Value="Transparent" />
                                 <Setter Property="Template">
@@ -566,6 +621,11 @@
                                 </Setter>
                             </Style>
                         </ListView.ItemContainerStyle>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid SizeChanged="UniformGrid_SizeChanged"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
                     </ListView>
                 </Grid>
             </TabItem>

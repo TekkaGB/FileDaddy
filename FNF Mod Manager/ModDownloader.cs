@@ -150,7 +150,12 @@ namespace FNF_Mod_Manager
                             metadata.caticon = data.Category.Icon;
                             metadata.section = data.Category.Model.Replace("Category", "");
                             if (metadata.section.Equals("Mod", StringComparison.InvariantCultureIgnoreCase))
-                                metadata.section = response.RootCat.Substring(0, response.RootCat.Length - 1);
+                            {
+                                if (metadata.cat.Equals(response.RootCat, StringComparison.InvariantCultureIgnoreCase))
+                                    metadata.section = "";
+                                else
+                                    metadata.section = response.RootCat.Substring(0, response.RootCat.Length - 1);
+                            }
                             if (response.HasUpdates)
                                 metadata.lastupdate = response.Updates[0].DateAdded;
                             else

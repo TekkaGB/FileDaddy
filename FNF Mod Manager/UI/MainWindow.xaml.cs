@@ -531,11 +531,11 @@ namespace FNF_Mod_Manager
         {
             Button button = sender as Button;
             var item = button.DataContext as GameBananaRecord;
-            if (true)//item.Files.Count == 1)
+            var url = item.Link;
+            var MOD_TYPE = char.ToUpper(url.Segments[1][0]) + url.Segments[1].Substring(1, url.Segments[1].Length - 3);
+            var MOD_ID = url.Segments[2];
+            if (item.Files.Count == 1)
             {
-                var url = item.Link;
-                var MOD_TYPE = char.ToUpper(url.Segments[1][0]) + url.Segments[1].Substring(1, url.Segments[1].Length - 3);
-                var MOD_ID = url.Segments[2];
                 new ModDownloader().Download($"filedaddy:{item.Files[0].DownloadUrl},{MOD_TYPE},{MOD_ID}", false);
             }
             else if (item.Files.Count > 1)
@@ -543,7 +543,7 @@ namespace FNF_Mod_Manager
                 UpdateFileBox fileBox = new UpdateFileBox(item.Files, item.Title);
                 fileBox.Activate();
                 fileBox.ShowDialog();
-                MessageBox.Show($"{fileBox.chosenFileUrl} {fileBox.chosenFileName}");
+                new ModDownloader().Download($"filedaddy:{fileBox.chosenFileUrl},{MOD_TYPE},{MOD_ID}", false);
             }
         }
         private void Homepage_Click(object sender, RoutedEventArgs e)
@@ -594,7 +594,7 @@ namespace FNF_Mod_Manager
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
             FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page * 20 < FeedGenerator.GetSize((FeedFilter)FilterBox.SelectedIndex))
+            if (page < FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex))
                 Right.IsEnabled = true;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
@@ -639,6 +639,26 @@ namespace FNF_Mod_Manager
                 PageBox.SelectedValue = page;
             }
         }
+        private async void CatSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CatBox.SelectedIndex != -1 && IsLoaded)
+            {
+                page = 1;
+                Page.Text = $"Page {page}";
+                LoadingBar.Visibility = Visibility.Visible;
+                FeedBox.Visibility = Visibility.Collapsed;
+                Left.IsEnabled = false;
+                Right.IsEnabled = false;
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
+                Right.IsEnabled = true;
+                LoadingBar.Visibility = Visibility.Collapsed;
+                if (FeedBox.Items.Count > 0)
+                    FeedBox.ScrollIntoView(FeedBox.Items[0]);
+                FeedBox.Visibility = Visibility.Visible;
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex));
+                PageBox.SelectedValue = page;
+            }
+        }
 
         private void UniformGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -664,7 +684,7 @@ namespace FNF_Mod_Manager
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
             FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page * 20 >= FeedGenerator.GetSize((FeedFilter)FilterBox.SelectedIndex))
+            if (page >= FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex))
                 Right.IsEnabled = false;
             else
                 Right.IsEnabled = true;

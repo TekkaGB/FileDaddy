@@ -424,7 +424,7 @@
 
     </Window.Resources>
     <Grid>
-        <TabControl Grid.ColumnSpan="6" Background="#202020" BorderBrush="#424242">
+        <TabControl Grid.ColumnSpan="5" Background="#202020" BorderBrush="#424242">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabItem}">
                     <Setter Property="Template">
@@ -432,7 +432,7 @@
                             <ControlTemplate TargetType="{x:Type TabItem}">
                                 <Border x:Name="Spacer"
                                         Width="Auto" Height="Auto"
-                                        Margin="0,0,0,0" Padding="0,0,2,0"
+                                        Margin="0,0,0,0" Padding="0,0,0,0"
                                         BorderBrush="Transparent" BorderThickness="0">
                                     <Border x:Name="Border"
                                             Width="Auto" MinWidth="100" MinHeight="30"
@@ -480,7 +480,6 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                             <ColumnDefinition/>
-                            <ColumnDefinition Width="0.5*"/>
                         </Grid.ColumnDefinitions>
 
                         <Button FontSize="14" Name="ConfigButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Config" Background="#494949" Foreground="#f2f2f2" Click="Config_Click"/>
@@ -488,8 +487,8 @@
                         <Button FontSize="14" Name="LaunchButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2" Content="Launch" Background="#494949" Foreground="#f2f2f2" Click="Launch_Click"/>
                         <Button FontSize="14" Name="OpenModsButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="3" Content="Open Mods" Background="#494949" Foreground="#f2f2f2" Click="ModsFolder_Click"/>
                         <Button FontSize="14" Name="UpdateButton"  Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="4" Content="Check for Updates" Background="#494949" Foreground="#f2f2f2" Click="Update_Click"/>
-                        <Image Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Source="../Assets/GameBanana.png" Cursor="Hand" ToolTip="Check Out More Mods at GameBanana!" MouseLeftButtonDown="GameBanana_Click"/>
-                        <Grid Grid.Row="1" Grid.ColumnSpan="6">
+                        
+                        <Grid Grid.Row="1" Grid.ColumnSpan="5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -555,39 +554,53 @@
                              FontWeight="Bold"/>
                             </Grid>
                         </Grid>
-                        <GridSplitter Grid.Row="2" Grid.ColumnSpan="6" HorizontalAlignment="Stretch" Height="4" Background="Transparent"/>
+                        <GridSplitter Grid.Row="2" Grid.ColumnSpan="5" HorizontalAlignment="Stretch" Height="4" Background="Transparent"/>
 
                         <RichTextBox  FontSize="12" Margin="10,3,10,0" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="3" Grid.Column="0" 
-                     VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="6" TextChanged="ScrollToBottom">
+                     VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="5" TextChanged="ScrollToBottom">
                             <RichTextBox.Resources>
                                 <Style TargetType="{x:Type Paragraph}">
                                     <Setter Property="Margin" Value="0" />
                                 </Style>
                             </RichTextBox.Resources>
                         </RichTextBox>
-                        <TextBox BorderThickness="0" Grid.Row="4" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" Grid.ColumnSpan="6" Foreground="#f2f2f2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Name="Stats"/>
+                        <TextBox BorderThickness="0" Grid.Row="4" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" Grid.ColumnSpan="5" Foreground="#f2f2f2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Name="Stats"/>
                     </Grid>
                 </TabItem.Content>
             </TabItem>
             <TabItem Selector.Selected="OnTabSelected" FontSize="18" HorizontalAlignment="Center" Header="Browse Mods">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="45"/>
                         <RowDefinition/>
-                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="45"/>
                     </Grid.RowDefinitions>
-                    <ComboBox Name="FilterBox" Height="35" Width="140" FontSize="18" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
-                        <ComboBoxItem xml:space="preserve" IsSelected="True"> Featured</ComboBoxItem>
-                        <ComboBoxItem xml:space="preserve"> Recent</ComboBoxItem>
-                        <ComboBoxItem xml:space="preserve"> Downloads</ComboBoxItem>
-                        <ComboBoxItem xml:space="preserve"> Likes</ComboBoxItem>
-                        <ComboBoxItem xml:space="preserve"> Views</ComboBoxItem>
-                    </ComboBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ComboBox Margin="0,0,15,0" Name="FilterBox" Height="35" Width="140" FontSize="18" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
+                            <ComboBoxItem xml:space="preserve" IsSelected="True"> Featured</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Recent</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Downloads</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Likes</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Views</ComboBoxItem>
+                        </ComboBox>
+                        <ComboBox Margin="0,0,15,0" Name="CatBox" Height="35" Width="250" FontSize="18" FontWeight="Bold" SelectionChanged="CatSelectionChanged">
+                            <ComboBoxItem xml:space="preserve" IsSelected="True"> All</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Custom Songs</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Custom Songs + Skins</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Executables</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Remixes/Recharts</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Remixes/Recharts + Skins</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Stages</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Translations</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> UI</ComboBoxItem>
+                        </ComboBox>
+                        <Image VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Source="../Assets/GameBanana.png" Cursor="Hand" ToolTip="Go to gamebanana.com" MouseLeftButtonDown="GameBanana_Click"/>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2">
                         <Button Name="Left" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="18" FontWeight="Bold"  Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
                         <TextBlock Name="Page" Text="Page 1" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" />
                         <Button Name="Right" Click="IncrementPage" Content=">" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="18" FontWeight="Bold" Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
-                        <ComboBox Margin="15,0,0,0" Name="PageBox" SelectionChanged="PageBox_SelectionChanged"/>
+                        <ComboBox Margin="15,0,0,0" Name="PageBox" SelectionChanged="PageBox_SelectionChanged" Height="35" VerticalAlignment="Center"/>
                     </StackPanel>
                     <Image Panel.ZIndex="-2" Grid.RowSpan="3" x:Name="BrowserBackground" Stretch="UniformToFill" Source="../Assets/background.jpg" >
                             <Image.BitmapEffect>

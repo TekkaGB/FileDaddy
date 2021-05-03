@@ -32,6 +32,7 @@ namespace FNF_Mod_Manager
         {
             public GameBananaMetadata Metadata { get; set; }
             public Dictionary<int, ObservableCollection<GameBananaRecord>> Feed { get; set; }
+            // If caching categories go with public Dictionary<int, Dictionary<int, ObservableCollection<GameBananaRecord>>> Feed { get; set; }
         }
         private static Feeds feeds;
         public static async Task<ObservableCollection<GameBananaRecord>> GetFeed(int page, FeedFilter filter)

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace FNF_Mod_Manager
@@ -126,7 +128,7 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_sProfileUrl")]
         public Uri Link { get; set; }
         [JsonIgnore]
-        public Uri Image { get; set; }
+        public Uri Image => new Uri($"{Media[0].Base}/{Media[0].File}");
         [JsonPropertyName("_aPreviewMedia")]
         public List<GameBananaImage> Media { get; set; }
         [JsonPropertyName("_sDescription")]
@@ -138,30 +140,46 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_nDownloadCount")]
         public int Downloads { get; set; }
         [JsonIgnore]
-        public string DownloadString { get; set; }
+        public string DownloadString => Downloads.ToString();
         [JsonIgnore]
-        public string ViewString { get; set; }
+        public string ViewString => Views.ToString();
         [JsonIgnore]
-        public string LikeString { get; set; }
+        public string LikeString => Likes.ToString();
         [JsonPropertyName("_aSubmitter")]
         public GameBananaMember Owner { get; set; }
         [JsonIgnore]
-        public string Submitter { get; set; }
+        public string Submitter => Owner.Name;
         [JsonPropertyName("_aFiles")]
-        public List<GameBananaItemFile> Files { get; set; }
+        public List<GameBananaItemFile> AllFiles { get; set; }
+        [JsonIgnore]
+        public List<GameBananaItemFile> Files => AllFiles.Where(x => !x.ContainsExe).ToList();
         [JsonPropertyName("_aCategory")]
         public GameBananaCategory Category { get; set; }
         [JsonPropertyName("_aRootCategory")]
         public GameBananaCategory RootCategory { get; set; }
         [JsonIgnore]
-        public bool Compatible { get; set; }
+        public bool Compatible => Files.Count > 0 && Category.ID != 3827;
+
+        [JsonPropertyName("_tsDateUpdated")]
+        public long DateUpdatedLong { get; set; }
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1);
+
+        [JsonIgnore]
+        public DateTime DateUpdated => Epoch.AddSeconds(DateUpdatedLong);
+        [JsonPropertyName("_tsDateAdded")]
+        public long DateAddedLong { get; set; }
+
+        [JsonIgnore]
+        public DateTime DateAdded => Epoch.AddSeconds(DateAddedLong);
+        [JsonIgnore]
+        public bool NoUpdates => DateAdded.CompareTo(DateUpdated) == 0;
     }
     public class GameBananaModList
     {
         [JsonPropertyName("_aMetadata")]
         public GameBananaMetadata Metadata { get; set; }
         [JsonPropertyName("_aRecords")]
-        public List<GameBananaRecord> Records { get; set; }
+        public ObservableCollection<GameBananaRecord> Records { get; set; }
     }
     public class GameBananaMetadata
     {

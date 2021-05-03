@@ -9,6 +9,7 @@ using System.Text.Json;
 using SharpCompress.Common;
 using System.Text.RegularExpressions;
 using SharpCompress.Readers;
+using FNF_Mod_Manager.UI;
 
 namespace FNF_Mod_Manager
 {
@@ -27,6 +28,36 @@ namespace FNF_Mod_Manager
         private GameBananaItem response = new GameBananaItem();
         private GameBananaAPIV3 data = new GameBananaAPIV3();
         private ProgressBox progressBox;
+        public async void BrowserDownload(GameBananaRecord record)
+        {
+            DownloadWindow downloadWindow = new DownloadWindow(record);
+            downloadWindow.ShowDialog();
+            if (downloadWindow.YesNo)
+            {
+                string downloadUrl = null;
+                string fileName = null;
+                if (record.Files.Count == 1)
+                {
+                    downloadUrl = record.Files[0].DownloadUrl;
+                    fileName = record.Files[0].FileName;
+                }
+                else if (record.Files.Count > 1)
+                {
+                    UpdateFileBox fileBox = new UpdateFileBox(record.Files, record.Title);
+                    fileBox.Activate();
+                    fileBox.ShowDialog();
+                    downloadUrl = fileBox.chosenFileUrl;
+                    fileName = fileBox.chosenFileName;
+                }
+                if (downloadUrl != null && fileName != null)
+                {
+                    await DownloadFile(downloadUrl, fileName, new Progress<DownloadProgress>(ReportUpdateProgress),
+                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken.Token));
+                    if (!cancelled)
+                        await ExtractFile(fileName, record);
+                }
+            }
+        }
         public async void Download(string line, bool running)
         {
             if (ParseProtocol(line))
@@ -48,7 +79,7 @@ namespace FNF_Mod_Manager
                 Environment.Exit(0);
         }
 
-        private async Task<bool> GetData()
+            private async Task<bool> GetData()
         {
             try
             {
@@ -101,7 +132,77 @@ namespace FNF_Mod_Manager
                 return false;
             }
         }
+        private async Task ExtractFile(string fileName, GameBananaRecord record)
+        {
+            await Task.Run(() =>
+            {
+                string _ArchiveSource = $@"{assemblyLocation}/Downloads/{fileName}";
+                string _ArchiveType = Path.GetExtension(fileName);
+                string ArchiveDestination = $@"{assemblyLocation}/Mods/{string.Concat(record.Title.Split(Path.GetInvalidFileNameChars()))}";
+                // Find a unique destination if it already exists
+                var counter = 2;
+                while (Directory.Exists(ArchiveDestination))
+                {
+                    ArchiveDestination = $@"{assemblyLocation}/Mods/{string.Concat(record.Title.Split(Path.GetInvalidFileNameChars()))} ({counter})";
+                    ++counter;
+                }
+                if (File.Exists(_ArchiveSource))
+                {
+                    try
+                    {
+                        using (Stream stream = File.OpenRead(_ArchiveSource))
+                        using (var reader = ReaderFactory.Open(stream))
+                        {
+                            while (reader.MoveToNextEntry())
+                            {
+                                if (!reader.Entry.IsDirectory)
+                                {
+                                    Console.WriteLine(reader.Entry.Key);
+                                    reader.WriteEntryToDirectory(ArchiveDestination, new ExtractionOptions()
+                                    {
+                                        ExtractFullPath = true,
+                                        Overwrite = true
+                                    });
+                                }
+                            }
+                        }
+                        if (!File.Exists($@"{ArchiveDestination}/mod.json"))
+                        {
+                            Metadata metadata = new Metadata();
+                            metadata.submitter = record.Submitter;
+                            metadata.description = record.Description;
+                            metadata.preview = record.Image;
+                            metadata.homepage = record.Link;
+                            metadata.avi = record.Owner.Avatar;
+                            metadata.upic = record.Owner.Upic;
+                            metadata.cat = record.Category.Name;
+                            metadata.caticon = record.Category.Icon;
+                            metadata.section = record.RootCategory.Name.Substring(0, record.RootCategory.Name.Length - 1);
+                            if (metadata.cat.Equals(record.RootCategory.Name, StringComparison.InvariantCultureIgnoreCase))
+                                metadata.section = "";
+                            metadata.lastupdate = record.DateUpdated;
+                            string metadataString = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });
+                            File.WriteAllText($@"{ArchiveDestination}/mod.json", metadataString);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show($"Couldn't extract {fileName}: {e.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                // Check if folder output folder exists, if not nothing was extracted
+                if (!Directory.Exists(ArchiveDestination))
+                {
+                    MessageBox.Show($"Didn't extract {fileName} due to improper format", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    // Only delete if successfully extracted
+                    File.Delete(_ArchiveSource);
+                }
+            });
 
+        }
         // Extract download to Mods directory
         private async Task ExtractFile(string fileName)
         {

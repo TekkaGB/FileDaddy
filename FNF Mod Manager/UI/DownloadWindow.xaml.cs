@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace FNF_Mod_Manager
@@ -16,6 +17,16 @@ namespace FNF_Mod_Manager
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = item.EmbedImage;
+            bitmap.EndInit();
+            Preview.Source = bitmap;
+        }
+        public DownloadWindow(GameBananaRecord record)
+        {
+            InitializeComponent();
+            DownloadText.Text = $"{record.Title}\nSubmitted by {record.Submitter}";
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri($"{record.Media[0].Base}/{record.Media[0].File}");
             bitmap.EndInit();
             Preview.Source = bitmap;
         }

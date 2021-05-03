@@ -531,20 +531,23 @@ namespace FNF_Mod_Manager
         {
             Button button = sender as Button;
             var item = button.DataContext as GameBananaRecord;
+            new ModDownloader().BrowserDownload(item);
+            /*
             var url = item.Link;
             var MOD_TYPE = char.ToUpper(url.Segments[1][0]) + url.Segments[1].Substring(1, url.Segments[1].Length - 3);
             var MOD_ID = url.Segments[2];
             if (item.Files.Count == 1)
             {
-                new ModDownloader().Download($"filedaddy:{item.Files[0].DownloadUrl},{MOD_TYPE},{MOD_ID}", false);
+                ModDownloader.Download($"filedaddy:{item.Files[0].DownloadUrl},{MOD_TYPE},{MOD_ID}", false);
             }
             else if (item.Files.Count > 1)
             {
                 UpdateFileBox fileBox = new UpdateFileBox(item.Files, item.Title);
                 fileBox.Activate();
                 fileBox.ShowDialog();
-                new ModDownloader().Download($"filedaddy:{fileBox.chosenFileUrl},{MOD_TYPE},{MOD_ID}", false);
+                ModDownloader.Download($"filedaddy:{fileBox.chosenFileUrl},{MOD_TYPE},{MOD_ID}", false);
             }
+            */
         }
         private void Homepage_Click(object sender, RoutedEventArgs e)
         {
@@ -575,7 +578,7 @@ namespace FNF_Mod_Manager
                 FeedBox.Visibility = Visibility.Collapsed;
                 FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
                 Right.IsEnabled = true;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex));
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages);
                 PageBox.SelectedValue = page;
                 LoadingBar.Visibility = Visibility.Collapsed;
                 if (FeedBox.Items.Count > 0)
@@ -594,13 +597,13 @@ namespace FNF_Mod_Manager
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
             FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page < FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex))
+            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages)
                 Right.IsEnabled = true;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);
             FeedBox.Visibility = Visibility.Visible;
-            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex));
+            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages);
             PageBox.SelectedValue = page;
         }
         private async void IncrementPage(object sender, RoutedEventArgs e)
@@ -611,7 +614,7 @@ namespace FNF_Mod_Manager
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
             FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page * 20 >= FeedGenerator.GetSize((FeedFilter)FilterBox.SelectedIndex))
+            if (page  >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages)
                 Right.IsEnabled = false;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
@@ -635,7 +638,7 @@ namespace FNF_Mod_Manager
                 if (FeedBox.Items.Count > 0)
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
                 FeedBox.Visibility = Visibility.Visible;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex));
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages);
                 PageBox.SelectedValue = page;
             }
         }
@@ -655,7 +658,7 @@ namespace FNF_Mod_Manager
                 if (FeedBox.Items.Count > 0)
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
                 FeedBox.Visibility = Visibility.Visible;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex));
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages);
                 PageBox.SelectedValue = page;
             }
         }
@@ -684,7 +687,7 @@ namespace FNF_Mod_Manager
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
             FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page >= FeedGenerator.GetMaxPage((FeedFilter)FilterBox.SelectedIndex))
+            if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages)
                 Right.IsEnabled = false;
             else
                 Right.IsEnabled = true;

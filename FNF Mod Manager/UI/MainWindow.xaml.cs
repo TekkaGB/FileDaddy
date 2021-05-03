@@ -576,9 +576,9 @@ namespace FNF_Mod_Manager
                 Right.IsEnabled = false;
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
                 Right.IsEnabled = true;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages);
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages);
                 PageBox.SelectedValue = page;
                 LoadingBar.Visibility = Visibility.Collapsed;
                 if (FeedBox.Items.Count > 0)
@@ -596,14 +596,14 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages)
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
+            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
                 Right.IsEnabled = true;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);
             FeedBox.Visibility = Visibility.Visible;
-            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages);
+            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages);
             PageBox.SelectedValue = page;
         }
         private async void IncrementPage(object sender, RoutedEventArgs e)
@@ -613,8 +613,8 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page  >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages)
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
+            if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
                 Right.IsEnabled = false;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
@@ -622,47 +622,41 @@ namespace FNF_Mod_Manager
             FeedBox.Visibility = Visibility.Visible;
             PageBox.SelectedValue = page;
         }
+        private static bool filterSelect;
         private async void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (FilterBox.SelectedIndex != -1 && IsLoaded)
             {
+                BrowserMessageBox.Visibility = Visibility.Collapsed;
                 page = 1;
+                filterSelect = true;
+                PageBox.SelectedValue = page;
+                filterSelect = false;
                 Page.Text = $"Page {page}";
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
                 Left.IsEnabled = false;
                 Right.IsEnabled = false;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-                Right.IsEnabled = true;
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
+                if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
+                    Right.IsEnabled = true;
                 LoadingBar.Visibility = Visibility.Collapsed;
                 if (FeedBox.Items.Count > 0)
+                {
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
-                FeedBox.Visibility = Visibility.Visible;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages);
-                PageBox.SelectedValue = page;
+                    FeedBox.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    BrowserMessageBox.Visibility = Visibility.Visible;
+                    BrowserMessage.Text = "No mods found under the current filters!";
+                }
+                var totalPages = FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages;
+                if (totalPages == 0)
+                    totalPages = 1;
+                PageBox.ItemsSource = Enumerable.Range(1, totalPages);
             }
         }
-        private async void CatSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (CatBox.SelectedIndex != -1 && IsLoaded)
-            {
-                page = 1;
-                Page.Text = $"Page {page}";
-                LoadingBar.Visibility = Visibility.Visible;
-                FeedBox.Visibility = Visibility.Collapsed;
-                Left.IsEnabled = false;
-                Right.IsEnabled = false;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-                Right.IsEnabled = true;
-                LoadingBar.Visibility = Visibility.Collapsed;
-                if (FeedBox.Items.Count > 0)
-                    FeedBox.ScrollIntoView(FeedBox.Items[0]);
-                FeedBox.Visibility = Visibility.Visible;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages);
-                PageBox.SelectedValue = page;
-            }
-        }
-
         private void UniformGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             var grid = sender as UniformGrid;
@@ -678,23 +672,26 @@ namespace FNF_Mod_Manager
 
         private async void PageBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            page = (int)PageBox.SelectedValue;
-            if (page != 1)
-                Left.IsEnabled = true;
-            else
-                Left.IsEnabled = false;
-            Page.Text = $"Page {page}";
-            LoadingBar.Visibility = Visibility.Visible;
-            FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex);
-            if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex).TotalPages)
-                Right.IsEnabled = false;
-            else
-                Right.IsEnabled = true;
-            LoadingBar.Visibility = Visibility.Collapsed;
-            if (FeedBox.Items.Count > 0)
-                FeedBox.ScrollIntoView(FeedBox.Items[0]);
-            FeedBox.Visibility = Visibility.Visible;
+            if (!filterSelect)
+            {
+                page = (int)PageBox.SelectedValue;
+                if (page != 1)
+                    Left.IsEnabled = true;
+                else
+                    Left.IsEnabled = false;
+                Page.Text = $"Page {page}";
+                LoadingBar.Visibility = Visibility.Visible;
+                FeedBox.Visibility = Visibility.Collapsed;
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
+                if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
+                    Right.IsEnabled = false;
+                else
+                    Right.IsEnabled = true;
+                LoadingBar.Visibility = Visibility.Collapsed;
+                if (FeedBox.Items.Count > 0)
+                    FeedBox.ScrollIntoView(FeedBox.Items[0]);
+                FeedBox.Visibility = Visibility.Visible;
+            }
         }
     }
 }

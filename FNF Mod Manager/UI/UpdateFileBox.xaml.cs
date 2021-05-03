@@ -23,9 +23,7 @@ namespace FNF_Mod_Manager.UI
     {
         public string chosenFileUrl;
         public string chosenFileName;
-        private readonly string host;
         private bool list;
-        // GameBanana Files
         public UpdateFileBox(Dictionary<String, GameBananaItemFile> files, string packageName)
         {
             InitializeComponent();
@@ -34,22 +32,22 @@ namespace FNF_Mod_Manager.UI
             NameColumn.Binding = new Binding("Value.FileName");
             UploadTimeColumn.Binding = new Binding("Value.TimeSinceUpload");
             DescriptionColumn.Binding = new Binding("Value.Description");
+            SizeColumn.Binding = new Binding("Value.ConvertedFileSize");
             Title = $"FileDaddy - {packageName}";
-            host = "GameBanana";
-            PlayNotificationSound();
         }
         public UpdateFileBox(List<GameBananaItemFile> files, string packageName)
         {
             InitializeComponent();
             FileGrid.ItemsSource = files;
+            if (!files.Select(x => x.Description).Where(y => y.Length > 0).Any())
+                DescriptionColumn.Visibility = Visibility.Collapsed;
             FileGrid.SelectedIndex = 0;
             NameColumn.Binding = new Binding("FileName");
             UploadTimeColumn.Binding = new Binding("TimeSinceUpload");
             DescriptionColumn.Binding = new Binding("Description");
+            SizeColumn.Binding = new Binding("ConvertedFileSize");
             Title = $"FileDaddy - {packageName}";
-            host = "GameBanana";
             list = true;
-            PlayNotificationSound();
         }
 
         private void SelectButton_Click(object sender, RoutedEventArgs e)
@@ -77,31 +75,6 @@ namespace FNF_Mod_Manager.UI
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
-        }
-
-        public void PlayNotificationSound()
-        {
-            bool found = false;
-            try
-            {
-                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"AppEvents\Schemes\Apps\.Default\Notification.Default\.Current"))
-                {
-                    if (key != null)
-                    {
-                        Object o = key.GetValue(null); // pass null to get (Default)
-                        if (o != null)
-                        {
-                            SoundPlayer theSound = new SoundPlayer((String)o);
-                            theSound.Play();
-                            found = true;
-                        }
-                    }
-                }
-            }
-            catch
-            { }
-            if (!found)
-                SystemSounds.Beep.Play(); // consolation prize
         }
     }
 }

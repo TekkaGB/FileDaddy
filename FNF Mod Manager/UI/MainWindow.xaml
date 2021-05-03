@@ -581,7 +581,7 @@
                             <ComboBoxItem xml:space="preserve"> Recent</ComboBoxItem>
                             <ComboBoxItem xml:space="preserve"> Popular</ComboBoxItem>
                         </ComboBox>
-                        <ComboBox Margin="0,0,15,0" Name="CatBox" Height="35" Width="250" FontSize="18" FontWeight="Bold" SelectionChanged="CatSelectionChanged">
+                        <ComboBox Margin="0,0,15,0" Name="CatBox" Height="35" Width="250" FontSize="18" FontWeight="Bold" SelectionChanged="FilterSelectionChanged">
                             <ComboBoxItem xml:space="preserve" IsSelected="True"> All</ComboBoxItem>
                             <ComboBoxItem xml:space="preserve"> Custom Songs</ComboBoxItem>
                             <ComboBoxItem xml:space="preserve"> Custom Songs + Skins</ComboBoxItem>
@@ -592,7 +592,7 @@
                             <ComboBoxItem xml:space="preserve"> Translations</ComboBoxItem>
                             <ComboBoxItem xml:space="preserve"> UI</ComboBoxItem>
                         </ComboBox>
-                        <Image VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Source="../Assets/GameBanana.png" Cursor="Hand" ToolTip="Go to gamebanana.com" MouseLeftButtonDown="GameBanana_Click"/>
+                        <Image VerticalAlignment="Center" HorizontalAlignment="Center" Height="45" Source="../Assets/GameBanana.png" Cursor="Hand" ToolTip="Go to gamebanana.com" MouseLeftButtonDown="GameBanana_Click"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2">
                         <Button Name="Left" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="18" FontWeight="Bold"  Height="35" Width="35" Background="#494949" Foreground="#f2f2f2"/>
@@ -612,6 +612,15 @@
                         </Image>
                     <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="1" Grid.Row="1" Background="#303030" Height="40" Width="260">
                         <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="30" Width="250" Foreground="#4C1C74" IsIndeterminate="True"/>
+                    </Border>
+                    <Border Name="BrowserMessageBox" Visibility="Collapsed" CornerRadius="5" Panel.ZIndex="1" Grid.Row="1" Height="150" Width="450" >
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="#101010" Opacity="0.8"/>
+                        </Border.BorderBrush>
+                        <Border.Background>
+                            <SolidColorBrush Color="#101010" Opacity="0.8"/>
+                        </Border.Background>
+                        <TextBlock Name="BrowserMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1" Background="Transparent" Foreground="#f2f2f2" FontWeight="Bold" TextWrapping="Wrap" FontSize="20"/>
                     </Border>
                     <ListView Panel.ZIndex="1" Style="{StaticResource ListviewStyle}" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Top" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="Transparent" BorderBrush="Transparent" Name="FeedBox" ItemTemplate="{StaticResource DefaultTemplate}">
                         <ListView.ItemContainerStyle>

@@ -9,9 +9,9 @@
         ResizeMode="NoResize"
         Background="#202020" ShowActivated="True" Closing="Window_Closing" SizeToContent="WidthAndHeight">
     <Grid>
-        <TextBlock Padding="20" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="15" Text="Multiple downloadable files found. Please select one."/>
+        <TextBlock Padding="10" Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="15" Text="Multiple downloadable files found. Please select one."/>
         <DataGrid x:Name="FileGrid" HorizontalAlignment="Center" VerticalAlignment="Center" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False" 
-                          CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" Margin="25,70,25,40" EnableColumnVirtualization="False" SelectionMode="Single"
+                          CanUserResizeColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" Margin="25,35,25,40" EnableColumnVirtualization="False" SelectionMode="Single"
                   Background="#202020" RowBackground="#202020" Foreground="#f2f2f2" AlternatingRowBackground="#2A2A2A" BorderBrush="#424242" HeadersVisibility="Column">
             <DataGrid.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#4C1C74"/>
@@ -29,6 +29,7 @@
                 <DataGridTextColumn x:Name="DescriptionColumn" Header="File Description" IsReadOnly="True"/>
                 <DataGridTextColumn x:Name="NameColumn" Header="File Name" IsReadOnly="True"/>
                 <DataGridTextColumn x:Name="UploadTimeColumn" Header="Uploaded" IsReadOnly="True"/>
+                <DataGridTextColumn x:Name="SizeColumn" Header="Size" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
         <Button x:Name="SelectButton" Content="Select" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Margin="41,0,152,10" Click="SelectButton_Click" Background="#494949" Foreground="#f2f2f2" Height="25"/>

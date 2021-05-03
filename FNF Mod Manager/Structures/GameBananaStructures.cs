@@ -43,6 +43,8 @@ namespace FNF_Mod_Manager
 
         [JsonPropertyName("_nFilesize")]
         public long Filesize { get; set; }
+        [JsonIgnore]
+        public string ConvertedFileSize => StringConverters.FormatSize(Filesize);
 
         [JsonPropertyName("_sDownloadUrl")]
         public string DownloadUrl { get; set; }
@@ -140,11 +142,11 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_nDownloadCount")]
         public int Downloads { get; set; }
         [JsonIgnore]
-        public string DownloadString => Downloads.ToString();
+        public string DownloadString => StringConverters.FormatNumber(Downloads);
         [JsonIgnore]
-        public string ViewString => Views.ToString();
+        public string ViewString => StringConverters.FormatNumber(Views);
         [JsonIgnore]
-        public string LikeString => Likes.ToString();
+        public string LikeString => StringConverters.FormatNumber(Likes);
         [JsonPropertyName("_aSubmitter")]
         public GameBananaMember Owner { get; set; }
         [JsonIgnore]

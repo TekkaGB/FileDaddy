@@ -16,10 +16,22 @@ namespace FNF_Mod_Manager
         Recent,
         Popular
     }
+    public enum CategoryFilter
+    {
+        All,
+        CustomSongs,
+        CustomSongsSkins,
+        Executables,
+        RemixesRecharts,
+        RemixesRechartsSkins,
+        Stages,
+        Translations,
+        UI
+    }
     public static class FeedGenerator
     {
         private static Dictionary<string, GameBananaModList> feed;
-        public static async Task<ObservableCollection<GameBananaRecord>> GetFeed(int page, FeedFilter filter)
+        public static async Task<ObservableCollection<GameBananaRecord>> GetFeed(int page, FeedFilter filter, CategoryFilter category)
         {
             if (feed == null)
                 feed = new Dictionary<string, GameBananaModList>();
@@ -41,7 +53,7 @@ namespace FNF_Mod_Manager
             using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
-                var requestUrl = GenerateUrl(page, filter);                
+                var requestUrl = GenerateUrl(page, filter, category);                
                 if (feed.ContainsKey(requestUrl))
                     return feed[requestUrl].Records;
                 var responseString = await httpClient.GetStringAsync(requestUrl);
@@ -50,7 +62,7 @@ namespace FNF_Mod_Manager
                 return response.Records;
             }
         }
-        private static string GenerateUrl(int page, FeedFilter filter)
+        private static string GenerateUrl(int page, FeedFilter filter, CategoryFilter category)
         {
             var args = "";
             switch (filter)
@@ -65,13 +77,40 @@ namespace FNF_Mod_Manager
                     args = "&_sOrderBy=_nDownloadCount,DESC";
                     break;
             }
+            switch (category)
+            {
+                case CategoryFilter.CustomSongs:
+                    args += "&_aArgs[]=_aCategory._idRow = 3819";
+                    break;
+                case CategoryFilter.CustomSongsSkins:
+                    args += "&_aArgs[]=_aCategory._idRow = 3821";
+                    break;
+                case CategoryFilter.Executables:
+                    args += "&_aArgs[]=_aCategory._idRow = 3827";
+                    break;
+                case CategoryFilter.RemixesRecharts:
+                    args += "&_aArgs[]=_aCategory._idRow = 3825";
+                    break;
+                case CategoryFilter.RemixesRechartsSkins:
+                    args += "&_aArgs[]=_aCategory._idRow = 3826";
+                    break;
+                case CategoryFilter.Stages:
+                    args += "&_aArgs[]=_aCategory._idRow = 5064";
+                    break;
+                case CategoryFilter.Translations:
+                    args += "&_aArgs[]=_aCategory._idRow = 3828";
+                    break;
+                case CategoryFilter.UI:
+                    args += "&_aArgs[]=_aCategory._idRow = 1931";
+                    break;
+            }
             args += $"&_nPage={page}";
             return $"https://gamebanana.com/apiv3/Mod/Index?_aArgs[]=_aGame._idRow = 8694&_aArgs[]=_sbIsNsfw = false&_sRecordSchema=FileDaddy" +
                 $"&_nPerpage=20&_bReturnMetadata=true{args}";
         }
-        public static GameBananaMetadata GetMetadata(int page, FeedFilter filter)
+        public static GameBananaMetadata GetMetadata(int page, FeedFilter filter, CategoryFilter category)
         {
-            return feed[GenerateUrl(page, filter)].Metadata;
+            return feed[GenerateUrl(page, filter, category)].Metadata;
         }
     }
 }

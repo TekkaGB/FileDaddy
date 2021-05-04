@@ -114,7 +114,7 @@
                         <RepeatButton Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageUpCommand" />
                     </Track.DecreaseRepeatButton>
                     <Track.Thumb>
-                        <Thumb Style="{StaticResource ScrollBarThumb}" Width="30" Margin="-16,0,1,0" Background="{StaticResource HorizontalNormalBrush}" BorderBrush="{StaticResource HorizontalNormalBorderBrush}" />
+                        <Thumb Style="{StaticResource ScrollBarThumb}" Width="30" Margin="-16,0,1,0" Opacity="0.6" Background="{StaticResource HorizontalNormalBrush}" BorderBrush="{StaticResource HorizontalNormalBorderBrush}" />
                     </Track.Thumb>
                     <Track.IncreaseRepeatButton>
                         <RepeatButton Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Style="{StaticResource ScrollBarPageButton}" Command="ScrollBar.PageDownCommand" />
@@ -379,29 +379,56 @@
         <DataTemplate x:Key="DefaultTemplate">
             <Border CornerRadius="5" Margin="5">
                 <Border.BorderBrush>
-                    <SolidColorBrush Color="#101010" Opacity="0.8"/>
+                    <SolidColorBrush Color="#101010" Opacity="0.85"/>
                 </Border.BorderBrush>
                 <Border.Background>
-                    <SolidColorBrush Color="#101010" Opacity="0.8"/>
+                    <SolidColorBrush Color="#101010" Opacity="0.85"/>
                 </Border.Background>
                 <Grid VerticalAlignment="Center" x:Name="GridItem" Margin="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="60" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Image Margin="10" x:Name="Parameter" Height="168" Panel.ZIndex="1" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform"/>
-                    <TextBox Margin="10" Grid.Row="1" FontWeight="Bold" BorderThickness="0" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Text="{Binding Path=Title}" />
+                    <Image Margin="5" x:Name="Parameter" Height="168" Panel.ZIndex="1" Source="{Binding Path=Image}" VerticalAlignment="Center" Stretch="Uniform"/>
+                    <TextBlock Margin="5" Grid.Row="1" FontWeight="Bold" TextTrimming="WordEllipsis" Background="Transparent" VerticalAlignment="Center"  Foreground="#f2f2f2" ToolTip="{Binding Path=Title}" Text="{Binding Path=Title}" />
                     <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="0" Background="#303030" Height="30" Width="150">
                         <ProgressBar VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="Transparent" Background="Transparent" Height="20" Width="140" Foreground="#4C1C74" IsIndeterminate="True"/>
                     </Border>
-                    <TextBlock VerticalAlignment="Center" Foreground="#909090" Margin="10,-5,10,5" Grid.Row="2" Text="{Binding Path=Submitter}" />
-                    <TextBox BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" TextWrapping="Wrap" VerticalAlignment="Center"  Foreground="#f2f2f2" Margin="10" Grid.Row="3" Text="{Binding Path=Description}" />
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" Grid.Row="4">
+                    <StackPanel Grid.Row="2" Margin="10,-5,10,5" Orientation="Horizontal">
+                        <Image VerticalAlignment="Center" Source="{Binding Path=Owner.Avatar}" Margin="0,0,10,0" Height="35"/>
+                        <TextBlock VerticalAlignment="Center" Foreground="#909090" Text="{Binding Path=Owner.Name}">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=Owner.HasUpic}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Image VerticalAlignment="Center" Source="{Binding Path=Owner.Upic}" Height="25"/>
+                    </StackPanel>
+                    <TextBox Margin="5,0,5,5" Grid.Row="3" BorderThickness="0" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="Transparent" TextWrapping="Wrap" VerticalAlignment="Center"  
+                             Foreground="#f2f2f2" Text="{Binding Path=Description}"/>
+                    <StackPanel Grid.Row="5" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                            <fa5:ImageAwesome Margin="0,0,5,0" Height="15" Icon="Solid_Plus" Foreground="#f2f2f2"/>
+                            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=DateAddedFormatted}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"  >
+                            <fa5:ImageAwesome Margin="0,0,5,0" Height="15" Icon="Solid_Sync" Foreground="#f2f2f2"/>
+                            <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=DateUpdatedAgo}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Grid.Row="4">
                         <fa5:ImageAwesome Margin="0,0,5,0" Height="15" Icon="Solid_Download" Foreground="#f2f2f2"/>
                         <TextBlock Margin="5,0,10,0" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=DownloadString}" />
                         <fa5:ImageAwesome Margin="5,0,5,0" Height="15" Icon="Solid_Heart" Foreground="#f2f2f2"/>
@@ -410,7 +437,7 @@
                         <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=ViewString}" />
                     </StackPanel>
 
-                    <Grid Grid.Row="5" Margin="10">
+                    <Grid Grid.Row="6" Margin="5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition/>
@@ -481,7 +508,6 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-
                         <Button FontSize="14" Name="ConfigButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Config" Background="#494949" Foreground="#f2f2f2" Click="Config_Click"/>
                         <Button FontSize="14" Name="BuildButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Content="Build" Background="#494949" Foreground="#f2f2f2" Click="Build_Click"/>
                         <Button FontSize="14" Name="LaunchButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2" Content="Launch" Background="#494949" Foreground="#f2f2f2" Click="Launch_Click"/>
@@ -606,8 +632,9 @@
                             </Image.BitmapEffect>
                             <Image.RenderTransform>
                                 <TransformGroup>
-                                    <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
-                                </TransformGroup>
+                                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                <TranslateTransform X="-150"/>
+                            </TransformGroup>
                             </Image.RenderTransform>
                         </Image>
                     <Border Name="LoadingBar" CornerRadius="5" Panel.ZIndex="1" Grid.Row="1" Background="#303030" Height="40" Width="260">
@@ -620,9 +647,9 @@
                         <Border.Background>
                             <SolidColorBrush Color="#101010" Opacity="0.8"/>
                         </Border.Background>
-                        <TextBlock Name="BrowserMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1" Background="Transparent" Foreground="#f2f2f2" FontWeight="Bold" TextWrapping="Wrap" FontSize="20"/>
+                        <TextBlock Name="BrowserMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1" Background="Transparent" Foreground="#f2f2f2" FontWeight="Bold" TextWrapping="Wrap" FontSize="25"/>
                     </Border>
-                    <ListView Panel.ZIndex="1" Style="{StaticResource ListviewStyle}" HorizontalAlignment="Center" Grid.Row="1" VerticalContentAlignment="Top" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="Transparent" BorderBrush="Transparent" Name="FeedBox" ItemTemplate="{StaticResource DefaultTemplate}">
+                    <ListView Panel.ZIndex="1" Style="{StaticResource ListviewStyle}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" VerticalContentAlignment="Top" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="Transparent" BorderBrush="Transparent" Name="FeedBox" ItemTemplate="{StaticResource DefaultTemplate}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="{x:Type ListViewItem}">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

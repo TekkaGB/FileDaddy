@@ -23,7 +23,7 @@ namespace FNF_Mod_Manager
         public DownloadWindow(GameBananaRecord record)
         {
             InitializeComponent();
-            DownloadText.Text = $"{record.Title}\nSubmitted by {record.Submitter}";
+            DownloadText.Text = $"{record.Title}\nSubmitted by {record.Owner.Name}";
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = new Uri($"{record.Media[0].Base}/{record.Media[0].File}");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Windows;
 
 namespace FNF_Mod_Manager
 {
@@ -96,6 +97,8 @@ namespace FNF_Mod_Manager
         public Uri Avatar { get; set; }
         [JsonPropertyName("_sUpicUrl")]
         public Uri Upic { get; set; }
+        [JsonIgnore]
+        public bool HasUpic => Upic.OriginalString.Length > 0;
     }
     public class GameBananaItemUpdate
     {
@@ -149,8 +152,6 @@ namespace FNF_Mod_Manager
         public string LikeString => StringConverters.FormatNumber(Likes);
         [JsonPropertyName("_aSubmitter")]
         public GameBananaMember Owner { get; set; }
-        [JsonIgnore]
-        public string Submitter => Owner.Name;
         [JsonPropertyName("_aFiles")]
         public List<GameBananaItemFile> AllFiles { get; set; }
         [JsonIgnore]
@@ -174,7 +175,9 @@ namespace FNF_Mod_Manager
         [JsonIgnore]
         public DateTime DateAdded => Epoch.AddSeconds(DateAddedLong);
         [JsonIgnore]
-        public bool NoUpdates => DateAdded.CompareTo(DateUpdated) == 0;
+        public string DateAddedFormatted => $"Added {DateAdded.ToString("M/d/yyyy")}";
+        [JsonIgnore]
+        public string DateUpdatedAgo => DateAdded.CompareTo(DateUpdated) != 0 ? $"Updated {StringConverters.FormatTimeAgo(DateTime.UtcNow - DateUpdated)}" : "Not updated";
     }
     public class GameBananaModList
     {

@@ -169,7 +169,7 @@ namespace FNF_Mod_Manager
                         if (!File.Exists($@"{ArchiveDestination}/mod.json"))
                         {
                             Metadata metadata = new Metadata();
-                            metadata.submitter = record.Submitter;
+                            metadata.submitter = record.Owner.Name;
                             metadata.description = record.Description;
                             metadata.preview = record.Image;
                             metadata.homepage = record.Link;

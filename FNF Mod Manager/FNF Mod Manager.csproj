@@ -11,7 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\background.jpg" />
     <None Remove="Assets\fdpreview.png" />
     <None Remove="GameBanana.png" />
   </ItemGroup>
@@ -25,7 +24,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\fdpreview.png" />
-    <Resource Include="Assets\background.jpg" />
     <Resource Include="Assets\GameBanana.png" />
   </ItemGroup>
 

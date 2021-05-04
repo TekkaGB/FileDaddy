@@ -59,5 +59,38 @@ namespace FNF_Mod_Manager
                 return Math.Floor(timeSpan.TotalDays % 365.25).ToString() + "yr";
             }
         }
+        public static string FormatTimeAgo(TimeSpan timeSpan)
+        {
+            if (timeSpan.TotalMinutes < 60)
+            {
+                var minutes = Math.Floor(timeSpan.TotalMinutes);
+                return minutes > 1 ? $"{minutes} minutes ago" : $"{minutes} minute ago";
+            }
+            else if (timeSpan.TotalHours < 24)
+            {
+                var hours = Math.Floor(timeSpan.TotalHours);
+                return hours > 1 ? $"{hours} hours ago" : $"{hours} hour ago";
+            }
+            else if (timeSpan.TotalDays < 7)
+            {
+                var days = Math.Floor(timeSpan.TotalDays);
+                return days > 1 ? $"{days} days ago" : $"{days} day ago";
+            }
+            else if (timeSpan.TotalDays < 30.4)
+            {
+                var weeks = Math.Floor(timeSpan.TotalDays / 7);
+                return weeks > 1 ? $"{weeks} weeks ago" : $"{weeks} week ago";
+            }
+            else if (timeSpan.TotalDays < 365.25)
+            {
+                var months = Math.Floor(timeSpan.TotalDays / 30.4);
+                return months > 1 ? $"{months} months ago" : $"{months} month ago";
+            }
+            else
+            {
+                var years = Math.Floor(timeSpan.TotalDays % 365.25);
+                return years > 1 ? $"{years} years ago" : $"{years} year ago";
+            }
+        }
     }
 }

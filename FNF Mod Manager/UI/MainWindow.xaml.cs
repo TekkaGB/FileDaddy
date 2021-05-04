@@ -94,8 +94,29 @@ namespace FNF_Mod_Manager
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             Preview.Source = bitmap;
-        }
 
+        }
+        private static int currentBg;
+        private static List<BitmapImage> bgs = new List<BitmapImage>();
+        private static void InitBgs()
+        {
+            var bgUrls = new string[] {
+            "https://media.discordapp.net/attachments/792245872259235850/838993673722658836/5.png?width=990&height=609",
+            "https://media.discordapp.net/attachments/792245872259235850/838993671361396796/4.png?width=1440&height=545",
+            "https://media.discordapp.net/attachments/792245872259235850/838993668157341696/3.png?width=1440&height=545",
+            "https://media.discordapp.net/attachments/792245872259235850/838993665526464512/2.png?width=1075&height=609",
+            "https://media.discordapp.net/attachments/792245872259235850/838993664046399558/1.png?width=931&height=609",
+            "https://media.discordapp.net/attachments/792245872259235850/838993659172487178/6.png?width=1163&height=609"};
+            var bitmap = new BitmapImage();
+            foreach (var bg in bgUrls)
+            {
+                bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(bg);
+                bitmap.EndInit();
+                bgs.Add(bitmap);
+            }
+        }
         private void OnModified(object sender, FileSystemEventArgs e)
         {
             Refresh();
@@ -532,22 +553,6 @@ namespace FNF_Mod_Manager
             Button button = sender as Button;
             var item = button.DataContext as GameBananaRecord;
             new ModDownloader().BrowserDownload(item);
-            /*
-            var url = item.Link;
-            var MOD_TYPE = char.ToUpper(url.Segments[1][0]) + url.Segments[1].Substring(1, url.Segments[1].Length - 3);
-            var MOD_ID = url.Segments[2];
-            if (item.Files.Count == 1)
-            {
-                ModDownloader.Download($"filedaddy:{item.Files[0].DownloadUrl},{MOD_TYPE},{MOD_ID}", false);
-            }
-            else if (item.Files.Count > 1)
-            {
-                UpdateFileBox fileBox = new UpdateFileBox(item.Files, item.Title);
-                fileBox.Activate();
-                fileBox.ShowDialog();
-                ModDownloader.Download($"filedaddy:{fileBox.chosenFileUrl},{MOD_TYPE},{MOD_ID}", false);
-            }
-            */
         }
         private void Homepage_Click(object sender, RoutedEventArgs e)
         {
@@ -585,6 +590,9 @@ namespace FNF_Mod_Manager
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
                 FeedBox.Visibility = Visibility.Visible;
                 Page.Text = $"Page {page}";
+                InitBgs();
+                currentBg = new Random().Next(0, 5);
+                BrowserBackground.Source = bgs[currentBg];
                 selected = true;
             }
         }
@@ -640,7 +648,6 @@ namespace FNF_Mod_Manager
                 FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
                 if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
                     Right.IsEnabled = true;
-                LoadingBar.Visibility = Visibility.Collapsed;
                 if (FeedBox.Items.Count > 0)
                 {
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
@@ -649,12 +656,17 @@ namespace FNF_Mod_Manager
                 else
                 {
                     BrowserMessageBox.Visibility = Visibility.Visible;
-                    BrowserMessage.Text = "No mods found under the current filters!";
+                    BrowserMessage.Text = "No mods found. Pain Peko T_T";
                 }
                 var totalPages = FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages;
                 if (totalPages == 0)
                     totalPages = 1;
                 PageBox.ItemsSource = Enumerable.Range(1, totalPages);
+                var range = Enumerable.Range(1, 5).Where(i => i != currentBg);
+                var index = new Random().Next(0, 4);
+                currentBg = range.ElementAt(index);
+                BrowserBackground.Source = bgs[currentBg];
+                LoadingBar.Visibility = Visibility.Collapsed;
             }
         }
         private void UniformGrid_SizeChanged(object sender, SizeChangedEventArgs e)

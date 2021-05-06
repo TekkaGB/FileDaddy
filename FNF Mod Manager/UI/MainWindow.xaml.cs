@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -580,6 +581,12 @@ namespace FNF_Mod_Manager
         {
             if (!selected)
             {
+                CatBox.ItemsSource = Categories;
+                SubCatBox.ItemsSource = None;
+                filterSelect = true;
+                CatBox.SelectedIndex = 0;
+                SubCatBox.SelectedIndex = 0;
+                filterSelect = false;
                 Left.IsEnabled = false;
                 Right.IsEnabled = false;
                 LoadingBar.Visibility = Visibility.Visible;
@@ -636,6 +643,8 @@ namespace FNF_Mod_Manager
         private static bool filterSelect;
         private async void RefreshFilter()
         {
+            CatBox.IsEnabled = false;
+            SubCatBox.IsEnabled = false;
             BrowserMessage.Visibility = Visibility.Collapsed;
             page = 1;
             filterSelect = true;
@@ -668,54 +677,82 @@ namespace FNF_Mod_Manager
             currentBg = range.ElementAt(index);
             BrowserBackground.Source = bgs[currentBg];
             LoadingBar.Visibility = Visibility.Collapsed;
+            CatBox.IsEnabled = true;
+            SubCatBox.IsEnabled = true;
         }
-        private static readonly string[] Skins = new string[]
+
+        public class Category
         {
-            " All",
-            " Skin Packs",
-            " Boyfriend",
-            " Girlfriend",
-            " Daddy Dearest",
-            " Skid and Pump",
-            " Pico",
-            " Mom",
-            " Parents",
-            " Monster",
-            " Senpai/Spirit",
-            " Tankman",
-            " Other/Misc"
-        };
-        private static readonly string[] UI = new string[]
+            public string Name { get; set; }
+            public Uri Image { get; set; }
+            public Category(string name, string link)
+            {
+                Name = name;
+                if (link != null)
+                    Image = new Uri(link);
+            }
+        }
+        private static readonly Category[] Categories = new Category[]
         {
-            " All",
-            " Combo/Countdown",
-            " Health Bar",
-            " Menus",
-            " Noteskins",
-            " Other/Misc"
+            new Category(" All", null ),
+            new Category("Custom Songs", "https://images.gamebanana.com/img/ico/ModCategory/60372d0ceca9b.png" ),
+            new Category("Custom Songs + Skins", "https://images.gamebanana.com/img/ico/ModCategory/60372f9c6c7af.png" ),
+            new Category("Executables", "https://images.gamebanana.com/img/ico/ModCategory/60382d91c4839.png" ),
+            new Category("Remixes/Recharts", "https://images.gamebanana.com/img/ico/ModCategory/60382d8e1e218.png" ),
+            new Category("Remixes/Recharts + Skins", "https://images.gamebanana.com/img/ico/ModCategory/60382d89ee3e8.png" ),
+            new Category("Skins", "https://images.gamebanana.com/img/ico/ModCategory/6092e683d31c1.png" ),
+            new Category("Stages", "https://images.gamebanana.com/img/ico/ModCategory/6081e6aa25b0a.png" ),
+            new Category("Translations", "https://images.gamebanana.com/img/ico/ModCategory/6031ce847dfda.png" ),
+            new Category("UI", "https://images.gamebanana.com/img/ico/ModCategory/6081e6daf08ee.png" )
         };
-        private static readonly string[] Stages = new string[]
+        private static readonly Category[] Skins = new Category[]
         {
-            " All",
-            " Sound Stage",
-            " Spooky House",
-            " Philly",
-            " Highway",
-            " Shopping Mall",
-            " Weeb School",
-            " Other/Misc"
+            new Category(" All", null ),
+            new Category("Skin Packs", "https://images.gamebanana.com/img/ico/ModCategory/60372be4d8d25.png" ),
+            new Category("Boyfriend", "https://images.gamebanana.com/img/ico/ModCategory/6031c2787cdd4.png" ),
+            new Category("Girlfriend", "https://images.gamebanana.com/img/ico/ModCategory/6031c4e39133c.png" ),
+            new Category("Daddy Dearest", "https://images.gamebanana.com/img/ico/ModCategory/6031c38dae940.png" ),
+            new Category("Skid and Pump", "https://images.gamebanana.com/img/ico/ModCategory/6031cd5ed9d5e.png" ),
+            new Category("Pico", "https://images.gamebanana.com/img/ico/ModCategory/6031cab5cb591.png" ),
+            new Category("Mom", "https://images.gamebanana.com/img/ico/ModCategory/6031c72021ccd.png" ),
+            new Category("Parents", "https://images.gamebanana.com/img/ico/ModCategory/6031c77dce057.png" ),
+            new Category("Monster", "https://images.gamebanana.com/img/ico/ModCategory/6031c980b96be.png" ),
+            new Category("Senpai/Spirit", "https://images.gamebanana.com/img/ico/ModCategory/6031ce098bc3f.png" ),
+            new Category("Tankman", "https://images.gamebanana.com/img/ico/ModCategory/607d57c2ca5f5.png" ),
+            new Category("Other/Misc", "https://images.gamebanana.com/img/ico/ModCategory/6031cf47bc4e1.png" )
         };
-        private static readonly string[] Weeks = new string[]
+        private static readonly Category[] UI = new Category[]
         {
-            " All",
-            " Tutorial/Week 1",
-            " Week 2",
-            " Week 3",
-            " Week 4",
-            " Week 5",
-            " Week 6",
-            " Week 7"
+            new Category(" All", null ),
+            new Category("Combo/Countdown", "https://images.gamebanana.com/img/ico/ModCategory/6031d0661d63f.png" ),
+            new Category("Health Bar", "https://images.gamebanana.com/img/ico/ModCategory/6031d0a16016e.png" ),
+            new Category("Menus", "https://images.gamebanana.com/img/ico/ModCategory/6031d3e0e0320.png" ),
+            new Category("Noteskins", "https://images.gamebanana.com/img/ico/ModCategory/6031d2577e8f6.png" ),
+            new Category("Other/Misc", "https://images.gamebanana.com/img/ico/ModCategory/6031cfb20b9ec.png" )
         };
+        private static readonly Category[] Stages = new Category[]
+        {
+            new Category(" All", null ),
+            new Category("Sound Stage", "https://images.gamebanana.com/img/ico/ModCategory/6031dac556da3.png" ),
+            new Category("Spooky House", "https://images.gamebanana.com/img/ico/ModCategory/6031dae32c654.png" ),
+            new Category("Philly", "https://images.gamebanana.com/img/ico/ModCategory/6031dad3c958b.png" ),
+            new Category("Highway", "https://images.gamebanana.com/img/ico/ModCategory/6031dadc9a7e9.png" ),
+            new Category("Shopping Mall", "https://images.gamebanana.com/img/ico/ModCategory/6031dacc37a7c.png" ),
+            new Category("Weeb School", "https://images.gamebanana.com/img/ico/ModCategory/6031daf2075c9.png" ),
+            new Category("Other/Misc", "https://images.gamebanana.com/img/ico/ModCategory/6031db742e2e9.png" )
+        };
+        private static readonly Category[] Weeks = new Category[]
+        {
+            new Category(" All", null ),
+            new Category("Tutorial/Week 1", "https://images.gamebanana.com/img/ico/ModCategory/60378b0aacf16.png" ),
+            new Category("Week 2", "https://images.gamebanana.com/img/ico/ModCategory/60378b06e9ffe.png" ),
+            new Category("Week 3", "https://images.gamebanana.com/img/ico/ModCategory/60378b031a8c2.png" ),
+            new Category("Week 4", "https://images.gamebanana.com/img/ico/ModCategory/60378aff3900a.png" ),
+            new Category("Week 5", "https://images.gamebanana.com/img/ico/ModCategory/60378afbc5c8c.png" ),
+            new Category("Week 6", "https://images.gamebanana.com/img/ico/ModCategory/60378ae98564e.png" ),
+            new Category("Week 7", "https://images.gamebanana.com/img/ico/ModCategory/607d555fc5fd7.png" )
+        };
+        private static readonly Category[] None = new Category[] { new Category(" - - -", null) };
         private void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (IsLoaded)
@@ -723,36 +760,31 @@ namespace FNF_Mod_Manager
         }
         private void MainFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (IsLoaded)
+            if (IsLoaded && !filterSelect)
             {
                 filterSelect = true;
                 switch ((CategoryFilter)CatBox.SelectedIndex)
                 {
                     case CategoryFilter.Skins:
                         SubCatBox.ItemsSource = Skins;
-                        SubCatBox.IsEnabled = true;
                         SubCatBox.SelectedIndex = 0;
                         break;
                     case CategoryFilter.Stages:
                         SubCatBox.ItemsSource = Stages;
-                        SubCatBox.IsEnabled = true;
                         SubCatBox.SelectedIndex = 0;
                         break;
                     case CategoryFilter.UI:
                         SubCatBox.ItemsSource = UI;
-                        SubCatBox.IsEnabled = true;
                         SubCatBox.SelectedIndex = 0;
                         break;
                     case CategoryFilter.CustomSongs:
                     case CategoryFilter.CustomSongsSkins:
                         SubCatBox.ItemsSource = Weeks;
-                        SubCatBox.IsEnabled = true;
                         SubCatBox.SelectedIndex = 0;
                         break;
                     default:
-                        SubCatBox.ItemsSource = null;
-                        SubCatBox.IsEnabled = false;
-                        SubCatBox.SelectedIndex = -1;
+                        SubCatBox.ItemsSource = None;
+                        SubCatBox.SelectedIndex = 0;
                         break;
                 }
                 filterSelect = false;

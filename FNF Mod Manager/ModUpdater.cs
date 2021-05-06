@@ -199,7 +199,7 @@ namespace FNF_Mod_Manager
 
                     if (files.Count > 1)
                     {
-                        UpdateFileBox fileBox = new UpdateFileBox(files, Path.GetFileName(mod));
+                        UpdateFileBox fileBox = new UpdateFileBox(files.Values.ToList(), Path.GetFileName(mod));
                         fileBox.Activate();
                         fileBox.ShowDialog();
                         downloadUrl = fileBox.chosenFileUrl;

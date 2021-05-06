@@ -23,47 +23,20 @@ namespace FNF_Mod_Manager.UI
     {
         public string chosenFileUrl;
         public string chosenFileName;
-        private bool list;
-        public UpdateFileBox(Dictionary<String, GameBananaItemFile> files, string packageName)
-        {
-            InitializeComponent();
-            FileGrid.ItemsSource = files;
-            FileGrid.SelectedIndex = 0;
-            NameColumn.Binding = new Binding("Value.FileName");
-            UploadTimeColumn.Binding = new Binding("Value.TimeSinceUpload");
-            DescriptionColumn.Binding = new Binding("Value.Description");
-            SizeColumn.Binding = new Binding("Value.ConvertedFileSize");
-            Title = $"FileDaddy - {packageName}";
-        }
+
         public UpdateFileBox(List<GameBananaItemFile> files, string packageName)
         {
             InitializeComponent();
-            FileGrid.ItemsSource = files;
-            if (!files.Select(x => x.Description).Where(y => y.Length > 0).Any())
-                DescriptionColumn.Visibility = Visibility.Collapsed;
-            FileGrid.SelectedIndex = 0;
-            NameColumn.Binding = new Binding("FileName");
-            UploadTimeColumn.Binding = new Binding("TimeSinceUpload");
-            DescriptionColumn.Binding = new Binding("Description");
-            SizeColumn.Binding = new Binding("ConvertedFileSize");
-            Title = $"FileDaddy - {packageName}";
-            list = true;
+            FileList.ItemsSource = files;
+            TitleBox.Text = packageName;
         }
 
         private void SelectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (list)
-            {
-                GameBananaItemFile selectedItem = (GameBananaItemFile)FileGrid.SelectedItem;
-                chosenFileUrl = selectedItem.DownloadUrl;
-                chosenFileName = selectedItem.FileName;
-            }
-            else
-            {
-                KeyValuePair<String, GameBananaItemFile> selectedItem = (KeyValuePair<String, GameBananaItemFile>)FileGrid.SelectedItem;
-                chosenFileUrl = selectedItem.Value.DownloadUrl;
-                chosenFileName = selectedItem.Value.FileName;
-            }
+            Button button = sender as Button;
+            var item = button.DataContext as GameBananaItemFile;
+            chosenFileUrl = item.DownloadUrl;
+            chosenFileName = item.FileName;
             Close();
         }
 

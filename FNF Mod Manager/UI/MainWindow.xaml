@@ -667,19 +667,26 @@
                             <ComboBoxItem xml:space="preserve"> Recent</ComboBoxItem>
                             <ComboBoxItem xml:space="preserve"> Popular</ComboBoxItem>
                         </ComboBox>
-                        <ComboBox Margin="0,0,15,0" Name="CatBox" Height="35" Width="250" FontSize="18" FontWeight="Bold" SelectionChanged="MainFilterSelectionChanged">
-                            <ComboBoxItem xml:space="preserve" IsSelected="True"> All</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> Custom Songs</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> Custom Songs + Skins</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> Executables</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> Remixes/Recharts</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> Remixes/Recharts + Skins</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> Skins</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> Stages</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> Translations</ComboBoxItem>
-                            <ComboBoxItem xml:space="preserve"> UI</ComboBoxItem>
+                        <ComboBox Margin="0,0,15,0" Name="CatBox" Height="35" Width="250" SelectionChanged="MainFilterSelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate >
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Margin="0,0,2,0" VerticalAlignment="Center" Height="25" Source="{Binding Path=Image}"/>
+                                        <TextBlock VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Text="{Binding Path=Name}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
                         </ComboBox>
-                        <ComboBox Margin="0,0,15,0" Name="SubCatBox" Height="35" Width="250" FontSize="18" FontWeight="Bold" IsEnabled="False" SelectionChanged="SubFilterSelectionChanged"/>
+                        <ComboBox Margin="0,0,15,0" Name="SubCatBox" Height="35" Width="250" SelectionChanged="SubFilterSelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate >
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Margin="0,0,2,0" VerticalAlignment="Center" Height="25" Source="{Binding Path=Image}"/>
+                                        <TextBlock VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Text="{Binding Path=Name}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
 
                         <CheckBox Name="PendingCheckbox" Unchecked="PendingCheckbox_Checked" Checked="PendingCheckbox_Checked"  Margin="0,0,10,0" VerticalAlignment="Center" />
                         <TextBlock Margin="0,0,15,0" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold">

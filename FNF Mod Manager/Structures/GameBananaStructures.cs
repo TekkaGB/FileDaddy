@@ -56,6 +56,10 @@ namespace FNF_Mod_Manager
         public string Description { get; set; }
         [JsonPropertyName("_bContainsExe")]
         public bool ContainsExe { get; set; }
+        [JsonPropertyName("_nDownloadCount")]
+        public int Downloads { get; set; }
+        [JsonIgnore]
+        public string DownloadString => StringConverters.FormatNumber(Downloads);
 
         [JsonPropertyName("_tsDateAdded")]
         public long DateAddedLong { get; set; }
@@ -64,7 +68,7 @@ namespace FNF_Mod_Manager
         public DateTime DateAdded => Epoch.AddSeconds(DateAddedLong);
 
         [JsonIgnore]
-        public string TimeSinceUpload => StringConverters.FormatTimeSpan(DateTime.UtcNow - DateAdded);
+        public string TimeSinceUpload => StringConverters.FormatTimeAgo(DateTime.UtcNow - DateAdded);
     }
     public class GameBananaAPIV3
     {
@@ -84,6 +88,8 @@ namespace FNF_Mod_Manager
     {
         [JsonPropertyName("_idRow")]
         public int ID { get; set; }
+        [JsonPropertyName("_idParentCategoryRow")]
+        public int RootID { get; set; }
         [JsonPropertyName("_sModelName")]
         public string Model { get; set; }
         [JsonPropertyName("_sName")]

@@ -75,7 +75,7 @@ namespace FNF_Mod_Manager
                     args = "&_sOrderBy=_tsDateUpdated,DESC";
                     break;
                 case FeedFilter.Featured:
-                    args = "&_aArgs[]=_sbWasFeatured = true& _sOrderBy = _tsDateAdded,DESC";
+                    args = "&_aArgs[]=_sbWasFeatured = true& _sOrderBy=_tsDateAdded,DESC";
                     break;
                 case FeedFilter.Popular:
                     args = "&_sOrderBy=_nDownloadCount,DESC";
@@ -252,10 +252,10 @@ namespace FNF_Mod_Manager
             }
             
             if (category == CategoryFilter.All)
-                baseUrl = "https://gamebanana.com/apiv3/Mod/Index?_aArgs[]=_aGame._idRow = 8694&_aArgs[]=_sbIsNsfw = false&_sRecordSchema=FileDaddy" +
+                baseUrl = "https://gamebanana.com/apiv3/Mod/ByGame?_aGameRowIds[]=8694&_aArgs[]=_sbIsNsfw = false&_sRecordSchema=FileDaddy" +
                     $"&_nPerpage={perPage}&_bReturnMetadata=true";
             else
-                baseUrl = "https://gamebanana.com/apiv3/Mod/ByCategory?_aArgs[]=_aGame._idRow = 8694&_aArgs[]=_sbIsNsfw = false&_sRecordSchema=FileDaddy" +
+                baseUrl = "https://gamebanana.com/apiv3/Mod/ByCategory?_aArgs[]=_sbIsNsfw = false&_sRecordSchema=FileDaddy" +
                     $"&_nPerpage={perPage}&_bReturnMetadata=true";
             
             if (pending)

@@ -28,7 +28,7 @@ namespace FNF_Mod_Manager
         public string version;
         public Config config;
         public Logger logger;
-        public string assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public string assemblyLocation = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         // Separated from config so that order is updated when datagrid is modified
         public ObservableCollection<Mod> ModList;
         public List<string> exes;
@@ -68,9 +68,9 @@ namespace FNF_Mod_Manager
             ModList = config.ModList;
 
             if (config.exe == null || !File.Exists(config.exe))
-                logger.WriteLine("Please set up Game Path in Config.", LoggerType.Warning);
+                logger.WriteLine("Please set up Game System.IO.Path in Config.", LoggerType.Warning);
             else if (config.exe != null)
-                logger.WriteLine($"Current Game Path set as {config.exe}", LoggerType.Info);
+                logger.WriteLine($"Current Game System.IO.Path set as {config.exe}", LoggerType.Info);
 
             // Create Mods Directory if it doesn't exist
             Directory.CreateDirectory($@"{assemblyLocation}/Mods");
@@ -94,6 +94,7 @@ namespace FNF_Mod_Manager
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.EndInit();
             Preview.Source = bitmap;
+            PreviewBG.Source = null;
 
         }
         private static int currentBg;
@@ -133,11 +134,11 @@ namespace FNF_Mod_Manager
             // Add new folders found in Mods to the ModList
             foreach (var mod in Directory.GetDirectories($@"{assemblyLocation}/Mods"))
             {
-                if (ModList.ToList().Where(x => x.name == Path.GetFileName(mod)).Count() == 0)
+                if (ModList.ToList().Where(x => x.name == System.IO.Path.GetFileName(mod)).Count() == 0)
                 {
-                    logger.WriteLine($"Adding {Path.GetFileName(mod)}", LoggerType.Info);
+                    logger.WriteLine($"Adding {System.IO.Path.GetFileName(mod)}", LoggerType.Info);
                     Mod m = new Mod();
-                    m.name = Path.GetFileName(mod);
+                    m.name = System.IO.Path.GetFileName(mod);
                     App.Current.Dispatcher.Invoke((Action)delegate
                     {
                         ModList.Add(m);
@@ -147,7 +148,7 @@ namespace FNF_Mod_Manager
             // Remove deleted folders that are still in the ModList
             foreach (var mod in ModList.ToList())
             {
-                if (!Directory.GetDirectories($@"{assemblyLocation}/Mods").ToList().Select(x => Path.GetFileName(x)).Contains(mod.name))
+                if (!Directory.GetDirectories($@"{assemblyLocation}/Mods").ToList().Select(x => System.IO.Path.GetFileName(x)).Contains(mod.name))
                 {
                     App.Current.Dispatcher.Invoke((Action)delegate
                     {
@@ -223,7 +224,7 @@ namespace FNF_Mod_Manager
         {
             if (config.exe != null && File.Exists(config.exe))
             {
-                if (Path.GetExtension(config.exe).Equals(".js", StringComparison.InvariantCultureIgnoreCase))
+                if (System.IO.Path.GetExtension(config.exe).Equals(".js", StringComparison.InvariantCultureIgnoreCase))
                 {
                     logger.WriteLine($"Cannot launch the web version from FileDaddy...", LoggerType.Warning);
                     return;
@@ -234,7 +235,7 @@ namespace FNF_Mod_Manager
                     var ps = new ProcessStartInfo(config.exe)
                     {
                         // Game throws error if not launched from same directory
-                        WorkingDirectory = (Path.GetDirectoryName(config.exe)),
+                        WorkingDirectory = (System.IO.Path.GetDirectoryName(config.exe)),
                         UseShellExecute = true,
                         Verb = "open"
                     };
@@ -246,7 +247,7 @@ namespace FNF_Mod_Manager
                 }
             }
             else
-                logger.WriteLine($"Please set up your Game Path in Config!", LoggerType.Warning);
+                logger.WriteLine($"Please set up your Game System.IO.Path in Config!", LoggerType.Warning);
         }
         private void GameBanana_Click(object sender, RoutedEventArgs e)
         {
@@ -321,7 +322,7 @@ namespace FNF_Mod_Manager
 
         private async void Build_Click(object sender, RoutedEventArgs e)
         {
-            if (config.exe != null && Directory.Exists($@"{Path.GetDirectoryName(config.exe)}/Assets"))
+            if (config.exe != null && Directory.Exists($@"{System.IO.Path.GetDirectoryName(config.exe)}/Assets"))
             {
                 ModGrid.IsHitTestVisible = false;
                 ConfigButton.IsHitTestVisible = false;
@@ -330,7 +331,7 @@ namespace FNF_Mod_Manager
                 OpenModsButton.IsHitTestVisible = false;
                 UpdateButton.IsHitTestVisible = false;
                 Refresh();
-                await Build($@"{Path.GetDirectoryName(config.exe)}/assets");
+                await Build($@"{System.IO.Path.GetDirectoryName(config.exe)}/assets");
                 ModGrid.IsHitTestVisible = true;
                 ConfigButton.IsHitTestVisible = true;
                 BuildButton.IsHitTestVisible = true;
@@ -340,7 +341,7 @@ namespace FNF_Mod_Manager
                 MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
-                logger.WriteLine("Please set up correct Game Path in Config!", LoggerType.Warning);
+                logger.WriteLine("Please set up correct Game System.IO.Path in Config!", LoggerType.Warning);
         }
 
         private async Task Build(string path)
@@ -480,6 +481,7 @@ namespace FNF_Mod_Manager
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.EndInit();
                 Preview.Source = bitmap;
+                PreviewBG.Source = null;
             }
             else
             {
@@ -517,6 +519,7 @@ namespace FNF_Mod_Manager
                 bitmap.UriSource = metadata.preview;
                 bitmap.EndInit();
                 Preview.Source = bitmap;
+                PreviewBG.Source = bitmap;
                 if (metadata.caticon != null)
                 {
                     BitmapImage bm = new BitmapImage(metadata.caticon);
@@ -581,9 +584,9 @@ namespace FNF_Mod_Manager
                 Right.IsEnabled = false;
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
                 Right.IsEnabled = true;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages);
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
                 PageBox.SelectedValue = page;
                 LoadingBar.Visibility = Visibility.Collapsed;
                 if (FeedBox.Items.Count > 0)
@@ -604,14 +607,14 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
-            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = true;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);
             FeedBox.Visibility = Visibility.Visible;
-            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages);
+            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
             PageBox.SelectedValue = page;
         }
         private async void IncrementPage(object sender, RoutedEventArgs e)
@@ -621,8 +624,8 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
-            if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+            if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = false;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
@@ -631,43 +634,135 @@ namespace FNF_Mod_Manager
             PageBox.SelectedValue = page;
         }
         private static bool filterSelect;
-        private async void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void RefreshFilter()
         {
-            if (FilterBox.SelectedIndex != -1 && IsLoaded)
+            BrowserMessage.Visibility = Visibility.Collapsed;
+            page = 1;
+            filterSelect = true;
+            PageBox.SelectedValue = page;
+            filterSelect = false;
+            Page.Text = $"Page {page}";
+            LoadingBar.Visibility = Visibility.Visible;
+            FeedBox.Visibility = Visibility.Collapsed;
+            Left.IsEnabled = false;
+            Right.IsEnabled = false;
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
+                Right.IsEnabled = true;
+            if (FeedBox.Items.Count > 0)
             {
-                BrowserMessageBox.Visibility = Visibility.Collapsed;
-                page = 1;
-                filterSelect = true;
-                PageBox.SelectedValue = page;
-                filterSelect = false;
-                Page.Text = $"Page {page}";
-                LoadingBar.Visibility = Visibility.Visible;
-                FeedBox.Visibility = Visibility.Collapsed;
-                Left.IsEnabled = false;
-                Right.IsEnabled = false;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
-                if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
-                    Right.IsEnabled = true;
-                if (FeedBox.Items.Count > 0)
-                {
-                    FeedBox.ScrollIntoView(FeedBox.Items[0]);
-                    FeedBox.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    BrowserMessageBox.Visibility = Visibility.Visible;
-                    BrowserMessage.Text = "No mods found. Pain Peko T_T";
-                }
-                var totalPages = FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages;
-                if (totalPages == 0)
-                    totalPages = 1;
-                PageBox.ItemsSource = Enumerable.Range(1, totalPages);
-                var range = Enumerable.Range(1, 5).Where(i => i != currentBg);
-                var index = new Random().Next(0, 4);
-                currentBg = range.ElementAt(index);
-                BrowserBackground.Source = bgs[currentBg];
-                LoadingBar.Visibility = Visibility.Collapsed;
+                FeedBox.ScrollIntoView(FeedBox.Items[0]);
+                FeedBox.Visibility = Visibility.Visible;
             }
+            else
+            {
+                BrowserMessage.Visibility = Visibility.Visible;
+                BrowserMessage.Text = "No mods found. Pain Peko T_T";
+            }
+            var totalPages = FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages;
+            if (totalPages == 0)
+                totalPages = 1;
+            PageBox.ItemsSource = Enumerable.Range(1, totalPages);
+            var range = Enumerable.Range(1, 5).Where(i => i != currentBg);
+            var index = new Random().Next(0, 4);
+            currentBg = range.ElementAt(index);
+            BrowserBackground.Source = bgs[currentBg];
+            LoadingBar.Visibility = Visibility.Collapsed;
+        }
+        private static readonly string[] Skins = new string[]
+        {
+            " All",
+            " Skin Packs",
+            " Boyfriend",
+            " Girlfriend",
+            " Daddy Dearest",
+            " Skid and Pump",
+            " Pico",
+            " Mom",
+            " Parents",
+            " Monster",
+            " Senpai/Spirit",
+            " Tankman",
+            " Other/Misc"
+        };
+        private static readonly string[] UI = new string[]
+        {
+            " All",
+            " Combo/Countdown",
+            " Health Bar",
+            " Menus",
+            " Noteskins",
+            " Other/Misc"
+        };
+        private static readonly string[] Stages = new string[]
+        {
+            " All",
+            " Sound Stage",
+            " Spooky House",
+            " Philly",
+            " Highway",
+            " Shopping Mall",
+            " Weeb School",
+            " Other/Misc"
+        };
+        private static readonly string[] Weeks = new string[]
+        {
+            " All",
+            " Tutorial/Week 1",
+            " Week 2",
+            " Week 3",
+            " Week 4",
+            " Week 5",
+            " Week 6",
+            " Week 7"
+        };
+        private void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded)
+                RefreshFilter();
+        }
+        private void MainFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded)
+            {
+                filterSelect = true;
+                switch ((CategoryFilter)CatBox.SelectedIndex)
+                {
+                    case CategoryFilter.Skins:
+                        SubCatBox.ItemsSource = Skins;
+                        SubCatBox.IsEnabled = true;
+                        SubCatBox.SelectedIndex = 0;
+                        break;
+                    case CategoryFilter.Stages:
+                        SubCatBox.ItemsSource = Stages;
+                        SubCatBox.IsEnabled = true;
+                        SubCatBox.SelectedIndex = 0;
+                        break;
+                    case CategoryFilter.UI:
+                        SubCatBox.ItemsSource = UI;
+                        SubCatBox.IsEnabled = true;
+                        SubCatBox.SelectedIndex = 0;
+                        break;
+                    case CategoryFilter.CustomSongs:
+                    case CategoryFilter.CustomSongsSkins:
+                        SubCatBox.ItemsSource = Weeks;
+                        SubCatBox.IsEnabled = true;
+                        SubCatBox.SelectedIndex = 0;
+                        break;
+                    default:
+                        SubCatBox.ItemsSource = null;
+                        SubCatBox.IsEnabled = false;
+                        SubCatBox.SelectedIndex = -1;
+                        break;
+                }
+                filterSelect = false;
+                RefreshFilter();
+            }
+        }
+        private void SubFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!filterSelect && IsLoaded)
+                RefreshFilter();
         }
         private void UniformGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -694,8 +789,8 @@ namespace FNF_Mod_Manager
                 Page.Text = $"Page {page}";
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex);
-                if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex).TotalPages)
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+                if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                     Right.IsEnabled = false;
                 else
                     Right.IsEnabled = true;
@@ -704,6 +799,10 @@ namespace FNF_Mod_Manager
                     FeedBox.ScrollIntoView(FeedBox.Items[0]);
                 FeedBox.Visibility = Visibility.Visible;
             }
+        }
+        private void PendingCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            RefreshFilter();
         }
     }
 }

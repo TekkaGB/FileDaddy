@@ -175,11 +175,8 @@ namespace FNF_Mod_Manager
                             metadata.homepage = record.Link;
                             metadata.avi = record.Owner.Avatar;
                             metadata.upic = record.Owner.Upic;
-                            metadata.cat = record.Category.Name;
+                            metadata.cat = record.CategoryName;
                             metadata.caticon = record.Category.Icon;
-                            metadata.section = record.RootCategory.Name.Substring(0, record.RootCategory.Name.Length - 1);
-                            if (metadata.cat.Equals(record.RootCategory.Name, StringComparison.InvariantCultureIgnoreCase))
-                                metadata.section = "";
                             metadata.lastupdate = record.DateUpdated;
                             string metadataString = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });
                             File.WriteAllText($@"{ArchiveDestination}/mod.json", metadataString);

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace FNF_Mod_Manager
 {
@@ -161,6 +163,8 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_aRootCategory")]
         public GameBananaCategory RootCategory { get; set; }
         [JsonIgnore]
+        public string CategoryName => StringConverters.FormatSingular(RootCategory.Name, Category.Name);
+        [JsonIgnore]
         public bool Compatible => Files.Count > 0 && Category.ID != 3827;
 
         [JsonPropertyName("_tsDateUpdated")]
@@ -175,9 +179,11 @@ namespace FNF_Mod_Manager
         [JsonIgnore]
         public DateTime DateAdded => Epoch.AddSeconds(DateAddedLong);
         [JsonIgnore]
-        public string DateAddedFormatted => $"Added {DateAdded.ToString("M/d/yyyy")}";
+        public string DateAddedFormatted => $"Added {StringConverters.FormatTimeAgo(DateTime.UtcNow - DateAdded)}";//{DateAdded.ToString("M/d/yyyy")}";
         [JsonIgnore]
-        public string DateUpdatedAgo => DateAdded.CompareTo(DateUpdated) != 0 ? $"Updated {StringConverters.FormatTimeAgo(DateTime.UtcNow - DateUpdated)}" : "Not updated";
+        public bool HasUpdates => DateAdded.CompareTo(DateUpdated) != 0;
+        [JsonIgnore]
+        public string DateUpdatedAgo => $"Updated {StringConverters.FormatTimeAgo(DateTime.UtcNow - DateUpdated)}";
     }
     public class GameBananaModList
     {

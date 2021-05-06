@@ -92,5 +92,27 @@ namespace FNF_Mod_Manager
                 return years > 1 ? $"{years} years ago" : $"{years} year ago";
             }
         }
+        public static string FormatSingular(string rootCat, string cat)
+        {
+            rootCat = rootCat.Replace("User Interface", "UI");
+
+            if (cat == "Skin Packs")
+                return cat.Substring(0, cat.Length - 1);
+
+            if (rootCat[rootCat.Length - 1] == 's')
+            {
+                if (cat == rootCat)
+                    return rootCat.Substring(0, rootCat.Length - 1);
+                else
+                    return $"{cat} {rootCat.Substring(0, rootCat.Length - 1)}";
+            }
+            else
+            {
+                if (cat == rootCat)
+                    return rootCat;
+                else
+                    return $"{cat} {rootCat}";
+            }
+        }
     }
 }

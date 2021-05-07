@@ -7,7 +7,7 @@
         xmlns:fa5="http://schemas.fontawesome.com/icons/"
         Background="#202020"
         mc:Ignorable="d" Closing="Window_Closing" WindowStartupLocation="CenterScreen"
-        Height="800" Width="900" MinHeight="800" MinWidth="900">
+        Height="800" Width="1050" MinHeight="800" MinWidth="1050">
     <Window.Resources>
         <SolidColorBrush x:Key="StandardBorderBrush" Color="#888" />
         <SolidColorBrush x:Key="StandardBackgroundBrush" Color="Black" />
@@ -677,6 +677,11 @@
                             <ComboBoxItem xml:space="preserve" IsSelected="True"> Featured</ComboBoxItem>
                             <ComboBoxItem xml:space="preserve"> Recent</ComboBoxItem>
                             <ComboBoxItem xml:space="preserve"> Popular</ComboBoxItem>
+                        </ComboBox>
+                        <ComboBox Margin="0,0,15,0" FontWeight="Bold" FontSize="18" Name="TypeBox" Height="35" Width="125" SelectionChanged="TypeFilterSelectionChanged">
+                            <ComboBoxItem xml:space="preserve" IsSelected="True"> Mods</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> Sounds</ComboBoxItem>
+                            <ComboBoxItem xml:space="preserve"> WiPs</ComboBoxItem>
                         </ComboBox>
                         <ComboBox Margin="0,0,15,0" Name="CatBox" Height="35" Width="250" SelectionChanged="MainFilterSelectionChanged">
                             <ComboBox.ItemTemplate>

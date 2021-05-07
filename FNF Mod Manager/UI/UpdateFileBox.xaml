@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:FNF_Mod_Manager.UI"
         xmlns:fa5="http://schemas.fontawesome.com/icons/"
         mc:Ignorable="d"
-        Title="FileDaddy"
+        Title="FileDaddy" WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize" MinWidth="600"
         Background="#202020" ShowActivated="True" Closing="Window_Closing" SizeToContent="WidthAndHeight">
     <Window.Resources>

@@ -143,7 +143,7 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_sProfileUrl")]
         public Uri Link { get; set; }
         [JsonIgnore]
-        public Uri Image => new Uri($"{Media[0].Base}/{Media[0].File}");
+        public Uri Image => Media.Count > 0 ? new Uri($"{Media[0].Base}/{Media[0].File}") : new Uri("https://media.discordapp.net/attachments/792245872259235850/840324379250524220/SoundMod.png");
         [JsonPropertyName("_aPreviewMedia")]
         public List<GameBananaImage> Media { get; set; }
         [JsonPropertyName("_sDescription")]
@@ -173,7 +173,7 @@ namespace FNF_Mod_Manager
         [JsonIgnore]
         public string CategoryName => StringConverters.FormatSingular(RootCategory.Name, Category.Name);
         [JsonIgnore]
-        public bool Compatible => Files.Count > 0 && Category.ID != 3827;
+        public bool Compatible => Files.Count > 0 && Category.ID != 3827 && Category.ID != 959;
 
         [JsonPropertyName("_tsDateUpdated")]
         public long DateUpdatedLong { get; set; }

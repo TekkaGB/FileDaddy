@@ -26,7 +26,7 @@ namespace FNF_Mod_Manager
             DownloadText.Text = $"{record.Title}\nSubmitted by {record.Owner.Name}";
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri($"{record.Media[0].Base}/{record.Media[0].File}");
+            bitmap.UriSource = record.Image;
             bitmap.EndInit();
             Preview.Source = bitmap;
         }

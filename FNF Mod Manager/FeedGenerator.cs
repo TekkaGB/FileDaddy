@@ -17,20 +17,39 @@ namespace FNF_Mod_Manager
         Recent,
         Popular
     }
+    public enum TypeFilter
+    {
+        Mods,
+        Sounds,
+        WiPs
+    }
     public static class FeedGenerator
     {
         private static Dictionary<string, GameBananaModList> feed;
-        public static async Task<ObservableCollection<GameBananaRecord>> GetFeed(int page, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
+        public static bool error;
+        public static Exception exception;
+        public static async Task<ObservableCollection<GameBananaRecord>> GetFeed(int page, TypeFilter type, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
         {
+            error = false;
             if (feed == null)
                 feed = new Dictionary<string, GameBananaModList>();
             using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
-                var requestUrl = GenerateUrl(page, filter, category, subcategory, pending, perPage);               
+                var requestUrl = GenerateUrl(page, type, filter, category, subcategory, pending, perPage);               
                 if (feed.ContainsKey(requestUrl) && feed[requestUrl].IsValid)
                     return feed[requestUrl].Records;
-                var responseString = await httpClient.GetStringAsync(requestUrl);
+                string responseString = "";
+                try
+                {
+                    responseString = await httpClient.GetStringAsync(requestUrl);
+                }
+                catch (HttpRequestException e)
+                {
+                    error = true;
+                    exception = e;
+                    return null;
+                }
                 var response = JsonSerializer.Deserialize<GameBananaModList>(responseString);
                 if (!feed.ContainsKey(requestUrl))
                     feed.Add(requestUrl, response);
@@ -39,10 +58,22 @@ namespace FNF_Mod_Manager
                 return response.Records;
             }
         }
-        private static string GenerateUrl(int page, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
+        private static string GenerateUrl(int page, TypeFilter type, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
         {
             // Base
-            var url = "https://gamebanana.com/apiv3/Mod/";
+            var url = "https://gamebanana.com/apiv3/";
+            switch (type)
+            {
+                case TypeFilter.Mods:
+                    url += "Mod/";
+                    break;
+                case TypeFilter.Sounds:
+                    url += "Sound/";
+                    break;
+                case TypeFilter.WiPs:
+                    url += "Wip/";
+                    break;
+            }
             // Different starting endpoint if requesting all mods instead of specific category
             if (category.ID != null)
                 url += "ByCategory?";
@@ -76,9 +107,9 @@ namespace FNF_Mod_Manager
             url += $"&_nPage={page}";
             return url;
         }
-        public static GameBananaMetadata GetMetadata(int page, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
+        public static GameBananaMetadata GetMetadata(int page, TypeFilter type, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
         {
-            var url = GenerateUrl(page, filter, category, subcategory, pending, perPage);
+            var url = GenerateUrl(page, type, filter, category, subcategory, pending, perPage);
             if (feed.ContainsKey(url))
                 return feed[url].Metadata;
             else

@@ -65,7 +65,7 @@ namespace FNF_Mod_Manager
                     var MOD_ID = url.Segments[2];
                     requestUrls[urlCount] += $"itemtype[]={MOD_TYPE}&itemid[]={MOD_ID}&fields[]=Updates().bSubmissionHasUpdates()," +
                         $"Updates().aGetLatestUpdates(),Files().aFiles(),Preview().sStructuredDataFullsizeUrl()&";
-                    if (++modCount > 30)
+                    if (++modCount > 49)
                     {
                         requestUrls[urlCount] += "return_keys=1";
                         ++urlCount;

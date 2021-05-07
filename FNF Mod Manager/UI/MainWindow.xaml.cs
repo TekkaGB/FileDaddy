@@ -29,7 +29,7 @@ namespace FNF_Mod_Manager
         public string version;
         public Config config;
         public Logger logger;
-        public string assemblyLocation = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public string assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         // Separated from config so that order is updated when datagrid is modified
         public ObservableCollection<Mod> ModList;
         public List<string> exes;
@@ -69,9 +69,9 @@ namespace FNF_Mod_Manager
             ModList = config.ModList;
 
             if (config.exe == null || !File.Exists(config.exe))
-                logger.WriteLine("Please set up Game System.IO.Path in Config.", LoggerType.Warning);
+                logger.WriteLine("Please set up Game Path in Config.", LoggerType.Warning);
             else if (config.exe != null)
-                logger.WriteLine($"Current Game System.IO.Path set as {config.exe}", LoggerType.Info);
+                logger.WriteLine($"Current Game Path set as {config.exe}", LoggerType.Info);
 
             // Create Mods Directory if it doesn't exist
             Directory.CreateDirectory($@"{assemblyLocation}/Mods");
@@ -135,11 +135,11 @@ namespace FNF_Mod_Manager
             // Add new folders found in Mods to the ModList
             foreach (var mod in Directory.GetDirectories($@"{assemblyLocation}/Mods"))
             {
-                if (ModList.ToList().Where(x => x.name == System.IO.Path.GetFileName(mod)).Count() == 0)
+                if (ModList.ToList().Where(x => x.name == Path.GetFileName(mod)).Count() == 0)
                 {
-                    logger.WriteLine($"Adding {System.IO.Path.GetFileName(mod)}", LoggerType.Info);
+                    logger.WriteLine($"Adding {Path.GetFileName(mod)}", LoggerType.Info);
                     Mod m = new Mod();
-                    m.name = System.IO.Path.GetFileName(mod);
+                    m.name = Path.GetFileName(mod);
                     App.Current.Dispatcher.Invoke((Action)delegate
                     {
                         ModList.Add(m);
@@ -149,7 +149,7 @@ namespace FNF_Mod_Manager
             // Remove deleted folders that are still in the ModList
             foreach (var mod in ModList.ToList())
             {
-                if (!Directory.GetDirectories($@"{assemblyLocation}/Mods").ToList().Select(x => System.IO.Path.GetFileName(x)).Contains(mod.name))
+                if (!Directory.GetDirectories($@"{assemblyLocation}/Mods").ToList().Select(x => Path.GetFileName(x)).Contains(mod.name))
                 {
                     App.Current.Dispatcher.Invoke((Action)delegate
                     {
@@ -225,7 +225,7 @@ namespace FNF_Mod_Manager
         {
             if (config.exe != null && File.Exists(config.exe))
             {
-                if (System.IO.Path.GetExtension(config.exe).Equals(".js", StringComparison.InvariantCultureIgnoreCase))
+                if (Path.GetExtension(config.exe).Equals(".js", StringComparison.InvariantCultureIgnoreCase))
                 {
                     logger.WriteLine($"Cannot launch the web version from FileDaddy...", LoggerType.Warning);
                     return;
@@ -236,7 +236,7 @@ namespace FNF_Mod_Manager
                     var ps = new ProcessStartInfo(config.exe)
                     {
                         // Game throws error if not launched from same directory
-                        WorkingDirectory = (System.IO.Path.GetDirectoryName(config.exe)),
+                        WorkingDirectory = (Path.GetDirectoryName(config.exe)),
                         UseShellExecute = true,
                         Verb = "open"
                     };
@@ -248,7 +248,7 @@ namespace FNF_Mod_Manager
                 }
             }
             else
-                logger.WriteLine($"Please set up your Game System.IO.Path in Config!", LoggerType.Warning);
+                logger.WriteLine($"Please set up your Game Path in Config!", LoggerType.Warning);
         }
         private void GameBanana_Click(object sender, RoutedEventArgs e)
         {
@@ -323,7 +323,7 @@ namespace FNF_Mod_Manager
 
         private async void Build_Click(object sender, RoutedEventArgs e)
         {
-            if (config.exe != null && Directory.Exists($@"{System.IO.Path.GetDirectoryName(config.exe)}/Assets"))
+            if (config.exe != null && Directory.Exists($@"{Path.GetDirectoryName(config.exe)}/Assets"))
             {
                 ModGrid.IsHitTestVisible = false;
                 ConfigButton.IsHitTestVisible = false;
@@ -332,7 +332,7 @@ namespace FNF_Mod_Manager
                 OpenModsButton.IsHitTestVisible = false;
                 UpdateButton.IsHitTestVisible = false;
                 Refresh();
-                await Build($@"{System.IO.Path.GetDirectoryName(config.exe)}/assets");
+                await Build($@"{Path.GetDirectoryName(config.exe)}/assets");
                 ModGrid.IsHitTestVisible = true;
                 ConfigButton.IsHitTestVisible = true;
                 BuildButton.IsHitTestVisible = true;
@@ -342,7 +342,7 @@ namespace FNF_Mod_Manager
                 MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
-                logger.WriteLine("Please set up correct Game System.IO.Path in Config!", LoggerType.Warning);
+                logger.WriteLine("Please set up correct Game Path in Config!", LoggerType.Warning);
         }
 
         private async Task Build(string path)
@@ -515,12 +515,27 @@ namespace FNF_Mod_Manager
                         para.Inlines.Add(metadata.submitter);
                     descFlow.Blocks.Add(para);
                 }
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = metadata.preview;
-                bitmap.EndInit();
-                Preview.Source = bitmap;
-                PreviewBG.Source = bitmap;
+                if (metadata.preview != null)
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = metadata.preview;
+                    bitmap.EndInit();
+                    Preview.Source = bitmap;
+                    PreviewBG.Source = bitmap;
+                }
+                else
+                {
+                    Assembly asm = Assembly.GetExecutingAssembly();
+                    Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.StreamSource = iconStream;
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+                    Preview.Source = bitmap;
+                    PreviewBG.Source = null;
+                }
                 if (metadata.caticon != null)
                 {
                     BitmapImage bm = new BitmapImage(metadata.caticon);
@@ -577,7 +592,7 @@ namespace FNF_Mod_Manager
             }
         }
         private static bool selected = false;
-        private static List<GameBananaCategory> cats;
+        private static Dictionary<TypeFilter, List<GameBananaCategory>> cats = new Dictionary<TypeFilter, List<GameBananaCategory>>();
         private static readonly List<GameBananaCategory> All = new GameBananaCategory[]
         {
             new GameBananaCategory()
@@ -601,24 +616,52 @@ namespace FNF_Mod_Manager
                 // Initialize categories
                 using (var httpClient = new HttpClient())
                 {
+                    var types = new string[] { "Mod", "Sound", "Wip" };
                     httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
-                    var requestUrl = "https://gamebanana.com/apiv3/ModCategory/ByGame?_aGameRowIds[]=8694&_sRecordSchema=Custom&_csvProperties=_idRow,_sName,_sProfileUrl,_sIconUrl,_idParentCategoryRow&_nPerpage=50&_bReturnMetadata=true";
-                    var responseString = await httpClient.GetStringAsync(requestUrl);
-                    var response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
-                    cats = response.Categories;
-                    // Make more requests if needed
-                    if (response.Metadata.TotalPages > 1)
+                    var counter = 0;
+                    foreach (var type in types)
                     {
-                        for (int i = 2; i <= response.Metadata.TotalPages; i++)
+                        var requestUrl = $"https://gamebanana.com/apiv3/{type}Category/ByGame?_aGameRowIds[]=8694&_sRecordSchema=Custom" +
+                            "&_csvProperties=_idRow,_sName,_sProfileUrl,_sIconUrl,_idParentCategoryRow&_nPerpage=50&_bReturnMetadata=true";
+                        string responseString = "";
+                        try
                         {
-                            var requestUrlPage = $"{requestUrl}&_nPage={i}";
-                            responseString = await httpClient.GetStringAsync(requestUrlPage);
-                            response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
-                            cats = cats.Concat(response.Categories).ToList();
+                            responseString = await httpClient.GetStringAsync(requestUrl);
                         }
+                        catch (HttpRequestException ex)
+                        {
+                            LoadingBar.Visibility = Visibility.Collapsed;
+                            BrowserMessage.Visibility = Visibility.Visible;
+                            BrowserMessage.Text = ex.Message;
+                            return;
+                        }
+                        var response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                        cats.Add((TypeFilter)counter, response.Categories);
+                        // Make more requests if needed
+                        if (response.Metadata.TotalPages > 1)
+                        {
+                            for (int i = 2; i <= response.Metadata.TotalPages; i++)
+                            {
+                                var requestUrlPage = $"{requestUrl}&_nPage={i}";
+                                try
+                                {
+                                    responseString = await httpClient.GetStringAsync(requestUrlPage);
+                                }
+                                catch (HttpRequestException ex)
+                                {
+                                    LoadingBar.Visibility = Visibility.Collapsed;
+                                    BrowserMessage.Visibility = Visibility.Visible;
+                                    BrowserMessage.Text = ex.Message;
+                                    return;
+                                }
+                                response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                                cats[(TypeFilter)counter] = cats[(TypeFilter)counter].Concat(response.Categories).ToList();
+                            }
+                        }
+                        counter++;
                     }
                 }
-                CatBox.ItemsSource = All.Concat(cats.Where(x => x.RootID == 0));
+                CatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == 0));
                 SubCatBox.ItemsSource = None;
                 filterSelect = true;
                 CatBox.SelectedIndex = 0;
@@ -628,10 +671,10 @@ namespace FNF_Mod_Manager
                 Right.IsEnabled = false;
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                     (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
                 Right.IsEnabled = true;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                     (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
                 PageBox.SelectedValue = page;
                 LoadingBar.Visibility = Visibility.Collapsed;
@@ -640,7 +683,7 @@ namespace FNF_Mod_Manager
                 FeedBox.Visibility = Visibility.Visible;
                 Page.Text = $"Page {page}";
                 InitBgs();
-                currentBg = new Random().Next(0, 5);
+                currentBg = new Random().Next(0, bgs.Count-1);
                 BrowserBackground.Source = bgs[currentBg];
                 selected = true;
             }
@@ -653,16 +696,23 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+            if (FeedGenerator.error)
+            {
+                LoadingBar.Visibility = Visibility.Collapsed;
+                BrowserMessage.Visibility = Visibility.Visible;
+                BrowserMessage.Text = FeedGenerator.exception.Message;
+                return;
+            }
+            if (page < FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = true;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);
             FeedBox.Visibility = Visibility.Visible;
-            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
             PageBox.SelectedValue = page;
         }
@@ -673,9 +723,16 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-            if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+            if (FeedGenerator.error)
+            {
+                LoadingBar.Visibility = Visibility.Collapsed;
+                BrowserMessage.Visibility = Visibility.Visible;
+                BrowserMessage.Text = FeedGenerator.exception.Message;
+                return;
+            }
+            if (page >= FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = false;
             LoadingBar.Visibility = Visibility.Collapsed;
@@ -687,6 +744,7 @@ namespace FNF_Mod_Manager
         private static bool filterSelect;
         private async void RefreshFilter()
         {
+            TypeBox.IsEnabled = false;
             CatBox.IsEnabled = false;
             SubCatBox.IsEnabled = false;
             BrowserMessage.Visibility = Visibility.Collapsed;
@@ -699,9 +757,16 @@ namespace FNF_Mod_Manager
             FeedBox.Visibility = Visibility.Collapsed;
             Left.IsEnabled = false;
             Right.IsEnabled = false;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem,
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem,
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+            if (FeedGenerator.error)
+            {
+                LoadingBar.Visibility = Visibility.Collapsed;
+                BrowserMessage.Visibility = Visibility.Visible;
+                BrowserMessage.Text = FeedGenerator.exception.Message;
+                return;
+            }
+            if (page < FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = true;
             if (FeedBox.Items.Count > 0)
@@ -714,35 +779,45 @@ namespace FNF_Mod_Manager
                 BrowserMessage.Visibility = Visibility.Visible;
                 BrowserMessage.Text = "No mods found. Pain Peko T_T";
             }
-            var totalPages = FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+            var totalPages = FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages;
             if (totalPages == 0)
                 totalPages = 1;
             PageBox.ItemsSource = Enumerable.Range(1, totalPages);
-            var range = Enumerable.Range(1, 5).Where(i => i != currentBg);
-            var index = new Random().Next(0, 4);
+            var range = Enumerable.Range(1, bgs.Count-1).Where(i => i != currentBg);
+            var index = new Random().Next(0, bgs.Count - 2);
             currentBg = range.ElementAt(index);
             BrowserBackground.Source = bgs[currentBg];
             LoadingBar.Visibility = Visibility.Collapsed;
             CatBox.IsEnabled = true;
             SubCatBox.IsEnabled = true;
+            TypeBox.IsEnabled = true;
         }
 
-        public class Category
-        {
-            public string Name { get; set; }
-            public Uri Image { get; set; }
-            public Category(string name, string link)
-            {
-                Name = name;
-                if (link != null)
-                    Image = new Uri(link);
-            }
-        }
         private void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (IsLoaded)
                 RefreshFilter();
+        }
+        private void TypeFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded && !filterSelect)
+            {
+                filterSelect = true;
+                if (cats[(TypeFilter)TypeBox.SelectedIndex].Any(x => x.RootID == 0))
+                    CatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == 0));
+                else
+                    CatBox.ItemsSource = None;
+                CatBox.SelectedIndex = 0;
+                var cat = (GameBananaCategory)CatBox.SelectedValue;
+                if (cats[(TypeFilter)TypeBox.SelectedIndex].Any(x => x.RootID == cat.ID))
+                    SubCatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == cat.ID));
+                else
+                    SubCatBox.ItemsSource = None;
+                SubCatBox.SelectedIndex = 0;
+                filterSelect = false;
+                RefreshFilter();
+            }
         }
         private void MainFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -750,8 +825,8 @@ namespace FNF_Mod_Manager
             {
                 filterSelect = true;
                 var cat = (GameBananaCategory)CatBox.SelectedValue;
-                if (cats.Any(x => x.RootID == cat.ID))
-                    SubCatBox.ItemsSource = All.Concat(cats.Where(x => x.RootID == cat.ID));
+                if (cats[(TypeFilter)TypeBox.SelectedIndex].Any(x => x.RootID == cat.ID))
+                    SubCatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == cat.ID));
                 else
                     SubCatBox.ItemsSource = None;
                 SubCatBox.SelectedIndex = 0;
@@ -789,9 +864,16 @@ namespace FNF_Mod_Manager
                 Page.Text = $"Page {page}";
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                     (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-                if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                if (FeedGenerator.error)
+                {
+                    LoadingBar.Visibility = Visibility.Collapsed;
+                    BrowserMessage.Visibility = Visibility.Visible;
+                    BrowserMessage.Text = FeedGenerator.exception.Message;
+                    return;
+                }
+                if (page >= FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                     (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                     Right.IsEnabled = false;
                 else

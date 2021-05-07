@@ -78,7 +78,7 @@ namespace FNF_Mod_Manager
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Error whilst checking for updates: {e.Message}\n{e.StackTrace}", "Notification", MessageBoxButton.OK);
+                //MessageBox.Show($"Error whilst checking for updates: {e.Message}", "Notification", MessageBoxButton.OK);
             }
             return false;
         }

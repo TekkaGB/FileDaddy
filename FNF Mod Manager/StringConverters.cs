@@ -102,7 +102,10 @@ namespace FNF_Mod_Manager
             if (rootCat[rootCat.Length - 1] == 's')
             {
                 if (cat == rootCat)
+                {
+                    rootCat = rootCat.Replace("xes", "xs");
                     return rootCat.Substring(0, rootCat.Length - 1);
+                }
                 else
                     return $"{cat} {rootCat.Substring(0, rootCat.Length - 1)}";
             }

@@ -577,11 +577,48 @@ namespace FNF_Mod_Manager
             }
         }
         private static bool selected = false;
+        private static List<GameBananaCategory> cats;
+        private static readonly List<GameBananaCategory> All = new GameBananaCategory[]
+        {
+            new GameBananaCategory()
+            {
+                Name = "All",
+                ID = null
+            }
+        }.ToList();
+        private static readonly List<GameBananaCategory> None = new GameBananaCategory[]
+        {
+            new GameBananaCategory()
+            {
+                Name = "- - -",
+                ID = null
+            }
+        }.ToList();
         private async void OnTabSelected(object sender, RoutedEventArgs e)
         {
             if (!selected)
             {
-                CatBox.ItemsSource = Categories;
+                // Initialize categories
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
+                    var requestUrl = "https://gamebanana.com/apiv3/ModCategory/ByGame?_aGameRowIds[]=8694&_sRecordSchema=Custom&_csvProperties=_idRow,_sName,_sProfileUrl,_sIconUrl,_idParentCategoryRow&_nPerpage=50&_bReturnMetadata=true";
+                    var responseString = await httpClient.GetStringAsync(requestUrl);
+                    var response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                    cats = response.Categories;
+                    // Make more requests if needed
+                    if (response.Metadata.TotalPages > 1)
+                    {
+                        for (int i = 2; i <= response.Metadata.TotalPages; i++)
+                        {
+                            var requestUrlPage = $"{requestUrl}&_nPage={i}";
+                            responseString = await httpClient.GetStringAsync(requestUrlPage);
+                            response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                            cats = cats.Concat(response.Categories).ToList();
+                        }
+                    }
+                }
+                CatBox.ItemsSource = All.Concat(cats.Where(x => x.RootID == 0));
                 SubCatBox.ItemsSource = None;
                 filterSelect = true;
                 CatBox.SelectedIndex = 0;
@@ -591,9 +628,11 @@ namespace FNF_Mod_Manager
                 Right.IsEnabled = false;
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                    (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
                 Right.IsEnabled = true;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
+                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                    (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
                 PageBox.SelectedValue = page;
                 LoadingBar.Visibility = Visibility.Collapsed;
                 if (FeedBox.Items.Count > 0)
@@ -614,14 +653,17 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = true;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);
             FeedBox.Visibility = Visibility.Visible;
-            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
+            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
             PageBox.SelectedValue = page;
         }
         private async void IncrementPage(object sender, RoutedEventArgs e)
@@ -631,8 +673,10 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-            if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+            if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = false;
             LoadingBar.Visibility = Visibility.Collapsed;
             if (FeedBox.Items.Count > 0)
@@ -655,8 +699,10 @@ namespace FNF_Mod_Manager
             FeedBox.Visibility = Visibility.Collapsed;
             Left.IsEnabled = false;
             Right.IsEnabled = false;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
+            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem,
+                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+            if (page < FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = true;
             if (FeedBox.Items.Count > 0)
             {
@@ -668,7 +714,8 @@ namespace FNF_Mod_Manager
                 BrowserMessage.Visibility = Visibility.Visible;
                 BrowserMessage.Text = "No mods found. Pain Peko T_T";
             }
-            var totalPages = FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages;
+            var totalPages = FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages;
             if (totalPages == 0)
                 totalPages = 1;
             PageBox.ItemsSource = Enumerable.Range(1, totalPages);
@@ -692,67 +739,6 @@ namespace FNF_Mod_Manager
                     Image = new Uri(link);
             }
         }
-        private static readonly Category[] Categories = new Category[]
-        {
-            new Category(" All", null ),
-            new Category("Custom Songs", "https://images.gamebanana.com/img/ico/ModCategory/60372d0ceca9b.png" ),
-            new Category("Custom Songs + Skins", "https://images.gamebanana.com/img/ico/ModCategory/60372f9c6c7af.png" ),
-            new Category("Executables", "https://images.gamebanana.com/img/ico/ModCategory/60382d91c4839.png" ),
-            new Category("Remixes/Recharts", "https://images.gamebanana.com/img/ico/ModCategory/60382d8e1e218.png" ),
-            new Category("Remixes/Recharts + Skins", "https://images.gamebanana.com/img/ico/ModCategory/60382d89ee3e8.png" ),
-            new Category("Skins", "https://images.gamebanana.com/img/ico/ModCategory/6092e683d31c1.png" ),
-            new Category("Stages", "https://images.gamebanana.com/img/ico/ModCategory/6081e6aa25b0a.png" ),
-            new Category("Translations", "https://images.gamebanana.com/img/ico/ModCategory/6031ce847dfda.png" ),
-            new Category("UI", "https://images.gamebanana.com/img/ico/ModCategory/6081e6daf08ee.png" )
-        };
-        private static readonly Category[] Skins = new Category[]
-        {
-            new Category(" All", null ),
-            new Category("Skin Packs", "https://images.gamebanana.com/img/ico/ModCategory/60372be4d8d25.png" ),
-            new Category("Boyfriend", "https://images.gamebanana.com/img/ico/ModCategory/6031c2787cdd4.png" ),
-            new Category("Girlfriend", "https://images.gamebanana.com/img/ico/ModCategory/6031c4e39133c.png" ),
-            new Category("Daddy Dearest", "https://images.gamebanana.com/img/ico/ModCategory/6031c38dae940.png" ),
-            new Category("Skid and Pump", "https://images.gamebanana.com/img/ico/ModCategory/6031cd5ed9d5e.png" ),
-            new Category("Pico", "https://images.gamebanana.com/img/ico/ModCategory/6031cab5cb591.png" ),
-            new Category("Mom", "https://images.gamebanana.com/img/ico/ModCategory/6031c72021ccd.png" ),
-            new Category("Parents", "https://images.gamebanana.com/img/ico/ModCategory/6031c77dce057.png" ),
-            new Category("Monster", "https://images.gamebanana.com/img/ico/ModCategory/6031c980b96be.png" ),
-            new Category("Senpai/Spirit", "https://images.gamebanana.com/img/ico/ModCategory/6031ce098bc3f.png" ),
-            new Category("Tankman", "https://images.gamebanana.com/img/ico/ModCategory/607d57c2ca5f5.png" ),
-            new Category("Other/Misc", "https://images.gamebanana.com/img/ico/ModCategory/6031cf47bc4e1.png" )
-        };
-        private static readonly Category[] UI = new Category[]
-        {
-            new Category(" All", null ),
-            new Category("Combo/Countdown", "https://images.gamebanana.com/img/ico/ModCategory/6031d0661d63f.png" ),
-            new Category("Health Bar", "https://images.gamebanana.com/img/ico/ModCategory/6031d0a16016e.png" ),
-            new Category("Menus", "https://images.gamebanana.com/img/ico/ModCategory/6031d3e0e0320.png" ),
-            new Category("Noteskins", "https://images.gamebanana.com/img/ico/ModCategory/6031d2577e8f6.png" ),
-            new Category("Other/Misc", "https://images.gamebanana.com/img/ico/ModCategory/6031cfb20b9ec.png" )
-        };
-        private static readonly Category[] Stages = new Category[]
-        {
-            new Category(" All", null ),
-            new Category("Sound Stage", "https://images.gamebanana.com/img/ico/ModCategory/6031dac556da3.png" ),
-            new Category("Spooky House", "https://images.gamebanana.com/img/ico/ModCategory/6031dae32c654.png" ),
-            new Category("Philly", "https://images.gamebanana.com/img/ico/ModCategory/6031dad3c958b.png" ),
-            new Category("Highway", "https://images.gamebanana.com/img/ico/ModCategory/6031dadc9a7e9.png" ),
-            new Category("Shopping Mall", "https://images.gamebanana.com/img/ico/ModCategory/6031dacc37a7c.png" ),
-            new Category("Weeb School", "https://images.gamebanana.com/img/ico/ModCategory/6031daf2075c9.png" ),
-            new Category("Other/Misc", "https://images.gamebanana.com/img/ico/ModCategory/6031db742e2e9.png" )
-        };
-        private static readonly Category[] Weeks = new Category[]
-        {
-            new Category(" All", null ),
-            new Category("Tutorial/Week 1", "https://images.gamebanana.com/img/ico/ModCategory/60378b0aacf16.png" ),
-            new Category("Week 2", "https://images.gamebanana.com/img/ico/ModCategory/60378b06e9ffe.png" ),
-            new Category("Week 3", "https://images.gamebanana.com/img/ico/ModCategory/60378b031a8c2.png" ),
-            new Category("Week 4", "https://images.gamebanana.com/img/ico/ModCategory/60378aff3900a.png" ),
-            new Category("Week 5", "https://images.gamebanana.com/img/ico/ModCategory/60378afbc5c8c.png" ),
-            new Category("Week 6", "https://images.gamebanana.com/img/ico/ModCategory/60378ae98564e.png" ),
-            new Category("Week 7", "https://images.gamebanana.com/img/ico/ModCategory/607d555fc5fd7.png" )
-        };
-        private static readonly Category[] None = new Category[] { new Category(" - - -", null) };
         private void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (IsLoaded)
@@ -763,30 +749,12 @@ namespace FNF_Mod_Manager
             if (IsLoaded && !filterSelect)
             {
                 filterSelect = true;
-                switch ((CategoryFilter)CatBox.SelectedIndex)
-                {
-                    case CategoryFilter.Skins:
-                        SubCatBox.ItemsSource = Skins;
-                        SubCatBox.SelectedIndex = 0;
-                        break;
-                    case CategoryFilter.Stages:
-                        SubCatBox.ItemsSource = Stages;
-                        SubCatBox.SelectedIndex = 0;
-                        break;
-                    case CategoryFilter.UI:
-                        SubCatBox.ItemsSource = UI;
-                        SubCatBox.SelectedIndex = 0;
-                        break;
-                    case CategoryFilter.CustomSongs:
-                    case CategoryFilter.CustomSongsSkins:
-                        SubCatBox.ItemsSource = Weeks;
-                        SubCatBox.SelectedIndex = 0;
-                        break;
-                    default:
-                        SubCatBox.ItemsSource = None;
-                        SubCatBox.SelectedIndex = 0;
-                        break;
-                }
+                var cat = (GameBananaCategory)CatBox.SelectedValue;
+                if (cats.Any(x => x.RootID == cat.ID))
+                    SubCatBox.ItemsSource = All.Concat(cats.Where(x => x.RootID == cat.ID));
+                else
+                    SubCatBox.ItemsSource = None;
+                SubCatBox.SelectedIndex = 0;
                 filterSelect = false;
                 RefreshFilter();
             }
@@ -821,8 +789,10 @@ namespace FNF_Mod_Manager
                 Page.Text = $"Page {page}";
                 LoadingBar.Visibility = Visibility.Visible;
                 FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-                if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (CategoryFilter)CatBox.SelectedIndex, SubCatBox.SelectedIndex, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
+                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                    (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+                if (page >= FeedGenerator.GetMetadata(page, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
+                    (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                     Right.IsEnabled = false;
                 else
                     Right.IsEnabled = true;

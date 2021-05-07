@@ -87,15 +87,17 @@ namespace FNF_Mod_Manager
     public class GameBananaCategory
     {
         [JsonPropertyName("_idRow")]
-        public int ID { get; set; }
+        public int? ID { get; set; }
         [JsonPropertyName("_idParentCategoryRow")]
-        public int RootID { get; set; }
+        public int? RootID { get; set; }
         [JsonPropertyName("_sModelName")]
         public string Model { get; set; }
         [JsonPropertyName("_sName")]
         public string Name { get; set; }
         [JsonPropertyName("_sIconUrl")]
         public Uri Icon { get; set; }
+        [JsonIgnore]
+        public bool HasIcon => Icon.OriginalString.Length > 0;
     }
     public class GameBananaMember
     {
@@ -197,6 +199,13 @@ namespace FNF_Mod_Manager
         public GameBananaMetadata Metadata { get; set; }
         [JsonPropertyName("_aRecords")]
         public ObservableCollection<GameBananaRecord> Records { get; set; }
+    }
+    public class GameBananaCategories
+    {
+        [JsonPropertyName("_aMetadata")]
+        public GameBananaMetadata Metadata { get; set; }
+        [JsonPropertyName("_aRecords")]
+        public List<GameBananaCategory> Categories { get; set; }
     }
     public class GameBananaMetadata
     {

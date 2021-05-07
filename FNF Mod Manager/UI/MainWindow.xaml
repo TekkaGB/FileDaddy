@@ -439,7 +439,18 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Column="0" VerticalAlignment="Center" Source="{Binding Path=Category.Icon}" Margin="0,0,10,0" Stretch="Uniform" Height="35" Width="35"/>
-                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=CategoryName}" TextTrimming="WordEllipsis"/>
+                        <TextBlock Grid.ColumnSpan="2" VerticalAlignment="Center" Foreground="#f2f2f2" Text="{Binding Path=CategoryName}" TextTrimming="WordEllipsis">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Grid.Column" Value="1"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=Category.HasIcon}" Value="False">
+                                            <Setter Property="Grid.Column" Value="0"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </Grid>
                     <Popup MaxWidth="400" PlacementTarget="{Binding ElementName=Desc}" IsOpen="{Binding IsMouseDirectlyOver, ElementName=Desc, Mode=OneWay}" AllowsTransparency="True">
                         <Border CornerRadius="5" Panel.ZIndex="0" Margin="10">
@@ -671,7 +682,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate >
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Margin="0,0,2,0" VerticalAlignment="Center" Height="25" Source="{Binding Path=Image}"/>
+                                        <Image Margin="0,0,5,0" VerticalAlignment="Center" Height="25" Source="{Binding Path=Icon}"/>
                                         <TextBlock VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Text="{Binding Path=Name}"/>
                                     </StackPanel>
                                 </DataTemplate>
@@ -681,7 +692,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate >
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Margin="0,0,2,0" VerticalAlignment="Center" Height="25" Source="{Binding Path=Image}"/>
+                                        <Image Margin="0,0,5,0" VerticalAlignment="Center" Height="25" Source="{Binding Path=Icon}"/>
                                         <TextBlock VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Text="{Binding Path=Name}"/>
                                     </StackPanel>
                                 </DataTemplate>

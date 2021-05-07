@@ -215,7 +215,7 @@
             <Button Click="SelectButton_Click"  Margin="5" HorizontalContentAlignment="Stretch" Background="#494949">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
-                        <Setter Property="CornerRadius" Value="5"/>
+                        <Setter Property="CornerRadius" Value="2"/>
                     </Style>
                 </Button.Resources>
             <Grid VerticalAlignment="Center" x:Name="GridItem" Margin="3">
@@ -249,7 +249,7 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Padding="10,2,10,2" Background="Transparent" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="25" FontWeight="Bold" Name="TitleBox"/>
         <TextBlock Grid.Row="1" Margin="10,2,10,2" Background="Transparent" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16" Text="Multiple downloads were found, choose one:"/>
-        <ListView MaxHeight="600" Style="{StaticResource ListviewStyle}" Name="FileList" Grid.Row="2" Background="Transparent" BorderThickness="0" ItemTemplate="{StaticResource FileTemplate}">
+        <ListView MaxHeight="500" Style="{StaticResource ListviewStyle}" Name="FileList" Grid.Row="2" Background="Transparent" BorderThickness="0" ItemTemplate="{StaticResource FileTemplate}">
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -268,7 +268,7 @@
         <Button Grid.Row="3" HorizontalContentAlignment="Stretch" Margin="5" x:Name="CancelButton" Content=" Cancel" FontSize="18" FontWeight="Bold" HorizontalAlignment="Stretch"  VerticalAlignment="Bottom" Height="40"  Background="#494949" Foreground="#f2f2f2" Click="CancelButton_Click">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
-                    <Setter Property="CornerRadius" Value="5"/>
+                    <Setter Property="CornerRadius" Value="2"/>
                 </Style>
             </Button.Resources>
         </Button>

@@ -27,13 +27,15 @@ namespace FNF_Mod_Manager
             using (var httpClient = new HttpClient())
             {
                 httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
-                var requestUrl = GenerateUrl(page, filter, category, subcategory, pending, perPage);                
-                if (feed.ContainsKey(requestUrl))
+                var requestUrl = GenerateUrl(page, filter, category, subcategory, pending, perPage);               
+                if (feed.ContainsKey(requestUrl) && feed[requestUrl].IsValid)
                     return feed[requestUrl].Records;
                 var responseString = await httpClient.GetStringAsync(requestUrl);
                 var response = JsonSerializer.Deserialize<GameBananaModList>(responseString);
                 if (!feed.ContainsKey(requestUrl))
                     feed.Add(requestUrl, response);
+                else
+                    feed[requestUrl] = response;
                 return response.Records;
             }
         }

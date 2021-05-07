@@ -187,7 +187,7 @@ namespace FNF_Mod_Manager
         [JsonIgnore]
         public DateTime DateAdded => Epoch.AddSeconds(DateAddedLong);
         [JsonIgnore]
-        public string DateAddedFormatted => $"Added {StringConverters.FormatTimeAgo(DateTime.UtcNow - DateAdded)}";//{DateAdded.ToString("M/d/yyyy")}";
+        public string DateAddedFormatted => $"Added {StringConverters.FormatTimeAgo(DateTime.UtcNow - DateAdded)}";
         [JsonIgnore]
         public bool HasUpdates => DateAdded.CompareTo(DateUpdated) != 0;
         [JsonIgnore]
@@ -199,6 +199,10 @@ namespace FNF_Mod_Manager
         public GameBananaMetadata Metadata { get; set; }
         [JsonPropertyName("_aRecords")]
         public ObservableCollection<GameBananaRecord> Records { get; set; }
+        [JsonIgnore]
+        public DateTime TimeFetched = DateTime.UtcNow;
+        [JsonIgnore]
+        public bool IsValid => (DateTime.UtcNow - TimeFetched).TotalMinutes < 30;
     }
     public class GameBananaCategories
     {

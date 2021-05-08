@@ -609,146 +609,126 @@ namespace FNF_Mod_Manager
                 ID = null
             }
         }.ToList();
-        private async void OnTabSelected(object sender, RoutedEventArgs e)
+        private async void InitializeBrowser()
+        {
+            using (var httpClient = new HttpClient())
+            {
+                ErrorPanel.Visibility = Visibility.Collapsed;
+                // Initialize categories
+                var types = new string[] { "Mod", "Sound", "Wip" };
+                httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
+                var counter = 0;
+                foreach (var type in types)
+                {
+                    var requestUrl = $"https://gamebanana.com/apiv3/{type}Category/ByGame?_aGameRowIds[]=8694&_sRecordSchema=Custom" +
+                        "&_csvProperties=_idRow,_sName,_sProfileUrl,_sIconUrl,_idParentCategoryRow&_nPerpage=50&_bReturnMetadata=true";
+                    string responseString = "";
+                    try
+                    {
+                        responseString = await httpClient.GetStringAsync(requestUrl);
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        LoadingBar.Visibility = Visibility.Collapsed;
+                        ErrorPanel.Visibility = Visibility.Visible;
+                        BrowserRefreshButton.Visibility = Visibility.Visible;
+                        switch (Regex.Match(ex.Message, @"\d+").Value)
+                        {
+                            case "443":
+                                BrowserMessage.Text = "Your internet connection is sus...";
+                                break;
+                            default:
+                                BrowserMessage.Text = ex.Message;
+                                break;
+                        }
+                        return;
+                    }
+                    var response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                    cats.Add((TypeFilter)counter, response.Categories);
+                    // Make more requests if needed
+                    if (response.Metadata.TotalPages > 1)
+                    {
+                        for (int i = 2; i <= response.Metadata.TotalPages; i++)
+                        {
+                            var requestUrlPage = $"{requestUrl}&_nPage={i}";
+                            try
+                            {
+                                responseString = await httpClient.GetStringAsync(requestUrlPage);
+                            }
+                            catch (HttpRequestException ex)
+                            {
+                                LoadingBar.Visibility = Visibility.Collapsed;
+                                ErrorPanel.Visibility = Visibility.Visible;
+                                BrowserRefreshButton.Visibility = Visibility.Visible;
+                                switch (Regex.Match(ex.Message, @"\d+").Value)
+                                {
+                                    case "443":
+                                        BrowserMessage.Text = "Your internet connection is sus...";
+                                        break;
+                                    default:
+                                        BrowserMessage.Text = ex.Message;
+                                        break;
+                                }
+                                return;
+                            }
+                            response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                            cats[(TypeFilter)counter] = cats[(TypeFilter)counter].Concat(response.Categories).ToList();
+                        }
+                    }
+                    counter++;
+                }
+            }
+            CatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == 0).OrderBy(y => y.ID));
+            SubCatBox.ItemsSource = None;
+            filterSelect = true;
+            CatBox.SelectedIndex = 0;
+            SubCatBox.SelectedIndex = 0;
+            filterSelect = false;
+            InitBgs();
+            currentBg = new Random().Next(0, bgs.Count - 1);
+            BrowserBackground.Source = bgs[currentBg];
+            RefreshFilter();
+            selected = true;
+        }
+        private void OnTabSelected(object sender, RoutedEventArgs e)
         {
             if (!selected)
             {
-                // Initialize categories
-                using (var httpClient = new HttpClient())
-                {
-                    var types = new string[] { "Mod", "Sound", "Wip" };
-                    httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
-                    var counter = 0;
-                    foreach (var type in types)
-                    {
-                        var requestUrl = $"https://gamebanana.com/apiv3/{type}Category/ByGame?_aGameRowIds[]=8694&_sRecordSchema=Custom" +
-                            "&_csvProperties=_idRow,_sName,_sProfileUrl,_sIconUrl,_idParentCategoryRow&_nPerpage=50&_bReturnMetadata=true";
-                        string responseString = "";
-                        try
-                        {
-                            responseString = await httpClient.GetStringAsync(requestUrl);
-                        }
-                        catch (HttpRequestException ex)
-                        {
-                            LoadingBar.Visibility = Visibility.Collapsed;
-                            BrowserMessage.Visibility = Visibility.Visible;
-                            BrowserMessage.Text = ex.Message;
-                            return;
-                        }
-                        var response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
-                        cats.Add((TypeFilter)counter, response.Categories);
-                        // Make more requests if needed
-                        if (response.Metadata.TotalPages > 1)
-                        {
-                            for (int i = 2; i <= response.Metadata.TotalPages; i++)
-                            {
-                                var requestUrlPage = $"{requestUrl}&_nPage={i}";
-                                try
-                                {
-                                    responseString = await httpClient.GetStringAsync(requestUrlPage);
-                                }
-                                catch (HttpRequestException ex)
-                                {
-                                    LoadingBar.Visibility = Visibility.Collapsed;
-                                    BrowserMessage.Visibility = Visibility.Visible;
-                                    BrowserMessage.Text = ex.Message;
-                                    return;
-                                }
-                                response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
-                                cats[(TypeFilter)counter] = cats[(TypeFilter)counter].Concat(response.Categories).ToList();
-                            }
-                        }
-                        counter++;
-                    }
-                }
-                CatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == 0));
-                SubCatBox.ItemsSource = None;
-                filterSelect = true;
-                CatBox.SelectedIndex = 0;
-                SubCatBox.SelectedIndex = 0;
-                filterSelect = false;
-                Left.IsEnabled = false;
-                Right.IsEnabled = false;
-                LoadingBar.Visibility = Visibility.Visible;
-                FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                    (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-                Right.IsEnabled = true;
-                PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                    (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
-                PageBox.SelectedValue = page;
-                LoadingBar.Visibility = Visibility.Collapsed;
-                if (FeedBox.Items.Count > 0)
-                    FeedBox.ScrollIntoView(FeedBox.Items[0]);
-                FeedBox.Visibility = Visibility.Visible;
-                Page.Text = $"Page {page}";
-                InitBgs();
-                currentBg = new Random().Next(0, bgs.Count-1);
-                BrowserBackground.Source = bgs[currentBg];
-                selected = true;
+                InitializeBrowser();
             }
         }
         private static int page = 1;
-        private async void DecrementPage(object sender, RoutedEventArgs e)
+        private void DecrementPage(object sender, RoutedEventArgs e)
         {
-            if (--page == 1)
-                Left.IsEnabled = false;
-            Page.Text = $"Page {page}";
-            LoadingBar.Visibility = Visibility.Visible;
-            FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-            if (FeedGenerator.error)
-            {
-                LoadingBar.Visibility = Visibility.Collapsed;
-                BrowserMessage.Visibility = Visibility.Visible;
-                BrowserMessage.Text = FeedGenerator.exception.Message;
-                return;
-            }
-            if (page < FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
-                Right.IsEnabled = true;
-            LoadingBar.Visibility = Visibility.Collapsed;
-            if (FeedBox.Items.Count > 0)
-                FeedBox.ScrollIntoView(FeedBox.Items[0]);
-            FeedBox.Visibility = Visibility.Visible;
-            PageBox.ItemsSource = Enumerable.Range(1, FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages);
-            PageBox.SelectedValue = page;
+            --page;
+            RefreshFilter();
         }
-        private async void IncrementPage(object sender, RoutedEventArgs e)
+        private void IncrementPage(object sender, RoutedEventArgs e)
         {
-            if (++page != 1)
-                Left.IsEnabled = true;
-            Page.Text = $"Page {page}";
-            LoadingBar.Visibility = Visibility.Visible;
-            FeedBox.Visibility = Visibility.Collapsed;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-            if (FeedGenerator.error)
-            {
-                LoadingBar.Visibility = Visibility.Collapsed;
-                BrowserMessage.Visibility = Visibility.Visible;
-                BrowserMessage.Text = FeedGenerator.exception.Message;
-                return;
-            }
-            if (page >= FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
-                Right.IsEnabled = false;
-            LoadingBar.Visibility = Visibility.Collapsed;
-            if (FeedBox.Items.Count > 0)
-                FeedBox.ScrollIntoView(FeedBox.Items[0]);
-            FeedBox.Visibility = Visibility.Visible;
-            PageBox.SelectedValue = page;
+            ++page;
+            RefreshFilter();
+        }
+        private void BrowserRefresh(object sender, RoutedEventArgs e)
+        {
+            if (!selected)
+                InitializeBrowser();
+            else
+                RefreshFilter();
         }
         private static bool filterSelect;
+        private static Random rand = new Random();
         private async void RefreshFilter()
         {
+            FilterBox.IsEnabled = false;
             TypeBox.IsEnabled = false;
             CatBox.IsEnabled = false;
             SubCatBox.IsEnabled = false;
-            BrowserMessage.Visibility = Visibility.Collapsed;
-            page = 1;
+            Left.IsEnabled = false;
+            Right.IsEnabled = false;
+            PendingCheckbox.IsEnabled = false;
+            PageBox.IsEnabled = false;
+            PerPageBox.IsEnabled = false;
+            ErrorPanel.Visibility = Visibility.Collapsed;
             filterSelect = true;
             PageBox.SelectedValue = page;
             filterSelect = false;
@@ -762,13 +742,24 @@ namespace FNF_Mod_Manager
             if (FeedGenerator.error)
             {
                 LoadingBar.Visibility = Visibility.Collapsed;
-                BrowserMessage.Visibility = Visibility.Visible;
-                BrowserMessage.Text = FeedGenerator.exception.Message;
+                ErrorPanel.Visibility = Visibility.Visible;
+                BrowserRefreshButton.Visibility = Visibility.Visible;
+                switch (Regex.Match(FeedGenerator.exception.Message, @"\d+").Value)
+                {
+                    case "443":
+                        BrowserMessage.Text = "Your internet connection is sus...";
+                        break;
+                    default:
+                        BrowserMessage.Text = FeedGenerator.exception.Message;
+                        break;
+                }
                 return;
             }
             if (page < FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
                 Right.IsEnabled = true;
+            if (page != 1)
+                Left.IsEnabled = true;
             if (FeedBox.Items.Count > 0)
             {
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);
@@ -776,6 +767,8 @@ namespace FNF_Mod_Manager
             }
             else
             {
+                ErrorPanel.Visibility = Visibility.Visible;
+                BrowserRefreshButton.Visibility = Visibility.Collapsed;
                 BrowserMessage.Visibility = Visibility.Visible;
                 BrowserMessage.Text = "No mods found. Pain Peko T_T";
             }
@@ -785,19 +778,26 @@ namespace FNF_Mod_Manager
                 totalPages = 1;
             PageBox.ItemsSource = Enumerable.Range(1, totalPages);
             var range = Enumerable.Range(1, bgs.Count-1).Where(i => i != currentBg);
-            var index = new Random().Next(0, bgs.Count - 2);
+            var index = rand.Next(0, bgs.Count - 2);
             currentBg = range.ElementAt(index);
             BrowserBackground.Source = bgs[currentBg];
             LoadingBar.Visibility = Visibility.Collapsed;
             CatBox.IsEnabled = true;
             SubCatBox.IsEnabled = true;
             TypeBox.IsEnabled = true;
+            FilterBox.IsEnabled = true;
+            PendingCheckbox.IsEnabled = true;
+            PageBox.IsEnabled = true;
+            PerPageBox.IsEnabled = true;
         }
 
         private void FilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (IsLoaded)
+            {
+                page = 1;
                 RefreshFilter();
+            }
         }
         private void TypeFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -805,17 +805,18 @@ namespace FNF_Mod_Manager
             {
                 filterSelect = true;
                 if (cats[(TypeFilter)TypeBox.SelectedIndex].Any(x => x.RootID == 0))
-                    CatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == 0));
+                    CatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == 0).OrderBy(y => y.ID));
                 else
                     CatBox.ItemsSource = None;
                 CatBox.SelectedIndex = 0;
                 var cat = (GameBananaCategory)CatBox.SelectedValue;
                 if (cats[(TypeFilter)TypeBox.SelectedIndex].Any(x => x.RootID == cat.ID))
-                    SubCatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == cat.ID));
+                    SubCatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == cat.ID).OrderBy(y => y.ID));
                 else
                     SubCatBox.ItemsSource = None;
                 SubCatBox.SelectedIndex = 0;
                 filterSelect = false;
+                page = 1;
                 RefreshFilter();
             }
         }
@@ -826,18 +827,22 @@ namespace FNF_Mod_Manager
                 filterSelect = true;
                 var cat = (GameBananaCategory)CatBox.SelectedValue;
                 if (cats[(TypeFilter)TypeBox.SelectedIndex].Any(x => x.RootID == cat.ID))
-                    SubCatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == cat.ID));
+                    SubCatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == cat.ID).OrderBy(y => y.ID));
                 else
                     SubCatBox.ItemsSource = None;
                 SubCatBox.SelectedIndex = 0;
                 filterSelect = false;
+                page = 1;
                 RefreshFilter();
             }
         }
         private void SubFilterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!filterSelect && IsLoaded)
+            {
+                page = 1;
                 RefreshFilter();
+            }
         }
         private void UniformGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -852,40 +857,17 @@ namespace FNF_Mod_Manager
                 grid.Columns = 3;
         }
 
-        private async void PageBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void PageBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!filterSelect)
+            if (!filterSelect && IsLoaded)
             {
                 page = (int)PageBox.SelectedValue;
-                if (page != 1)
-                    Left.IsEnabled = true;
-                else
-                    Left.IsEnabled = false;
-                Page.Text = $"Page {page}";
-                LoadingBar.Visibility = Visibility.Visible;
-                FeedBox.Visibility = Visibility.Collapsed;
-                FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                    (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
-                if (FeedGenerator.error)
-                {
-                    LoadingBar.Visibility = Visibility.Collapsed;
-                    BrowserMessage.Visibility = Visibility.Visible;
-                    BrowserMessage.Text = FeedGenerator.exception.Message;
-                    return;
-                }
-                if (page >= FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                    (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
-                    Right.IsEnabled = false;
-                else
-                    Right.IsEnabled = true;
-                LoadingBar.Visibility = Visibility.Collapsed;
-                if (FeedBox.Items.Count > 0)
-                    FeedBox.ScrollIntoView(FeedBox.Items[0]);
-                FeedBox.Visibility = Visibility.Visible;
+                RefreshFilter();
             }
         }
         private void PendingCheckbox_Checked(object sender, RoutedEventArgs e)
         {
+            page = 1;
             RefreshFilter();
         }
     }

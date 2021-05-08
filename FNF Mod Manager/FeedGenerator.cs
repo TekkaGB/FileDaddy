@@ -35,7 +35,6 @@ namespace FNF_Mod_Manager
                 feed = new Dictionary<string, GameBananaModList>();
             using (var httpClient = new HttpClient())
             {
-                httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
                 var requestUrl = GenerateUrl(page, type, filter, category, subcategory, pending, perPage);               
                 if (feed.ContainsKey(requestUrl) && feed[requestUrl].IsValid)
                     return feed[requestUrl].Records;

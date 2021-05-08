@@ -334,6 +334,7 @@ namespace FNF_Mod_Manager
                     progressBox.Close();
                 }
                 MessageBox.Show($"Error whilst downloading {fileName}: {e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                cancelled = true;
             }
         }
 

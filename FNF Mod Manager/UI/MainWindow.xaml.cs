@@ -499,7 +499,7 @@ namespace FNF_Mod_Manager
                         BitmapImage bm = new BitmapImage(metadata.avi);
                         Image image = new Image();
                         image.Source = bm;
-                        image.Width = 20;
+                        image.Height = 35;
                         para.Inlines.Add(image);
                         para.Inlines.Add(" ");
                     }
@@ -508,7 +508,7 @@ namespace FNF_Mod_Manager
                         BitmapImage bm = new BitmapImage(metadata.upic);
                         Image image = new Image();
                         image.Source = bm;
-                        image.Width = 80;
+                        image.Height= 25;
                         para.Inlines.Add(image);
                     }
                     else
@@ -616,7 +616,6 @@ namespace FNF_Mod_Manager
                 ErrorPanel.Visibility = Visibility.Collapsed;
                 // Initialize categories
                 var types = new string[] { "Mod", "Sound", "Wip" };
-                httpClient.DefaultRequestHeaders.Add("Authorization", "FileDaddy");
                 var counter = 0;
                 foreach (var type in types)
                 {
@@ -635,7 +634,7 @@ namespace FNF_Mod_Manager
                         switch (Regex.Match(ex.Message, @"\d+").Value)
                         {
                             case "443":
-                                BrowserMessage.Text = "Your internet connection is sus...";
+                                BrowserMessage.Text = "Your internet connection is acting freaky.";
                                 break;
                             default:
                                 BrowserMessage.Text = ex.Message;
@@ -663,7 +662,7 @@ namespace FNF_Mod_Manager
                                 switch (Regex.Match(ex.Message, @"\d+").Value)
                                 {
                                     case "443":
-                                        BrowserMessage.Text = "Your internet connection is sus...";
+                                        BrowserMessage.Text = "Your internet connection is acting freaky.";
                                         break;
                                     default:
                                         BrowserMessage.Text = ex.Message;
@@ -747,7 +746,7 @@ namespace FNF_Mod_Manager
                 switch (Regex.Match(FeedGenerator.exception.Message, @"\d+").Value)
                 {
                     case "443":
-                        BrowserMessage.Text = "Your internet connection is sus...";
+                        BrowserMessage.Text = "Your internet connection is acting freaky.";
                         break;
                     default:
                         BrowserMessage.Text = FeedGenerator.exception.Message;
@@ -770,7 +769,7 @@ namespace FNF_Mod_Manager
                 ErrorPanel.Visibility = Visibility.Visible;
                 BrowserRefreshButton.Visibility = Visibility.Collapsed;
                 BrowserMessage.Visibility = Visibility.Visible;
-                BrowserMessage.Text = "No mods found. Pain Peko T_T";
+                BrowserMessage.Text = "FileDaddy couldn't find any funkin mods.";
             }
             var totalPages = FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages;

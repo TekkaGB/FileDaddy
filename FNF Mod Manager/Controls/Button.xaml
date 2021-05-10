@@ -34,7 +34,7 @@
                             <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Background" TargetName="border" Value="#353535"/>
+                            <Setter Property="Background" TargetName="border" Value="#101010"/>
                             <!--<Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>-->
                             <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#808080"/>
                         </Trigger>

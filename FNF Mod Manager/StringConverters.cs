@@ -31,7 +31,6 @@ namespace FNF_Mod_Manager
             else
                 return number.ToString();
         }
-
         public static string FormatTimeSpan(TimeSpan timeSpan)
         {
             if (timeSpan.TotalMinutes < 60)
@@ -103,7 +102,7 @@ namespace FNF_Mod_Manager
             {
                 if (cat == rootCat)
                 {
-                    rootCat = rootCat.Replace("xes", "xs");
+                    rootCat = rootCat.Replace("xes", "xs").Replace("xs/", "xes/");
                     return rootCat.Substring(0, rootCat.Length - 1);
                 }
                 else

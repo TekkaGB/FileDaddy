@@ -20,8 +20,8 @@ namespace FNF_Mod_Manager
     public enum TypeFilter
     {
         Mods,
-        Sounds,
-        WiPs
+        WiPs,
+        Sounds
     }
     public static class FeedGenerator
     {
@@ -77,7 +77,7 @@ namespace FNF_Mod_Manager
             if (category.ID != null)
                 url += "ByCategory?";
             else
-                url += "ByGame? _aGameRowIds[] = 8694&";
+                url += "ByGame?_aGameRowIds[]=8694&";
             // Consistent args
             url += $"&_aArgs[]=_sbIsNsfw = false&_sRecordSchema=FileDaddy&_bReturnMetadata=true&_nPerpage={perPage}";
             // Sorting filter

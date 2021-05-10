@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Text.Json.Serialization;
-using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace FNF_Mod_Manager
 {
@@ -143,11 +140,13 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_sProfileUrl")]
         public Uri Link { get; set; }
         [JsonIgnore]
-        public Uri Image => Media.Count > 0 ? new Uri($"{Media[0].Base}/{Media[0].File}") : new Uri("https://media.discordapp.net/attachments/792245872259235850/840324379250524220/SoundMod.png");
+        public Uri Image => Media.Count > 0 ? new Uri($"{Media[0].Base}/{Media[0].File}") : new Uri("https://images.gamebanana.com/static/img/DefaultEmbeddables/Sound.jpg");
         [JsonPropertyName("_aPreviewMedia")]
         public List<GameBananaImage> Media { get; set; }
         [JsonPropertyName("_sDescription")]
         public string Description { get; set; }
+        [JsonIgnore]
+        public bool HasDescription => Description.Length > 100;
         [JsonPropertyName("_nViewCount")]
         public int Views { get; set; }
         [JsonPropertyName("_nLikeCount")]
@@ -172,6 +171,8 @@ namespace FNF_Mod_Manager
         public GameBananaCategory RootCategory { get; set; }
         [JsonIgnore]
         public string CategoryName => StringConverters.FormatSingular(RootCategory.Name, Category.Name);
+        [JsonIgnore]
+        public bool HasLongCategoryName => CategoryName.Length > 30;
         [JsonIgnore]
         public bool Compatible => Files.Count > 0 && Category.ID != 3827 && Category.ID != 959;
 

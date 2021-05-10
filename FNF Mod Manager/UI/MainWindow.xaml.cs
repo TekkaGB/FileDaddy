@@ -615,7 +615,7 @@ namespace FNF_Mod_Manager
             {
                 ErrorPanel.Visibility = Visibility.Collapsed;
                 // Initialize categories
-                var types = new string[] { "Mod", "Sound", "Wip" };
+                var types = new string[] { "Mod", "Wip", "Sound" };
                 var counter = 0;
                 foreach (var type in types)
                 {
@@ -625,6 +625,7 @@ namespace FNF_Mod_Manager
                     try
                     {
                         responseString = await httpClient.GetStringAsync(requestUrl);
+                        responseString = Regex.Replace(responseString, @"""(\d+)""", @"$1");
                     }
                     catch (HttpRequestException ex)
                     {
@@ -642,7 +643,19 @@ namespace FNF_Mod_Manager
                         }
                         return;
                     }
-                    var response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                    GameBananaCategories response = new GameBananaCategories();
+                    try
+                    {
+                        response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                    }
+                    catch (Exception ex)
+                    {
+                        LoadingBar.Visibility = Visibility.Collapsed;
+                        ErrorPanel.Visibility = Visibility.Visible;
+                        BrowserRefreshButton.Visibility = Visibility.Visible;
+                        BrowserMessage.Text = "Uh oh! Something went wrong while deserializing the categories...";
+                        return;
+                    }
                     cats.Add((TypeFilter)counter, response.Categories);
                     // Make more requests if needed
                     if (response.Metadata.TotalPages > 1)
@@ -653,6 +666,7 @@ namespace FNF_Mod_Manager
                             try
                             {
                                 responseString = await httpClient.GetStringAsync(requestUrlPage);
+                                responseString = Regex.Replace(responseString, @"""(\d+)""", @"$1");
                             }
                             catch (HttpRequestException ex)
                             {
@@ -670,7 +684,18 @@ namespace FNF_Mod_Manager
                                 }
                                 return;
                             }
-                            response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                            try
+                            {
+                                response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                            }
+                            catch (Exception ex)
+                            {
+                                LoadingBar.Visibility = Visibility.Collapsed;
+                                ErrorPanel.Visibility = Visibility.Visible;
+                                BrowserRefreshButton.Visibility = Visibility.Visible;
+                                BrowserMessage.Text = "Uh oh! Something went wrong while deserializing the categories...";
+                                return;
+                            }
                             cats[(TypeFilter)counter] = cats[(TypeFilter)counter].Concat(response.Categories).ToList();
                         }
                     }
@@ -769,7 +794,7 @@ namespace FNF_Mod_Manager
                 ErrorPanel.Visibility = Visibility.Visible;
                 BrowserRefreshButton.Visibility = Visibility.Collapsed;
                 BrowserMessage.Visibility = Visibility.Visible;
-                BrowserMessage.Text = "FileDaddy couldn't find any funkin mods.";
+                BrowserMessage.Text = "FileDaddy couldn't find any funkin' mods.";
             }
             var totalPages = FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages;

@@ -96,12 +96,17 @@ namespace FNF_Mod_Manager
             bitmap.EndInit();
             Preview.Source = bitmap;
             PreviewBG.Source = null;
-
+            InitBgs();
+            currentBg = new Random().Next(0, bgs.Count - 1);
+            ManagerBackground.Source = bgs[currentBg];
+            BrowserBackground.Source = bgs[currentBg];
         }
         private static int currentBg;
-        private static List<BitmapImage> bgs = new List<BitmapImage>();
+        private static List<BitmapImage> bgs;
+        private static bool bgsInit = true;
         private static void InitBgs()
         {
+            bgs = new List<BitmapImage>();
             var bgUrls = new string[] {
             "https://media.discordapp.net/attachments/792245872259235850/838993673722658836/5.png?width=990&height=609",
             "https://media.discordapp.net/attachments/792245872259235850/838993671361396796/4.png?width=1440&height=545",
@@ -109,16 +114,18 @@ namespace FNF_Mod_Manager
             "https://media.discordapp.net/attachments/792245872259235850/838993665526464512/2.png?width=1075&height=609",
             "https://media.discordapp.net/attachments/792245872259235850/838993664046399558/1.png?width=931&height=609",
             "https://media.discordapp.net/attachments/792245872259235850/838993659172487178/6.png?width=1163&height=609"};
-            var bitmap = new BitmapImage();
             foreach (var bg in bgUrls)
             {
-                bitmap = new BitmapImage();
+                var bitmap = new BitmapImage();
+                bitmap.DownloadFailed += delegate { bgsInit = false; };
+                bitmap.DownloadCompleted += delegate { bgsInit = true; };
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri(bg);
                 bitmap.EndInit();
                 bgs.Add(bitmap);
             }
         }
+
         private void OnModified(object sender, FileSystemEventArgs e)
         {
             Refresh();
@@ -339,6 +346,20 @@ namespace FNF_Mod_Manager
                 LaunchButton.IsHitTestVisible = true;
                 OpenModsButton.IsHitTestVisible = true;
                 UpdateButton.IsHitTestVisible = true;
+                if (!bgsInit)
+                {
+                    InitBgs();
+                    currentBg = new Random().Next(0, bgs.Count - 1);
+                    ManagerBackground.Source = bgs[currentBg];
+                }
+                else
+                {
+                    var range = Enumerable.Range(1, bgs.Count - 1).Where(i => i != currentBg);
+                    var index = rand.Next(0, bgs.Count - 2);
+                    currentBg = range.ElementAt(index);
+                    ManagerBackground.Source = bgs[currentBg];
+                    BrowserBackground.Source = bgs[currentBg];
+                }
                 MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
@@ -356,7 +377,7 @@ namespace FNF_Mod_Manager
             });
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
             Application.Current.Shutdown();
         }
@@ -708,9 +729,6 @@ namespace FNF_Mod_Manager
             CatBox.SelectedIndex = 0;
             SubCatBox.SelectedIndex = 0;
             filterSelect = false;
-            InitBgs();
-            currentBg = new Random().Next(0, bgs.Count - 1);
-            BrowserBackground.Source = bgs[currentBg];
             RefreshFilter();
             selected = true;
         }
@@ -801,10 +819,20 @@ namespace FNF_Mod_Manager
             if (totalPages == 0)
                 totalPages = 1;
             PageBox.ItemsSource = Enumerable.Range(1, totalPages);
-            var range = Enumerable.Range(1, bgs.Count-1).Where(i => i != currentBg);
-            var index = rand.Next(0, bgs.Count - 2);
-            currentBg = range.ElementAt(index);
+
+            if (!bgsInit)
+            {
+                InitBgs();
+                currentBg = new Random().Next(0, bgs.Count - 1);
+            }
+            else
+            {
+                var range = Enumerable.Range(1, bgs.Count - 1).Where(i => i != currentBg);
+                var index = rand.Next(0, bgs.Count - 2);
+                currentBg = range.ElementAt(index);
+            }
             BrowserBackground.Source = bgs[currentBg];
+            ManagerBackground.Source = bgs[currentBg];
             LoadingBar.Visibility = Visibility.Collapsed;
             CatBox.IsEnabled = true;
             SubCatBox.IsEnabled = true;

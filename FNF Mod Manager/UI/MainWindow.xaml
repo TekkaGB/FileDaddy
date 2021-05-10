@@ -708,15 +708,26 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Button FontSize="14" Name="ConfigButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Config" Background="#494949" Foreground="#f2f2f2" Click="Config_Click"/>
-                        <Button FontSize="14" Name="BuildButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Content="Build" Background="#494949" Foreground="#f2f2f2" Click="Build_Click"/>
-                        <Button FontSize="14" Name="LaunchButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2" Content="Launch" Background="#494949" Foreground="#f2f2f2" Click="Launch_Click"/>
-                        <Button FontSize="14" Name="OpenModsButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="3" Content="Open Mods" Background="#494949" Foreground="#f2f2f2" Click="ModsFolder_Click"/>
-                        <Button FontSize="14" Name="UpdateButton"  Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="4" Content="Check for Updates" Background="#494949" Foreground="#f2f2f2" Click="Update_Click"/>
+                        <Image Panel.ZIndex="-3" Grid.RowSpan="5" Grid.ColumnSpan="5" x:Name="ManagerBackground" Stretch="UniformToFill" Source="../Assets/background.jpg" >
+                            <Image.BitmapEffect>
+                                <BlurBitmapEffect Radius="15" />
+                            </Image.BitmapEffect>
+                            <Image.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                    <TranslateTransform X="-150"/>
+                                </TransformGroup>
+                            </Image.RenderTransform>
+                        </Image>
+                        <Button FontSize="14" Name="ConfigButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Config" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2" Click="Config_Click"/>
+                        <Button FontSize="14" Name="BuildButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Content="Build" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2" Click="Build_Click"/>
+                        <Button FontSize="14" Name="LaunchButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2" Content="Launch" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2" Click="Launch_Click"/>
+                        <Button FontSize="14" Name="OpenModsButton" Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="3" Content="Open Mods" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2" Click="ModsFolder_Click"/>
+                        <Button FontSize="14" Name="UpdateButton"  Height="30" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="4" Content="Check for Updates" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2" Click="Update_Click"/>
                         
                         <Grid Grid.Row="1" Grid.ColumnSpan="5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1.5*"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
@@ -732,7 +743,7 @@
                                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#f2f2f2"/>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#4C1C74" />
                                     <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
-                                        <Setter Property="Background" Value="#494949" />
+                                        <Setter Property="Background" Value="#181818" />
                                         <Setter Property="Foreground" Value="#f2f2f2"/>
                                         <Setter Property="Height" Value="17"/>
                                         <Setter Property="FontSize" Value="12"/>
@@ -765,7 +776,7 @@
                                 </DataGrid.Columns>
 
                             </DataGrid>
-                            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="4" Background="Transparent"/>
+                            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="10" Background="Transparent"/>
                             <Grid Grid.Column="2">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1.5*"/>
@@ -785,7 +796,7 @@
                              FontWeight="Bold"/>
                             </Grid>
                         </Grid>
-                        <GridSplitter Grid.Row="2" Grid.ColumnSpan="5" HorizontalAlignment="Stretch" Height="4" Background="Transparent"/>
+                        <GridSplitter Grid.Row="2" Grid.ColumnSpan="5" HorizontalAlignment="Stretch" Height="10" Background="Transparent"/>
 
                         <RichTextBox FontFamily="{StaticResource Monospace}" FontSize="12" Margin="10,3,10,0" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="3" Grid.Column="0" 
                      VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="5" TextChanged="ScrollToBottom">

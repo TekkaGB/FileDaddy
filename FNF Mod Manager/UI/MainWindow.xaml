@@ -309,13 +309,13 @@
                                      Value="True">
                                         <Setter TargetName="Border"
                                         Property="Background"
-                                        Value="#303030" />
+                                        Value="#353535" />
                                     </Trigger>
                                     <Trigger Property="IsSelected"
                                      Value="True">
                                         <Setter TargetName="Border"
                                         Property="Background"
-                                        Value="#303030" />
+                                        Value="#353535" />
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>

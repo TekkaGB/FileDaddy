@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="FileDaddy" WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize" MinWidth="600"
-        Background="#1d1d1d" ShowActivated="True" Closing="Window_Closing" SizeToContent="WidthAndHeight">
+        Background="#202020" ShowActivated="True" Closing="Window_Closing" SizeToContent="WidthAndHeight">
     <Window.Resources>
         <DataTemplate x:Key="FileTemplate">
             <Button Click="SelectButton_Click"  Margin="5" HorizontalContentAlignment="Stretch" Background="#494949">

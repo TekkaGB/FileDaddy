@@ -283,7 +283,7 @@
 
     </Window.Resources>
     <Grid>
-        <TabControl Grid.ColumnSpan="5" Background="#1d1d1d" BorderBrush="#353535">
+        <TabControl Grid.ColumnSpan="5" Background="#202020" BorderBrush="#353535">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabItem}">
                     <Setter Property="Template">
@@ -296,7 +296,7 @@
                                     <Border x:Name="Border"
                                             Width="Auto" MinWidth="100" MinHeight="30"
                                             VerticalAlignment="Bottom"
-                                            Background="#303030" BorderBrush="#353535" BorderThickness="0,0,0,0" CornerRadius="6,6,0,0"
+                                            Background="#1d1d1d" BorderBrush="#353535" BorderThickness="0,0,0,0" CornerRadius="6,6,0,0"
                                             Cursor="Hand">
                                         <ContentPresenter x:Name="ContentSite"
                                                           Width="Auto" Height="Auto"
@@ -309,13 +309,13 @@
                                      Value="True">
                                         <Setter TargetName="Border"
                                         Property="Background"
-                                        Value="#1d1d1d" />
+                                        Value="#303030" />
                                     </Trigger>
                                     <Trigger Property="IsSelected"
                                      Value="True">
                                         <Setter TargetName="Border"
                                         Property="Background"
-                                        Value="#1d1d1d" />
+                                        Value="#303030" />
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>

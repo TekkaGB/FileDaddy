@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FNF_Mod_Manager"
-        mc:Ignorable="d" Background="#1d1d1d" WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d" Background="#202020" WindowStartupLocation="CenterScreen"
         Title="Config" Height="140" Width="500" MinHeight="140" MinWidth="500">
     <Grid>
         <Grid.ColumnDefinitions>

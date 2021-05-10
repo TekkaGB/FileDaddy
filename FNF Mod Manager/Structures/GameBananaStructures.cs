@@ -140,7 +140,8 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_sProfileUrl")]
         public Uri Link { get; set; }
         [JsonIgnore]
-        public Uri Image => Media.Count > 0 ? new Uri($"{Media[0].Base}/{Media[0].File}") : new Uri("https://images.gamebanana.com/static/img/DefaultEmbeddables/Sound.jpg");
+        public Uri Image => Media.Count > 0 ? new Uri($"{Media[0].Base}/{Media[0].File}") 
+            : new Uri("https://media.discordapp.net/attachments/792245872259235850/841352390552190986/Sound.png");
         [JsonPropertyName("_aPreviewMedia")]
         public List<GameBananaImage> Media { get; set; }
         [JsonPropertyName("_sDescription")]

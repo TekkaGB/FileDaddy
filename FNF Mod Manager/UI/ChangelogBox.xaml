@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FNF_Mod_Manager"
         Title="Changelog"
-        Background="#1d1d1d" ShowActivated="True" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+        Background="#202020" ShowActivated="True" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <Window.Resources>
         <local:CategoryColorConverter x:Key="CategoryColorConverter"/>
     </Window.Resources>

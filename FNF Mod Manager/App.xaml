@@ -6,6 +6,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Controls/Button.xaml"/>
+                <ResourceDictionary Source="Controls/ComboBox.xaml"/>
+                <ResourceDictionary Source="Controls/ScrollViewer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

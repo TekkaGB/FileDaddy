@@ -96,14 +96,10 @@ namespace FNF_Mod_Manager
             bitmap.EndInit();
             Preview.Source = bitmap;
             PreviewBG.Source = null;
-            InitBgs();
-            currentBg = new Random().Next(0, bgs.Count - 1);
-            ManagerBackground.Source = bgs[currentBg];
-            BrowserBackground.Source = bgs[currentBg];
         }
         private static int currentBg;
         private static List<BitmapImage> bgs;
-        private static bool bgsInit = true;
+        private static bool bgsInit = false;
         private static void InitBgs()
         {
             bgs = new List<BitmapImage>();
@@ -346,20 +342,6 @@ namespace FNF_Mod_Manager
                 LaunchButton.IsHitTestVisible = true;
                 OpenModsButton.IsHitTestVisible = true;
                 UpdateButton.IsHitTestVisible = true;
-                if (!bgsInit)
-                {
-                    InitBgs();
-                    currentBg = new Random().Next(0, bgs.Count - 1);
-                    ManagerBackground.Source = bgs[currentBg];
-                }
-                else
-                {
-                    var range = Enumerable.Range(1, bgs.Count - 1).Where(i => i != currentBg);
-                    var index = rand.Next(0, bgs.Count - 2);
-                    currentBg = range.ElementAt(index);
-                    ManagerBackground.Source = bgs[currentBg];
-                    BrowserBackground.Source = bgs[currentBg];
-                }
                 MessageBox.Show($@"Finished building loadout and ready to launch!", "Notification", MessageBoxButton.OK);
             }
             else
@@ -832,7 +814,6 @@ namespace FNF_Mod_Manager
                 currentBg = range.ElementAt(index);
             }
             BrowserBackground.Source = bgs[currentBg];
-            ManagerBackground.Source = bgs[currentBg];
             LoadingBar.Visibility = Visibility.Collapsed;
             CatBox.IsEnabled = true;
             SubCatBox.IsEnabled = true;

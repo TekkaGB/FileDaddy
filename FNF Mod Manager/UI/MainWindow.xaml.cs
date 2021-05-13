@@ -640,6 +640,11 @@ namespace FNF_Mod_Manager
                             case "443":
                                 BrowserMessage.Text = "Your internet connection is acting freaky.";
                                 break;
+                            case "500":
+                            case "503":
+                            case "504":
+                                BrowserMessage.Text = "GameBanana's servers are funkin' up.";
+                                break;
                             default:
                                 BrowserMessage.Text = ex.Message;
                                 break;
@@ -659,7 +664,8 @@ namespace FNF_Mod_Manager
                         BrowserMessage.Text = "Uh oh! Something went wrong while deserializing the categories...";
                         return;
                     }
-                    cats.Add((TypeFilter)counter, response.Categories);
+                    if (!cats.ContainsKey((TypeFilter)counter))
+                        cats.Add((TypeFilter)counter, response.Categories);
                     // Make more requests if needed
                     if (response.Metadata.TotalPages > 1)
                     {
@@ -680,6 +686,11 @@ namespace FNF_Mod_Manager
                                 {
                                     case "443":
                                         BrowserMessage.Text = "Your internet connection is acting freaky.";
+                                        break;
+                                    case "500":
+                                    case "503":
+                                    case "504":
+                                        BrowserMessage.Text = "GameBanana's servers are funkin' up.";
                                         break;
                                     default:
                                         BrowserMessage.Text = ex.Message;
@@ -705,7 +716,7 @@ namespace FNF_Mod_Manager
                     counter++;
                 }
             }
-            CatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == 0).OrderBy(y => y.ID));
+            CatBox.ItemsSource = All.Concat(cats[(TypeFilter)TypeBox.SelectedIndex].Where(x => x.RootID == 0 && x.HasIcon).OrderBy(y => y.ID));
             SubCatBox.ItemsSource = None;
             filterSelect = true;
             CatBox.SelectedIndex = 0;
@@ -772,6 +783,11 @@ namespace FNF_Mod_Manager
                 {
                     case "443":
                         BrowserMessage.Text = "Your internet connection is acting freaky.";
+                        break;
+                    case "500":
+                    case "503":
+                    case "504":
+                        BrowserMessage.Text = "GameBanana's servers are funkin' up.";
                         break;
                     default:
                         BrowserMessage.Text = FeedGenerator.exception.Message;

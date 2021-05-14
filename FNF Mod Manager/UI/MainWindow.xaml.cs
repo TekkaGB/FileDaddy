@@ -167,7 +167,7 @@ namespace FNF_Mod_Manager
             App.Current.Dispatcher.Invoke((Action)delegate
             {
                 ModGrid.ItemsSource = ModList;
-                Stats.Text = $"{ModList.Count} mods • {Directory.GetFiles($@"{assemblyLocation}/Mods", "*", SearchOption.AllDirectories).Length} files • " +
+                Stats.Text = $"{ModList.Count} mods • {Directory.GetFiles($@"{assemblyLocation}/Mods", "*", SearchOption.AllDirectories).Length.ToString("N0"} files • " +
                 $"{StringConverters.FormatSize(new DirectoryInfo($@"{assemblyLocation}/Mods").GetDirectorySize())}";
             });
             config.ModList = ModList;

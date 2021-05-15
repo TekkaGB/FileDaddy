@@ -416,7 +416,7 @@
                              FontWeight="Bold"/>
                             </Grid>
                         </Grid>
-                        <GridSplitter Grid.Row="1" Grid.ColumnSpan="6" HorizontalAlignment="Stretch" Height="10" Background="Transparent" Margin="0,406,0,0" Grid.RowSpan="2"/>
+                        <GridSplitter Grid.Row="2" Grid.ColumnSpan="6" HorizontalAlignment="Stretch" Height="10" Background="Transparent" />
 
                         <RichTextBox FontFamily="{StaticResource Monospace}" FontSize="12" Margin="10,3,10,10" Name="ConsoleWindow" Background="#202020" BorderBrush="#424242" ClipToBounds="False" Grid.Row="3" Grid.Column="0" VerticalScrollBarVisibility="Auto" IsReadOnly="True" Grid.ColumnSpan="6" TextChanged="ScrollToBottom">
                             <RichTextBox.Resources>

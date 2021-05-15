@@ -23,8 +23,8 @@
         <Label Grid.Row="2" x:Name="VersionLabel" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17" Foreground="White"/>
         <Image Grid.Row="1" Name="PreviewImage" HorizontalAlignment="Center" Width="350" Visibility="Collapsed"/>
         <DataGrid Grid.Row="3" x:Name="ChangesGrid" HorizontalAlignment="Center" Margin="25,0, 25, 10" RowBackground="#202020" Background="#202020" BorderBrush="Transparent" Foreground="White" 
-                  VerticalAlignment="Center" FontSize="13" HeadersVisibility="None" AutoGenerateColumns="False" VerticalScrollBarVisibility="Auto" MaxHeight="500"
-                  HorizontalScrollBarVisibility="Disabled" GridLinesVisibility="None">
+                  VerticalAlignment="Center" FontSize="13" HeadersVisibility="None" AutoGenerateColumns="False" VerticalScrollBarVisibility="Auto" MaxHeight="150"
+                  HorizontalScrollBarVisibility="Disabled" GridLinesVisibility="None" VerticalContentAlignment="Top">
             <DataGrid.Columns>
                 <DataGridTemplateColumn IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
@@ -76,7 +76,9 @@
             </DataGrid.RowStyle>
 
         </DataGrid>
-        <TextBlock MaxWidth="500" Grid.Row="4" x:Name="UpdateText" Padding="10" Foreground="White"  VerticalAlignment="Center"  TextWrapping="Wrap" FontSize="15"/>
+        <ScrollViewer Grid.Row="4" MaxHeight="150" VerticalScrollBarVisibility="Auto">
+        <TextBlock MaxWidth="500" Name="UpdateText" Padding="10" Foreground="White" VerticalAlignment="Center"  TextWrapping="Wrap" FontSize="15"/>
+        </ScrollViewer>
         <TextBlock MaxWidth="500" Grid.Row="5" Padding="10" Foreground="White" TextAlignment="Center" Text="Would you like to update?" VerticalAlignment="Center"  TextWrapping="Wrap" FontSize="15"/>
         <Grid Grid.Row="6" Grid.Column="1" Margin="0, 0, 0, 15">
             <Grid.ColumnDefinitions>

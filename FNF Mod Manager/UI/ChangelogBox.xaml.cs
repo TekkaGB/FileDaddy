@@ -18,7 +18,6 @@ namespace FNF_Mod_Manager.UI
         public bool YesNo = false;
         public bool Skip = false;
 
-        // TODO: Check how FileDaddy update looks like
         public ChangelogBox(GameBananaItemUpdate update, string packageName, string text, Uri preview, bool skip = false)
         {
             InitializeComponent();
@@ -33,12 +32,7 @@ namespace FNF_Mod_Manager.UI
             }
             else
             {
-                Assembly asm = Assembly.GetExecutingAssembly();
-                Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.StreamSource = iconStream;
-                bitmap.EndInit();
+                var bitmap = new BitmapImage(new Uri("pack://application:,,,/FileDaddy;component/Assets/fdpreview.png"));
                 PreviewImage.Source = bitmap;
                 PreviewImage.Visibility = Visibility.Visible;
             }
@@ -46,8 +40,9 @@ namespace FNF_Mod_Manager.UI
             Title = $"{packageName} Changelog";
             VersionLabel.Content = $"Update: {update.Title}";
             Text.Text = text;
-            // Remove html tags
-            UpdateText.Text = Regex.Replace(update.Text, "<.*?>", string.Empty).Replace("&nbsp;", " ");
+            // Format/Remove html tags
+            update.Text = update.Text.Replace("<br>", "\n").Replace("&nbsp;", " ");
+            UpdateText.Text = Regex.Replace(update.Text, "<.*?>", string.Empty);
             if (UpdateText.Text.Length == 0)
                 UpdateText.Visibility = Visibility.Collapsed;
             if (skip)

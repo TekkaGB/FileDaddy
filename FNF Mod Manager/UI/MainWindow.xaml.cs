@@ -86,13 +86,7 @@ namespace FNF_Mod_Manager
 
             defaultFlow.Blocks.Add(ConvertToFlowDocument(defaultText));
             DescriptionWindow.Document = defaultFlow;
-            Assembly asm = Assembly.GetExecutingAssembly();
-            Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.StreamSource = iconStream;
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.EndInit();
+            var bitmap = new BitmapImage(new Uri("pack://application:,,,/FileDaddy;component/Assets/fdpreview.png"));
             Preview.Source = bitmap;
             PreviewBG.Source = null;
         }
@@ -476,13 +470,7 @@ namespace FNF_Mod_Manager
             if (mod == null || !File.Exists($"{assemblyLocation}/Mods/{mod}/mod.json"))
             {
                 DescriptionWindow.Document = defaultFlow;
-                Assembly asm = Assembly.GetExecutingAssembly();
-                Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.StreamSource = iconStream;
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
+                var bitmap = new BitmapImage(new Uri("pack://application:,,,/FileDaddy;component/Assets/fdpreview.png"));
                 Preview.Source = bitmap;
                 PreviewBG.Source = null;
             }
@@ -528,13 +516,7 @@ namespace FNF_Mod_Manager
                 }
                 else
                 {
-                    Assembly asm = Assembly.GetExecutingAssembly();
-                    Stream iconStream = asm.GetManifestResourceStream("FNF_Mod_Manager.Assets.fdpreview.png");
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.StreamSource = iconStream;
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.EndInit();
+                    var bitmap = new BitmapImage(new Uri("pack://application:,,,/FileDaddy;component/Assets/fdpreview.png"));
                     Preview.Source = bitmap;
                     PreviewBG.Source = null;
                 }

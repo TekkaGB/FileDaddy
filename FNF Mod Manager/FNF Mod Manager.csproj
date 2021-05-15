@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Assets\Fd.ico</ApplicationIcon>
     <AssemblyName>FileDaddy</AssemblyName>
-    <AssemblyVersion>1.5.1.0</AssemblyVersion>
+    <AssemblyVersion>1.5.2.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Assets\fdpreview.png" />
+    <Resource Include="Assets\fdpreview.png" />
     <Resource Include="Assets\GameBanana.png" />
     <Resource Include="Assets\RobotoMono-Regular.ttf" />
   </ItemGroup>

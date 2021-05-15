@@ -11,6 +11,8 @@ using System.Reflection;
 using System.Windows;
 using SharpCompress.Common;
 using SharpCompress.Readers;
+using SharpCompress.Archives.SevenZip;
+using SharpCompress.Archives;
 
 namespace FNF_Mod_Manager
 {
@@ -310,19 +312,36 @@ namespace FNF_Mod_Manager
                 {
                     try
                     {
-                        using (Stream stream = File.OpenRead(_ArchiveSource))
-                        using (var reader = ReaderFactory.Open(stream))
+                        if (Path.GetExtension(_ArchiveSource).Equals(".7z", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            while (reader.MoveToNextEntry())
+                            using (var archive = SevenZipArchive.Open(_ArchiveSource))
                             {
-                                if (!reader.Entry.IsDirectory)
+                                foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
                                 {
-                                    Console.WriteLine(reader.Entry.Key);
-                                    reader.WriteEntryToDirectory(ArchiveDestination, new ExtractionOptions()
+                                    entry.WriteToDirectory(ArchiveDestination, new ExtractionOptions()
                                     {
                                         ExtractFullPath = true,
                                         Overwrite = true
                                     });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            using (Stream stream = File.OpenRead(_ArchiveSource))
+                            using (var reader = ReaderFactory.Open(stream))
+                            {
+                                while (reader.MoveToNextEntry())
+                                {
+                                    if (!reader.Entry.IsDirectory)
+                                    {
+                                        Console.WriteLine(reader.Entry.Key);
+                                        reader.WriteEntryToDirectory(ArchiveDestination, new ExtractionOptions()
+                                        {
+                                            ExtractFullPath = true,
+                                            Overwrite = true
+                                        });
+                                    }
                                 }
                             }
                         }

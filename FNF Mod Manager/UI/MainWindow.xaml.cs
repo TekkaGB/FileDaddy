@@ -46,7 +46,6 @@ namespace FNF_Mod_Manager
             // Get Version Number
             var FNFMMVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
             version = FNFMMVersion.Substring(0, FNFMMVersion.LastIndexOf('.'));
-            Title = $"FileDaddy v{version}";
 
             logger.WriteLine($"Launched FileDaddy v{version}!", LoggerType.Info);
             // Get config if it exists
@@ -168,7 +167,7 @@ namespace FNF_Mod_Manager
             {
                 ModGrid.ItemsSource = ModList;
                 Stats.Text = $"{ModList.Count} mods • {Directory.GetFiles($@"{assemblyLocation}/Mods", "*", SearchOption.AllDirectories).Length.ToString("N0")} files • " +
-                $"{StringConverters.FormatSize(new DirectoryInfo($@"{assemblyLocation}/Mods").GetDirectorySize())}";
+                $"{StringConverters.FormatSize(new DirectoryInfo($@"{assemblyLocation}/Mods").GetDirectorySize())} • v{version}";
             });
             config.ModList = ModList;
             logger.WriteLine("Refreshed!", LoggerType.Info);

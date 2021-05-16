@@ -632,12 +632,20 @@ namespace FNF_Mod_Manager
                         }
                         return;
                     }
+                    catch (Exception ex)
+                    {
+                        LoadingBar.Visibility = Visibility.Collapsed;
+                        ErrorPanel.Visibility = Visibility.Visible;
+                        BrowserRefreshButton.Visibility = Visibility.Visible;
+                        BrowserMessage.Text = ex.Message;
+                        return;
+                    }
                     GameBananaCategories response = new GameBananaCategories();
                     try
                     {
                         response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         LoadingBar.Visibility = Visibility.Collapsed;
                         ErrorPanel.Visibility = Visibility.Visible;
@@ -677,6 +685,14 @@ namespace FNF_Mod_Manager
                                         BrowserMessage.Text = ex.Message;
                                         break;
                                 }
+                                return;
+                            }
+                            catch (Exception ex)
+                            {
+                                LoadingBar.Visibility = Visibility.Collapsed;
+                                ErrorPanel.Visibility = Visibility.Visible;
+                                BrowserRefreshButton.Visibility = Visibility.Visible;
+                                BrowserMessage.Text = ex.Message;
                                 return;
                             }
                             try

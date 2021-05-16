@@ -43,7 +43,7 @@ namespace FNF_Mod_Manager
                 {
                     responseString = await httpClient.GetStringAsync(requestUrl);
                 }
-                catch (HttpRequestException e)
+                catch (Exception e)
                 {
                     error = true;
                     exception = e;

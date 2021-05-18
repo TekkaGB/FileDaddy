@@ -84,7 +84,7 @@ namespace FNF_Mod_Manager
 
             ModsWatcher.EnableRaisingEvents = true;
 
-            defaultFlow.Blocks.Add(ConvertToFlowDocument(defaultText));
+            defaultFlow.Blocks.Add(ConvertToFlowParagraph(defaultText));
             DescriptionWindow.Document = defaultFlow;
             var bitmap = new BitmapImage(new Uri("pack://application:,,,/FileDaddy;component/Assets/fdpreview.png"));
             Preview.Source = bitmap;
@@ -424,7 +424,7 @@ namespace FNF_Mod_Manager
             UpdateButton.IsHitTestVisible = false;
             ModUpdater.CheckForUpdates($"{assemblyLocation}/Mods", logger, this);
         }
-        private Paragraph ConvertToFlowDocument(string text)
+        private Paragraph ConvertToFlowParagraph(string text)
         {
             var flowDocument = new FlowDocument();
 
@@ -537,7 +537,7 @@ namespace FNF_Mod_Manager
                     text += $"Description: {metadata.description}\n\n";
                 if (metadata.homepage != null && metadata.homepage.ToString().Length > 0)
                     text += $"Home Page: {metadata.homepage}";
-                var init = ConvertToFlowDocument(text);
+                var init = ConvertToFlowParagraph(text);
                 descFlow.Blocks.Add(init);
                 DescriptionWindow.Document = descFlow;
                 var descriptionText = new TextRange(DescriptionWindow.Document.ContentStart, DescriptionWindow.Document.ContentEnd);
@@ -574,6 +574,111 @@ namespace FNF_Mod_Manager
             {
                 logger.WriteLine($"Couldn't open up {item.Link} ({ex.Message})", LoggerType.Error);
             }
+        }
+        private int imageCounter;
+        private int imageCount;
+        private FlowDocument ConvertToFlowDocument(string text)
+        {
+            var flowDocument = new FlowDocument();
+
+            var regex = new Regex(@"(https?:\/\/[^\s]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            var matches = regex.Matches(text).Cast<Match>().Select(m => m.Value).ToList();
+
+            var paragraph = new Paragraph();
+            flowDocument.Blocks.Add(paragraph);
+
+
+            foreach (var segment in regex.Split(text))
+            {
+                if (matches.Contains(segment))
+                {
+                    var hyperlink = new Hyperlink(new Run(segment))
+                    {
+                        NavigateUri = new Uri(segment),
+                    };
+
+                    hyperlink.RequestNavigate += (sender, args) => Process.Start(segment);
+
+                    paragraph.Inlines.Add(hyperlink);
+                }
+                else
+                {
+                    paragraph.Inlines.Add(new Run(segment));
+                }
+            }
+
+            return flowDocument;
+        }
+        private void MoreInfo_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            var item = button.DataContext as GameBananaRecord;
+            DescPanel.DataContext = button.DataContext;
+            DescText.ScrollToHome();
+            var text = "";
+            if (!item.Compatible)
+                text += "This mod can't be installed directly through FileDaddy. Download it from the Mod Page and follow the installation instructions.\n\n";
+            text += item.ConvertedText;
+            DescText.Document = ConvertToFlowDocument(text);
+            ImageLeft.IsEnabled = true;
+            ImageRight.IsEnabled = true;
+            imageCount = item.Media.Count;
+            imageCounter = 0;
+            if (imageCount > 0)
+            {
+                Grid.SetColumnSpan(DescText, 1);
+                ImagePanel.Visibility = Visibility.Visible;
+                Screenshot.Source = new BitmapImage(new Uri($"{item.Media[imageCounter].Base}/{item.Media[imageCounter].File}"));
+                CaptionText.Text = item.Media[imageCounter].Caption;
+                if (CaptionText.Text != null)
+                    CaptionText.Visibility = Visibility.Visible;
+                else
+                    CaptionText.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                Grid.SetColumnSpan(DescText, 2);
+                ImagePanel.Visibility = Visibility.Collapsed;
+            }
+            if (imageCount == 1)
+            {
+                ImageLeft.IsEnabled = false;
+                ImageRight.IsEnabled = false;
+            }
+
+            DescPanel.Visibility = Visibility.Visible;
+        }
+        private void CloseDesc_Click(object sender, RoutedEventArgs e)
+        {
+            DescPanel.Visibility = Visibility.Collapsed;
+        }
+
+        private void ImageLeft_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            var item = button.DataContext as GameBananaRecord;
+            if (--imageCounter == -1)
+                imageCounter = imageCount - 1;
+            Screenshot.Source = new BitmapImage(new Uri($"{item.Media[imageCounter].Base}/{item.Media[imageCounter].File}"));
+            CaptionText.Text = item.Media[imageCounter].Caption;
+            if (CaptionText.Text != null)
+                CaptionText.Visibility = Visibility.Visible;
+            else
+                CaptionText.Visibility = Visibility.Collapsed;
+        }
+
+        private void ImageRight_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            var item = button.DataContext as GameBananaRecord;
+            if (++imageCounter == imageCount)
+                imageCounter = 0;
+            Screenshot.Source = new BitmapImage(new Uri($"{item.Media[imageCounter].Base}/{item.Media[imageCounter].File}"));
+            CaptionText.Text = item.Media[imageCounter].Caption;
+            if (CaptionText.Text != null)
+                CaptionText.Visibility = Visibility.Visible;
+            else
+                CaptionText.Visibility = Visibility.Collapsed;
         }
         private static bool selected = false;
         private static Dictionary<TypeFilter, List<GameBananaCategory>> cats = new Dictionary<TypeFilter, List<GameBananaCategory>>();
@@ -776,6 +881,11 @@ namespace FNF_Mod_Manager
                 LoadingBar.Visibility = Visibility.Collapsed;
                 ErrorPanel.Visibility = Visibility.Visible;
                 BrowserRefreshButton.Visibility = Visibility.Visible;
+                if (FeedGenerator.exception.Message.Contains("JSON tokens"))
+                {
+                    BrowserMessage.Text = "Uh oh! FileDaddy failed to deserialize the GameBanana feed.";
+                    return;
+                }
                 switch (Regex.Match(FeedGenerator.exception.Message, @"\d+").Value)
                 {
                     case "443":

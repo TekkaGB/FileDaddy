@@ -49,7 +49,17 @@ namespace FNF_Mod_Manager
                     exception = e;
                     return null;
                 }
-                var response = JsonSerializer.Deserialize<GameBananaModList>(responseString);
+                GameBananaModList response = new GameBananaModList();
+                try
+                {
+                    response = JsonSerializer.Deserialize<GameBananaModList>(responseString);
+                }
+                catch (Exception e)
+                {
+                    error = true;
+                    exception = e;
+                    return null;
+                }
                 if (!feed.ContainsKey(requestUrl))
                     feed.Add(requestUrl, response);
                 else

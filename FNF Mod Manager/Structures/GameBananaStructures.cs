@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace FNF_Mod_Manager
 {
@@ -148,6 +149,13 @@ namespace FNF_Mod_Manager
         public string Description { get; set; }
         [JsonIgnore]
         public bool HasDescription => Description.Length > 100;
+        [JsonPropertyName("_sText")]
+        public string Text { get; set; }
+        [JsonIgnore]
+        public string ConvertedText => Regex.Replace(Regex.Replace(Text.Replace("<br>", "\n").Replace("&nbsp;", " ")
+            .Replace("<ul>", "\n").Replace("<li>", "• ").Replace(@"\u00a0", " ").Replace(@"</li>", "\n").Replace("&amp;", "&")
+            .Replace(@"</h3>", "\n").Replace(@"</h2>", "\n").Replace(@"</h1>", "\n"), "<.*?>", string.Empty),
+            "[\\r\\n]{3,}", "\n\n", RegexOptions.Multiline).Trim();
         [JsonPropertyName("_nViewCount")]
         public int Views { get; set; }
         [JsonPropertyName("_nLikeCount")]
@@ -228,5 +236,7 @@ namespace FNF_Mod_Manager
         public Uri Base { get; set; }
         [JsonPropertyName("_sFile")]
         public Uri File { get; set; }
+        [JsonPropertyName("_sCaption")]
+        public string Caption { get; set; }
     }
 }

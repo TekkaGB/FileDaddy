@@ -622,7 +622,7 @@ namespace FNF_Mod_Manager
             DescText.Document = ConvertToFlowDocument(text);
             ImageLeft.IsEnabled = true;
             ImageRight.IsEnabled = true;
-            imageCount = item.Media.Count;
+            imageCount = item.Media.Where(x => x.Type == "image").ToList().Count;
             imageCounter = 0;
             if (imageCount > 0)
             {
@@ -706,15 +706,22 @@ namespace FNF_Mod_Manager
                 // Initialize categories
                 var types = new string[] { "Mod", "Wip", "Sound" };
                 var counter = 0;
+                double totalPages = 0;
                 foreach (var type in types)
                 {
-                    var requestUrl = $"https://gamebanana.com/apiv3/{type}Category/ByGame?_aGameRowIds[]=8694&_sRecordSchema=Custom" +
-                        "&_csvProperties=_idRow,_sName,_sProfileUrl,_sIconUrl,_idParentCategoryRow&_nPerpage=50&_bReturnMetadata=true";
+                    var requestUrl = $"https://gamebanana.com/apiv4/{type}Category/ByGame?_aGameRowIds[]=8694&_sRecordSchema=Custom" +
+                        "&_csvProperties=_idRow,_sName,_sProfileUrl,_sIconUrl,_idParentCategoryRow&_nPerpage=50";
                     string responseString = "";
                     try
                     {
-                        responseString = await httpClient.GetStringAsync(requestUrl);
+                        var responseMessage = await httpClient.GetAsync(requestUrl);
+                        responseString = await responseMessage.Content.ReadAsStringAsync();
                         responseString = Regex.Replace(responseString, @"""(\d+)""", @"$1");
+                        var numRecords = responseMessage.GetHeader("X-GbApi-Metadata_nRecordCount");
+                        if (numRecords != -1)
+                        {
+                            totalPages = Math.Ceiling(numRecords / 50);
+                        }
                     }
                     catch (HttpRequestException ex)
                     {
@@ -745,10 +752,10 @@ namespace FNF_Mod_Manager
                         BrowserMessage.Text = ex.Message;
                         return;
                     }
-                    GameBananaCategories response = new GameBananaCategories();
+                    List<GameBananaCategory> response = new();
                     try
                     {
-                        response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                        response = JsonSerializer.Deserialize<List<GameBananaCategory>>(responseString);
                     }
                     catch (Exception)
                     {
@@ -759,11 +766,11 @@ namespace FNF_Mod_Manager
                         return;
                     }
                     if (!cats.ContainsKey((TypeFilter)counter))
-                        cats.Add((TypeFilter)counter, response.Categories);
+                        cats.Add((TypeFilter)counter, response);
                     // Make more requests if needed
-                    if (response.Metadata.TotalPages > 1)
+                    if (totalPages > 1)
                     {
-                        for (int i = 2; i <= response.Metadata.TotalPages; i++)
+                        for (double i = 2; i <= totalPages; i++)
                         {
                             var requestUrlPage = $"{requestUrl}&_nPage={i}";
                             try
@@ -802,7 +809,7 @@ namespace FNF_Mod_Manager
                             }
                             try
                             {
-                                response = JsonSerializer.Deserialize<GameBananaCategories>(responseString);
+                                response = JsonSerializer.Deserialize<List<GameBananaCategory>>(responseString);
                             }
                             catch (Exception ex)
                             {
@@ -812,7 +819,7 @@ namespace FNF_Mod_Manager
                                 BrowserMessage.Text = "Uh oh! Something went wrong while deserializing the categories...";
                                 return;
                             }
-                            cats[(TypeFilter)counter] = cats[(TypeFilter)counter].Concat(response.Categories).ToList();
+                            cats[(TypeFilter)counter] = cats[(TypeFilter)counter].Concat(response).ToList();
                         }
                     }
                     counter++;
@@ -874,8 +881,9 @@ namespace FNF_Mod_Manager
             FeedBox.Visibility = Visibility.Collapsed;
             Left.IsEnabled = false;
             Right.IsEnabled = false;
-            FeedBox.ItemsSource = await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem,
+            await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem,
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
+            FeedBox.ItemsSource = FeedGenerator.CurrentFeed.Records;
             if (FeedGenerator.error)
             {
                 LoadingBar.Visibility = Visibility.Collapsed;
@@ -902,8 +910,7 @@ namespace FNF_Mod_Manager
                 }
                 return;
             }
-            if (page < FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages)
+            if (page < FeedGenerator.CurrentFeed.TotalPages)
                 Right.IsEnabled = true;
             if (page != 1)
                 Left.IsEnabled = true;
@@ -919,11 +926,7 @@ namespace FNF_Mod_Manager
                 BrowserMessage.Visibility = Visibility.Visible;
                 BrowserMessage.Text = "FileDaddy couldn't find any funkin' mods.";
             }
-            var totalPages = FeedGenerator.GetMetadata(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem, 
-                (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10).TotalPages;
-            if (totalPages == 0)
-                totalPages = 1;
-            PageBox.ItemsSource = Enumerable.Range(1, totalPages);
+            PageBox.ItemsSource = Enumerable.Range(1, (int)(FeedGenerator.CurrentFeed.TotalPages));
 
             if (!bgsInit)
             {

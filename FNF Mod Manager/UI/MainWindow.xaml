@@ -454,7 +454,7 @@
                             </Border.Background>
                         </Border>
                         <Border Grid.ColumnSpan="2" BorderThickness="0">
-                            <TextBlock Grid.ColumnSpan="2" VerticalAlignment="Center" Text="{Binding Path=Title}" TextTrimming="WordEllipsis" Foreground="#f2f2f2" FontWeight="SemiBold" FontSize="45" Padding="6,3,3,3"/>
+                            <TextBlock Grid.ColumnSpan="2" VerticalAlignment="Center" Text="{Binding Path=Title}" TextTrimming="WordEllipsis" Foreground="#f2f2f2" FontWeight="SemiBold" FontSize="40" Padding="6,3,3,3"/>
                         </Border>
                         <StackPanel Name="ImagePanel" Visibility="Collapsed" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2">
                             <Grid HorizontalAlignment="Center" >
@@ -531,7 +531,7 @@
                         <CheckBox Name="PendingCheckbox" Unchecked="PendingCheckbox_Checked" Checked="PendingCheckbox_Checked"  Margin="0,0,10,0" VerticalAlignment="Center" />
                         <TextBlock Margin="0,0,15,0" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold">
                             Include<LineBreak/>
-                            Pending
+                            Upcoming
                         </TextBlock>
                         <Image Name="GB" VerticalAlignment="Center" HorizontalAlignment="Center" Height="45" Source="../Assets/GameBanana.png" Cursor="Hand" MouseLeftButtonDown="GameBanana_Click"/>
                     </StackPanel>

@@ -28,49 +28,59 @@ namespace FNF_Mod_Manager
         private static Dictionary<string, GameBananaModList> feed;
         public static bool error;
         public static Exception exception;
-        public static async Task<ObservableCollection<GameBananaRecord>> GetFeed(int page, TypeFilter type, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
+        public static GameBananaModList CurrentFeed;
+        public static double GetHeader(this HttpResponseMessage request, string key)
+        {
+            IEnumerable<string> keys = null;
+            if (!request.Headers.TryGetValues(key, out keys))
+                return -1;
+            return Double.Parse(keys.First());
+        }
+        public static async Task GetFeed(int page, TypeFilter type, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
         {
             error = false;
             if (feed == null)
                 feed = new Dictionary<string, GameBananaModList>();
             using (var httpClient = new HttpClient())
             {
-                var requestUrl = GenerateUrl(page, type, filter, category, subcategory, pending, perPage);               
+                var requestUrl = GenerateUrl(page, type, filter, category, subcategory, pending, perPage);
                 if (feed.ContainsKey(requestUrl) && feed[requestUrl].IsValid)
-                    return feed[requestUrl].Records;
-                string responseString = "";
+                {
+                    CurrentFeed = feed[requestUrl];
+                    return;
+                }
+                GameBananaModList modList = new();
                 try
                 {
-                    responseString = await httpClient.GetStringAsync(requestUrl);
+                    var response = await httpClient.GetAsync(requestUrl);
+                    var records = JsonSerializer.Deserialize<ObservableCollection<GameBananaRecord>>(await response.Content.ReadAsStringAsync());
+                    modList.Records = records;
+                    var numRecords = response.GetHeader("X-GbApi-Metadata_nRecordCount");
+                    if (numRecords != -1)
+                    {
+                        var totalPages = Math.Ceiling(numRecords / Convert.ToDouble(perPage));
+                        if (totalPages == 0)
+                            totalPages = 1;
+                        modList.TotalPages = totalPages;
+                    }
                 }
                 catch (Exception e)
                 {
                     error = true;
                     exception = e;
-                    return null;
-                }
-                GameBananaModList response = new GameBananaModList();
-                try
-                {
-                    response = JsonSerializer.Deserialize<GameBananaModList>(responseString);
-                }
-                catch (Exception e)
-                {
-                    error = true;
-                    exception = e;
-                    return null;
+                    return;
                 }
                 if (!feed.ContainsKey(requestUrl))
-                    feed.Add(requestUrl, response);
+                    feed.Add(requestUrl, modList);
                 else
-                    feed[requestUrl] = response;
-                return response.Records;
+                    feed[requestUrl] = modList;
+                CurrentFeed = modList;
             }
         }
         private static string GenerateUrl(int page, TypeFilter type, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
         {
             // Base
-            var url = "https://gamebanana.com/apiv3/";
+            var url = "https://gamebanana.com/apiv4/";
             switch (type)
             {
                 case TypeFilter.Mods:
@@ -89,7 +99,7 @@ namespace FNF_Mod_Manager
             else
                 url += "ByGame?_aGameRowIds[]=8694&";
             // Consistent args
-            url += $"&_aArgs[]=_sbIsNsfw = false&_sRecordSchema=FileDaddy&_bReturnMetadata=true&_nPerpage={perPage}";
+            url += $"&_aArgs[]=_sbIsNsfw = false&_sRecordSchema=FileDaddy&_nPerpage={perPage}";
             // Sorting filter
             switch (filter)
             {
@@ -111,18 +121,10 @@ namespace FNF_Mod_Manager
             
             // Include pending submissions
             if (pending)
-                url += "&_bIncludePending=true";
+                url += "&_bIncludeUpcoming=true";
             // Get page number
             url += $"&_nPage={page}";
             return url;
-        }
-        public static GameBananaMetadata GetMetadata(int page, TypeFilter type, FeedFilter filter, GameBananaCategory category, GameBananaCategory subcategory, bool pending, int perPage)
-        {
-            var url = GenerateUrl(page, type, filter, category, subcategory, pending, perPage);
-            if (feed.ContainsKey(url))
-                return feed[url].Metadata;
-            else
-                return null;
         }
     }
 }

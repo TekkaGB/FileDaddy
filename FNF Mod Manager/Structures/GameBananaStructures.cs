@@ -141,7 +141,7 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_sProfileUrl")]
         public Uri Link { get; set; }
         [JsonIgnore]
-        public Uri Image => Media.Count > 0 ? new Uri($"{Media[0].Base}/{Media[0].File}") 
+        public Uri Image => Media.Where(x => x.Type == "image").ToList().Count > 0 ? new Uri($"{Media[0].Base}/{Media[0].File}") 
             : new Uri("https://media.discordapp.net/attachments/792245872259235850/841352390552190986/Sound.png");
         [JsonPropertyName("_aPreviewMedia")]
         public List<GameBananaImage> Media { get; set; }
@@ -152,10 +152,7 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("_sText")]
         public string Text { get; set; }
         [JsonIgnore]
-        public string ConvertedText => Regex.Replace(Regex.Replace(Text.Replace("<br>", "\n").Replace("&nbsp;", " ")
-            .Replace("<ul>", "\n").Replace("<li>", "• ").Replace(@"\u00a0", " ").Replace(@"</li>", "\n").Replace("&amp;", "&")
-            .Replace(@"</h3>", "\n").Replace(@"</h2>", "\n").Replace(@"</h1>", "\n"), "<.*?>", string.Empty),
-            "[\\r\\n]{3,}", "\n\n", RegexOptions.Multiline).Trim();
+        public string ConvertedText => ConvertHtmlToText(Text);
         [JsonPropertyName("_nViewCount")]
         public int Views { get; set; }
         [JsonPropertyName("_nLikeCount")]
@@ -202,36 +199,46 @@ namespace FNF_Mod_Manager
         public bool HasUpdates => DateAdded.CompareTo(DateUpdated) != 0;
         [JsonIgnore]
         public string DateUpdatedAgo => $"Updated {StringConverters.FormatTimeAgo(DateTime.UtcNow - DateUpdated)}";
+        private string ConvertHtmlToText(string html)
+        {
+            // Newlines
+            html = html.Replace("<br>", "\n");
+            html = html.Replace(@"</li>", "\n");
+            html = html.Replace(@"</h3>", "\n");
+            html = html.Replace(@"</h2>", "\n");
+            html = html.Replace(@"</h1>", "\n");
+            html = html.Replace("<ul>", "\n");
+            // Bullet point
+            html = html.Replace("<li>", "• ");
+            // Unique spaces
+            html = html.Replace("&nbsp;", " ");
+            html = html.Replace(@"\u00a0", " ");
+            // Unique characters
+            html = html.Replace("&amp;", "&");
+            html = html.Replace("&gt;", ">");
+            // Remove tabs
+            html = html.Replace("\t", string.Empty);
+            // Remove all unaccounted html tags
+            html = Regex.Replace(html, "<.*?>", string.Empty);
+            // Convert newlines of 3 or more to 2 newlines
+            html = Regex.Replace(html, "[\\r\\n]{3,}", "\n\n", RegexOptions.Multiline);
+            // Trim extra whitespace at start and end
+            return html.Trim();
+        }
     }
     public class GameBananaModList
     {
-        [JsonPropertyName("_aMetadata")]
-        public GameBananaMetadata Metadata { get; set; }
-        [JsonPropertyName("_aRecords")]
         public ObservableCollection<GameBananaRecord> Records { get; set; }
-        [JsonIgnore]
+        public double TotalPages { get; set; }
         public DateTime TimeFetched = DateTime.UtcNow;
-        [JsonIgnore]
         public bool IsValid => (DateTime.UtcNow - TimeFetched).TotalMinutes < 30;
-    }
-    public class GameBananaCategories
-    {
-        [JsonPropertyName("_aMetadata")]
-        public GameBananaMetadata Metadata { get; set; }
-        [JsonPropertyName("_aRecords")]
-        public List<GameBananaCategory> Categories { get; set; }
-    }
-    public class GameBananaMetadata
-    {
-        [JsonPropertyName("_nRecordCount")]
-        public int Records { get; set; }
-        [JsonPropertyName("_nTotalRecordCount")]
-        public int TotalRecords { get; set; }
-        [JsonPropertyName("_nPageCount")]
-        public int TotalPages { get; set; }
     }
     public class GameBananaImage
     {
+        [JsonPropertyName("_sType")]
+        public string Type { get; set; }
+        [JsonPropertyName("_sUrl")]
+        public Uri Audio { get; set; }
         [JsonPropertyName("_sBaseUrl")]
         public Uri Base { get; set; }
         [JsonPropertyName("_sFile")]

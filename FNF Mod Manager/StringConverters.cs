@@ -88,7 +88,7 @@ namespace FNF_Mod_Manager
             }
             else
             {
-                var years = Math.Floor(timeSpan.TotalDays % 365.25);
+                var years = Math.Floor(timeSpan.TotalDays / 365.25);
                 return years > 1 ? $"{years} years ago" : $"{years} year ago";
             }
         }

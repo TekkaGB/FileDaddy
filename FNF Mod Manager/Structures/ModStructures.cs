@@ -27,5 +27,12 @@ namespace FNF_Mod_Manager
         public string exe { get; set; }
         public List<string> exes { get; set; }
         public ObservableCollection<Mod> ModList { get; set; }
+        public double? LeftGridWidth { get; set; }
+        public double? RightGridWidth { get; set; }
+        public double? TopGridHeight { get; set; }
+        public double? BottomGridHeight { get; set; }
+        public double? Height { get; set; }
+        public double? Width { get; set; }
+        public bool Maximized { get; set; }
     }
 }

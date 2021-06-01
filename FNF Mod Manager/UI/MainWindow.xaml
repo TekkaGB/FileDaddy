@@ -325,9 +325,9 @@
             </TabControl.Resources>
             <TabItem FontSize="18" HorizontalAlignment="Center" Header="Manage Mods">
                 <TabItem.Content>
-                    <Grid>
+                    <Grid Name="MainGrid">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="0.2*"/>
+                            <RowDefinition Height="50"/>
                             <RowDefinition Height="1.6*" MinHeight="100"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition MinHeight="100"/>
@@ -345,7 +345,7 @@
                         <Button FontSize="18" FontWeight="Bold" Name="OpenModsButton" Height="35" Width="170" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="3" Content="Open Mods" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2" Click="ModsFolder_Click"/>
                         <Button FontSize="18" FontWeight="Bold" Name="UpdateButton"  Height="35" Width="170" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="4" Content="Check for Updates" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2" Click="Update_Click"/>
 
-                        <Grid Grid.Row="1" Grid.ColumnSpan="6">
+                        <Grid Name="MiddleGrid" Grid.Row="1" Grid.ColumnSpan="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1.5*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -547,9 +547,9 @@
                         </Border>
                     </Popup>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2">
-                        <Button IsEnabled="False" Name="Left" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="18" FontWeight="Bold"  Height="35" Width="35" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2"/>
+                        <Button IsEnabled="False" Name="PageLeft" Click="DecrementPage" Content="&lt;" HorizontalAlignment="Right" Margin="0,0,15,0" FontSize="18" FontWeight="Bold"  Height="35" Width="35" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2"/>
                         <TextBlock Name="Page" Text="Page 1" Foreground="#f2f2f2" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" />
-                        <Button IsEnabled="False" Name="Right" Click="IncrementPage" Content=">" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="18" FontWeight="Bold" Height="35" Width="35" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2"/>
+                        <Button IsEnabled="False" Name="PageRight" Click="IncrementPage" Content=">" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="18" FontWeight="Bold" Height="35" Width="35" Background="#181818" BorderBrush="#252525" Foreground="#f2f2f2"/>
                         <ComboBox IsEnabled="False" Margin="15,0,15,0" Name="PageBox" SelectionChanged="PageBox_SelectionChanged" Height="35" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Margin="5,5,10,5" Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="2">

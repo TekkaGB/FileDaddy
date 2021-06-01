@@ -55,6 +55,7 @@ namespace FNF_Mod_Manager
                     var response = await httpClient.GetAsync(requestUrl);
                     var records = JsonSerializer.Deserialize<ObservableCollection<GameBananaRecord>>(await response.Content.ReadAsStringAsync());
                     modList.Records = records;
+                    // Get record count from header
                     var numRecords = response.GetHeader("X-GbApi-Metadata_nRecordCount");
                     if (numRecords != -1)
                     {

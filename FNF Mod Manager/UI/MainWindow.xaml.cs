@@ -62,6 +62,22 @@ namespace FNF_Mod_Manager
                 }
             }
 
+            // Last saved windows settings
+            if (config.Height != null && config.Height >= MinHeight)
+                Height = (double)config.Height;
+            if (config.Width != null && config.Width >= MinWidth)
+                Width = (double)config.Width;
+            if (config.Maximized)
+                WindowState = WindowState.Maximized;
+            if (config.TopGridHeight != null)
+                MainGrid.RowDefinitions[1].Height = new GridLength((double)config.TopGridHeight, GridUnitType.Star);
+            if (config.BottomGridHeight != null)
+                MainGrid.RowDefinitions[3].Height = new GridLength((double)config.BottomGridHeight, GridUnitType.Star);
+            if (config.LeftGridWidth != null)
+                MiddleGrid.ColumnDefinitions[0].Width = new GridLength((double)config.LeftGridWidth, GridUnitType.Star);
+            if (config.RightGridWidth != null)
+                MiddleGrid.ColumnDefinitions[2].Width = new GridLength((double)config.RightGridWidth, GridUnitType.Star);
+
             if (config.ModList == null)
                 config.ModList = new ObservableCollection<Mod>();
 
@@ -354,6 +370,23 @@ namespace FNF_Mod_Manager
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            if (WindowState == WindowState.Maximized)
+            {
+                config.Height = RestoreBounds.Height;
+                config.Width = RestoreBounds.Width;
+                config.Maximized = true;
+            }
+            else
+            {
+                config.Height = Height;
+                config.Width = Width;
+                config.Maximized = false;
+            }
+            config.TopGridHeight = MainGrid.RowDefinitions[1].Height.Value;
+            config.BottomGridHeight = MainGrid.RowDefinitions[3].Height.Value;
+            config.LeftGridWidth = MiddleGrid.ColumnDefinitions[0].Width.Value;
+            config.RightGridWidth = MiddleGrid.ColumnDefinitions[2].Width.Value;
+            UpdateConfig();
             Application.Current.Shutdown();
         }
 
@@ -867,8 +900,8 @@ namespace FNF_Mod_Manager
             TypeBox.IsEnabled = false;
             CatBox.IsEnabled = false;
             SubCatBox.IsEnabled = false;
-            Left.IsEnabled = false;
-            Right.IsEnabled = false;
+            PageLeft.IsEnabled = false;
+            PageRight.IsEnabled = false;
             PendingCheckbox.IsEnabled = false;
             PageBox.IsEnabled = false;
             PerPageBox.IsEnabled = false;
@@ -879,8 +912,8 @@ namespace FNF_Mod_Manager
             Page.Text = $"Page {page}";
             LoadingBar.Visibility = Visibility.Visible;
             FeedBox.Visibility = Visibility.Collapsed;
-            Left.IsEnabled = false;
-            Right.IsEnabled = false;
+            PageLeft.IsEnabled = false;
+            PageRight.IsEnabled = false;
             await FeedGenerator.GetFeed(page, (TypeFilter)TypeBox.SelectedIndex, (FeedFilter)FilterBox.SelectedIndex, (GameBananaCategory)CatBox.SelectedItem,
                 (GameBananaCategory)SubCatBox.SelectedItem, (bool)PendingCheckbox.IsChecked, (PerPageBox.SelectedIndex + 1) * 10);
             FeedBox.ItemsSource = FeedGenerator.CurrentFeed.Records;
@@ -911,9 +944,9 @@ namespace FNF_Mod_Manager
                 return;
             }
             if (page < FeedGenerator.CurrentFeed.TotalPages)
-                Right.IsEnabled = true;
+                PageRight.IsEnabled = true;
             if (page != 1)
-                Left.IsEnabled = true;
+                PageLeft.IsEnabled = true;
             if (FeedBox.Items.Count > 0)
             {
                 FeedBox.ScrollIntoView(FeedBox.Items[0]);

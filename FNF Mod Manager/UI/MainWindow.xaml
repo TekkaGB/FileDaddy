@@ -282,7 +282,7 @@
 
     </Window.Resources>
     <Grid>
-        <TextBox BorderThickness="0" FontSize="18" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" Foreground="#f2f2f2" FontWeight="Bold" Name="Stats" Grid.ColumnSpan="5"/>
+        <TextBox Panel.ZIndex="3" BorderThickness="0" FontSize="18" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" Foreground="#f2f2f2" FontWeight="Bold" Name="Stats" Grid.ColumnSpan="5"/>
         <TabControl Grid.ColumnSpan="5" Background="#202020" BorderBrush="#353535">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabItem}">

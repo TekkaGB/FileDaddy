@@ -12,11 +12,11 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("name")]
         public string Name { get; set; }
         [JsonPropertyName("views")]
-        public int Views { get; set; }
+        public int? Views { get; set; }
         [JsonPropertyName("downloads")]
-        public int Downloads { get; set; }
+        public int? Downloads { get; set; }
         [JsonPropertyName("likes")]
-        public int Likes { get; set; }
+        public int? Likes { get; set; }
         [JsonPropertyName("Owner().name")]
         public string Owner { get; set; }
         [JsonPropertyName("description")]
@@ -28,7 +28,7 @@ namespace FNF_Mod_Manager
         [JsonPropertyName("Preview().sStructuredDataFullsizeUrl()")]
         public Uri EmbedImage { get; set; }
         [JsonPropertyName("Updates().bSubmissionHasUpdates()")]
-        public bool HasUpdates { get; set; }
+        public bool? HasUpdates { get; set; }
 
         [JsonPropertyName("Updates().aGetLatestUpdates()")]
         public GameBananaItemUpdate[] Updates { get; set; }

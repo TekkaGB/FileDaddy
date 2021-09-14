@@ -290,7 +290,7 @@ namespace FNF_Mod_Manager
                                 else
                                     metadata.section = response.RootCat.Substring(0, response.RootCat.Length - 1);
                             }
-                            if (response.HasUpdates)
+                            if (response.HasUpdates != null && (bool)response.HasUpdates)
                                 metadata.lastupdate = response.Updates[0].DateAdded;
                             else
                                 metadata.lastupdate = new DateTime(1970, 1, 1);
